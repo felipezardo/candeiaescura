@@ -107,10 +107,14 @@ input.dia:checked::after{background:var(--g)}input.dia:hover{transform:scale(1.2
 .die.gl{position:relative;animation:tm .7s cubic-bezier(.2,.8,.3,1) both,sh 2.2s ease-in-out infinite .9s;animation-delay:calc(var(--n)*90ms),calc(var(--n)*90ms + .9s)}@keyframes sh{50%{text-shadow:0 0 22px #ffd98a,0 0 4px #fff;filter:brightness(1.25)}}
 .die.k{color:#f3d99a}.die.gl.k{color:#ffd98a}
 #app.no-anim .wrap,#app.no-anim .sheet,#app.no-anim .gbox{animation:none!important}
+.card .x.ex{right:40px;font-size:17px}.card .x.ex:hover{color:var(--g)}
+.hero .btn{color:var(--p);border-color:var(--g)}.hero .btn:hover{background:var(--g);color:var(--i)}
+.sel-d{display:block}.pick-m{display:none}
+@media(max-width:940px){.sel-d{display:none}.pick-m{display:grid;gap:10px;margin:0 0 14px}.pick-m label{display:grid;gap:3px;font-family:Cinzel,serif;font-size:17px}.pick-m select{margin:0;font-size:18px;padding:6px}}
 </style></head><body>
 <header class="top"><a class="brand" href="#inicio"><svg viewBox="0 0 48 48" fill="none" stroke="#e9dfc8"><circle cx="24" cy="24" r="21" stroke-width="1.5"/><circle cx="24" cy="24" r="14" stroke-width="3"/><circle cx="24" cy="24" r="6" stroke-width="2"/><circle cx="24" cy="24" r="2" fill="#e9dfc8"/><path d="M24 3v7M24 38v7M3 24h7M38 24h7M9 9l5 5M34 34l5 5M39 9l-5 5M14 34l-5 5" stroke-width="1"/></svg><span>CANDELA<br>OBSCURA</span></a>
 <nav><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
-<main id="app"></main><div id="md" class="ov" hidden></div><div id="toast"></div>
+<main id="app"></main><div id="md" class="ov" hidden></div><div id="toast"></div><input type="file" id="imp-file" accept=".json,application/json" hidden>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 let S={chars:[],cur:null,circ:null};
@@ -155,7 +159,7 @@ const openM=h=>{const m=$('#md');m.innerHTML=h;m.hidden=false};
 const closeM=()=>{$('#md').hidden=true};
 const help=k=>openM(`<div class="mod"><h2>${HT[k][0]}</h2>${HT[k][1]}<div class="row"><button class="btn" data-a="close">Entendi</button></div></div>`);
 const hb=k=>`<button class="hq" data-a="help" data-v="${k}" aria-label="Ajuda">?</button>`;
-function home(){const cs=S.chars;return `<div class="wrap"><div class="hero"><h1>Fichas</h1><p>${cs.length?'Escolha um personagem para continuar a investigação.':'Nenhum personagem ainda. Crie o primeiro e siga o guia passo a passo.'}</p></div><div class="grid">${cs.map(c=>`<div class="card" tabindex="0" data-a="open" data-v="${c.id}"><button class="x" data-a="ask" data-v="${c.id}" aria-label="Excluir">×</button><h3>${esc(c.name)||'Sem nome'}</h3><small>${[c.role,c.spec].filter(Boolean).join(' · ')||'Papel e especialidade a definir'}</small><small>${esc(c.circle)}</small><div class="mini"><span>Corpo ${c.mk.c}/3</span><span>Mente ${c.mk.m}/3</span><span>Sangria ${c.mk.s}/3</span></div></div>`).join('')}<button class="card new" data-a="new">+ Nova ficha</button></div></div>`}
+function home(){const cs=S.chars;return `<div class="wrap"><div class="hero"><h1>Fichas</h1><p>${cs.length?'Escolha um personagem para continuar a investigação.':'Nenhum personagem ainda. Crie o primeiro e siga o guia passo a passo.'}</p><div style="margin-top:12px"><button class="btn" data-a="imp">Importar ficha</button></div></div><div class="grid">${cs.map(c=>`<div class="card" tabindex="0" data-a="open" data-v="${c.id}"><button class="x" data-a="ask" data-v="${c.id}" aria-label="Excluir">×</button><button class="x ex" data-a="exp" data-v="${c.id}" aria-label="Exportar ficha" title="Exportar ficha">⤓</button><h3>${esc(c.name)||'Sem nome'}</h3><small>${[c.role,c.spec].filter(Boolean).join(' · ')||'Papel e especialidade a definir'}</small><small>${esc(c.circle)}</small><div class="mini"><span>Corpo ${c.mk.c}/3</span><span>Mente ${c.mk.m}/3</span><span>Sangria ${c.mk.s}/3</span></div></div>`).join('')}<button class="card new" data-a="new">+ Nova ficha</button></div></div>`}
 
 let lastRoute = null;
 function render(forceAnim){
@@ -259,14 +263,15 @@ const setMax=(o,i)=>{const old=o.max;o.max=old==i+1?i:i+1;o.cur=Math.min(o.max,o
 function extra(n,c){if(n==='O Grande Truque')return `<br><select data-k="opt.truque">${['','mudar aparência','levitar','invocar objeto mundano','teletransportar a uma distância curta','projetar a voz'].map(o=>`<option ${c.opt&&c.opt.truque==o?'selected':''}>${o}</option>`).join('')}</select>`;if(n==='Um Passo à Frente')return `<br>${inp('obj',0,'Objeto')}`;if(n==='Cuidados Médicos')return `<div class="trk">${[0,1,2,3,4,5].map(i=>`<b class="${i<(c.heal||0)?'on':''}" data-a="heal" data-i="${i}"></b>`).join('')}</div>`;return ''}
 function sheet(c){const spl=SP.filter(s=>s.r===c.role),sel=SP.find(s=>s.n===c.spec),ne=(c.eq||[]).filter(Boolean).length,lim=3+(c.ab['Equipado']?1:0),pts=Object.values(c.ac).reduce((a,b)=>a+b,0),eq=BASE.concat(sel?sel.e:[]);
 c.scx=c.scx||[false,false,false];
+const selR=`<select data-k="role"><option value="">Escolha...</option>${Object.keys(R).map(r=>`<option ${r===c.role?'selected':''}>${r}</option>`).join('')}</select>`,selS=`<select data-k="spec" ${c.role?'':'disabled'}><option value="">Escolha...</option>${spl.map(s=>`<option ${s.n===c.spec?'selected':''}>${s.n}</option>`).join('')}</select>`;
 const abl=l=>(l||[]).map(([n,t])=>`<label class="ab2"><input type="checkbox" class="dia" data-k="ab.${n}" ${c.ab[n]?'checked':''}><span><b>${n}:</b> ${t}${extra(n,c)}</span></label>`).join('');
 const act=(a,d)=>{const[n,h]=a.split('|'),v=c.ac[n]||0;return `<div class="ar"><button class="dm ${c.gold[n]?'gd':''}" data-a="gold" data-n="${n}" title="Ação dourada">${c.gold[n]?'◆':'◇'}</button><div><button class="an" data-a="roll" data-n="${n}" data-d="${d}" title="Rolar ${n}">${n}</button> <small>${h}</small><div class="dots">${[0,1,2].map(i=>`<b class="dot ${i<v?'on':''}" data-a="dot" data-n="${n}" data-i="${i}"></b>`).join('')}</div></div></div>`};
 const drv=([d,as])=>{const x=c.dr[d],tr=i=>`<button class="tri ${x.r[i]?'bn':''} ${i>=Math.floor(x.max/3)?'lk':''}" data-a="tri" data-d="${d}" data-i="${i}" title="Queimar ou recuperar">${x.r[i]?'▼':'▽'}</button>`;return `<div class="bar"><span>${d}</span><span class="mt"><small>Motivações<br>Máx.</small><span class="mcol"><span>${pips(9,x.cur,x.max,'mp',`data-d="${d}"`)}</span><span>${blocks(9,x.max,'mxset',`data-g="d" data-t="${d}"`)}</span></span></span></div><div class="drv"><div class="rs">Resistência ${tr(0)}–${tr(1)}–${tr(2)}</div>${as.map(a=>act(a,d)).join('')}</div>`};
 const mkc=([l,k])=>`<span class="mcol"><span>${pips(3,c.mk[k],3,'mkp',`data-t="${k}"`)}</span><small>${l}</small></span>`,mw=([l,k])=>c.mk[k]>=3?`<div class="warn">${l}: incapacitado. Registre uma cicatriz.</div>`:'';const MK=[['Corpo','c'],['Mente','m'],['Sangria','s']];
 return `<div class="sheet"><div class="hd"><div><label>Nome:${inp('name')}</label><label>Pronomes:${inp('pron')}</label><label>Círculo:${inp('circle')}</label></div><div><label>Estilo:${inp('style')}</label><label>Estopim:${inp('trig')}</label><label>Pergunta:${inp('quest')}</label></div></div>
-${guide(c)}<div class="cols"><div>${D.map(drv).join('')}<div class="cnote">Pontos de ação: ${pts} ${hb('acoes')} ${hb('mot')} ${hb('res')} ${hb('rolagem')} <br>Clique no nome de uma ação para rolar. Queime uma resistência: role de novo um número de dados igual ao seu valor de ação.</div></div>
-<div><h3 class="t">Papel ${hb('papel')}</h3><select data-k="role"><option value="">Escolha...</option>${Object.keys(R).map(r=>`<option ${r===c.role?'selected':''}>${r}</option>`).join('')}</select>${abl(AB2[c.role])}
-<h3 class="t" style="margin-top:12px">Especialidade</h3><select data-k="spec" ${c.role?'':'disabled'}><option value="">Escolha...</option>${spl.map(s=>`<option ${s.n===c.spec?'selected':''}>${s.n}</option>`).join('')}</select>${sel?abl(AB2[sel.n]):''}
+<div class="pick-m"><label><span>Papel ${hb('papel')}</span>${selR}</label><label><span>Especialidade</span>${selS}</label></div>${guide(c)}<div class="cols"><div>${D.map(drv).join('')}<div class="cnote">Pontos de ação: ${pts} ${hb('acoes')} ${hb('mot')} ${hb('res')} ${hb('rolagem')} <br>Clique no nome de uma ação para rolar. Queime uma resistência: role de novo um número de dados igual ao seu valor de ação.</div></div>
+<div><h3 class="t">Papel ${hb('papel')}</h3><span class="sel-d">${selR}</span>${abl(AB2[c.role])}
+<h3 class="t" style="margin-top:12px">Especialidade</h3><span class="sel-d">${selS}</span>${sel?abl(AB2[sel.n]):''}
 ${sel?`<div class="keys">Chaves de iluminação ${hb('chaves')}</div>${sel.k.map((n,i)=>`<label class="ab"><input type="checkbox" class="dia" data-k="ks.${i}" ${c.ks[i]?'checked':''}><span>${n}</span></label>`).join('')}`:''}</div>
 <div><div class="bar"><span>Marcas ${hb('marcas')}</span><span class="mt">${MK.map(mkc).join('')}</span></div><div class="drv">${MK.map(mw).join('')}
 <h3 class="t">Cicatrizes</h3><div class="cnote">Caso você sofra a quarta cicatriz, converse com o mestre para decidir seus momentos finais. Este personagem não pode mais ser usado.</div>${[0,1,2].map(i=>`<div class="sc"><input type="checkbox" class="dia" data-k="scx.${i}" ${c.scx[i]?'checked':''}>${inp('sc.'+i)}</div>`).join('')}
@@ -325,6 +330,8 @@ document.addEventListener('click',e=>{
     case'help':help(v.v);return;
     case'close':closeM();return;
     case'new':{const n=mk();S.chars.push(n);S.cur=n.id;save();location.hash==='#ficha'?render(true):location.hash='ficha';return}
+    case'exp':exportChar(v.v);return;
+    case'imp':$('#imp-file').click();return;
     case'open':S.cur=v.v;save();location.hash='ficha';return;
     case'ask':openM(`<div class="mod"><h2>Excluir ficha?</h2><p>Esta ação não pode ser desfeita.</p><div class="row"><button class="btn" data-a="del" data-v="${v.v}">Excluir</button><button class="btn" data-a="close">Cancelar</button></div></div>`);return;
     case'del':S.chars=S.chars.filter(x=>x.id!=v.v);save();closeM();render(true);return;
@@ -407,5 +414,24 @@ document.addEventListener('change',e=>{
 });
 
 addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+function exportChar(id){const c=S.chars.find(x=>x.id===id);if(!c)return;
+  const nm=((c.name||'personagem').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w]+/g,'-').replace(/^-+|-+$/g,''))||'personagem';
+  const blob=new Blob([JSON.stringify({app:'candela-obscura-ficha',v:1,char:c},null,1)],{type:'application/json'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='ficha-'+nm+'.json';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);toast('Ficha exportada')}
+function normChar(o){if(!o||typeof o!=='object'||!(o.dr||o.ac))throw new Error('formato');
+  const c=Object.assign(mk(),o),str=k=>{c[k]=typeof c[k]==='string'?c[k]:''};
+  c.id=Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  ['name','pron','circle','style','trig','quest','role','spec','eqc','notes'].forEach(str);
+  c.dr={};D.forEach(([d])=>{const x=(o.dr&&o.dr[d])||{},mx=Math.max(0,Math.min(9,+x.max||0));c.dr[d]={max:mx,cur:Math.max(0,Math.min(mx,+x.cur||0)),r:[0,1,2].map(i=>x.r&&x.r[i]?1:0)}});
+  c.mk=Object.assign({c:0,m:0,s:0},o.mk);['c','m','s'].forEach(k=>{c.mk[k]=Math.max(0,Math.min(3,+c.mk[k]||0))});
+  ['ac','gold','ab','opt'].forEach(k=>{if(!c[k]||typeof c[k]!=='object'||Array.isArray(c[k]))c[k]={}});
+  ['eq','ks','scx'].forEach(k=>{if(!Array.isArray(c[k]))c[k]=[]});
+  c.sc=[0,1,2].map(i=>String((o.sc||[])[i]||''));c.rel=Array.from({length:8},(_,i)=>String((o.rel||[])[i]||''));
+  if(!SP.some(x=>x.n===c.spec))c.spec='';if(!R[c.role]){c.role='';c.spec=''}
+  return c}
+$('#imp-file').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result),c=normChar(j&&j.char?j.char:j);S.chars.push(c);save();if((location.hash.slice(1)||'inicio')!=='inicio')location.hash='inicio';else render(true);toast('Ficha “'+(c.name||'Sem nome')+'” importada')}catch(err){toast('Arquivo inválido: não é uma ficha exportada')}};
+  r.onerror=()=>toast('Não foi possível ler o arquivo');r.readAsText(f)});
 render(true);
 </script></body></html>
