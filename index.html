@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cadela</title>
+<title>Candela Obscura</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -55,7 +55,7 @@ textarea{border:1px solid #0004;min-height:90px;resize:vertical;background:#fff3
 .an{font-family:Cinzel,serif;font-size:22px;transition:.25s;border-bottom:1px solid transparent}.an:hover{color:var(--b);border-color:var(--b);letter-spacing:.05em}
 .ar small{color:var(--m);font-style:italic;font-size:15px}
 .dots{display:flex;gap:12px;margin-top:2px}
-.dot{width:20px;height:20px;border:2px solid var(--i);border-radius:50%;cursor:pointer;transition:.2s}.dot:hover{transform:scale(1.18)}.dot.on{background:var(--i);box-shadow:0 0 0 2px var(--p),0 0 0 3px var(--i)}
+.dot{width:20px;height:20px;border:2px solid var(--i);border-radius:50%;cursor:pointer;transition:.2s}.dot:hover{transform:scale(1.18)}.dot.on{background:var(--i);box-shadow:0 0 2px var(--p),0 0 3px var(--i)}
 h3.t{font-size:23px;margin:4px 0 8px;display:flex;gap:8px;align-items:center}
 .ab{display:flex;gap:8px;align-items:flex-start;padding:3px 0;cursor:pointer;font-size:18px;transition:.2s}.ab:hover{color:var(--b);transform:translateX(3px)}
 input[type=checkbox]{appearance:none;width:15px;height:15px;border:1.5px solid var(--i);flex:none;margin:5px 0 0;cursor:pointer;transition:.2s;background:transparent}
@@ -106,12 +106,13 @@ input.dia:checked::after{background:var(--g)}input.dia:hover{transform:scale(1.2
 .dw{display:flex;flex-direction:column;align-items:center}.gb{font:600 11px Cinzel,serif;color:var(--g);font-style:normal;letter-spacing:.08em}
 .die.gl{position:relative;animation:tm .7s cubic-bezier(.2,.8,.3,1) both,sh 2.2s ease-in-out infinite .9s;animation-delay:calc(var(--n)*90ms),calc(var(--n)*90ms + .9s)}@keyframes sh{50%{text-shadow:0 0 22px #ffd98a,0 0 4px #fff;filter:brightness(1.25)}}
 .die.k{color:#f3d99a}.die.gl.k{color:#ffd98a}
+#app.no-anim .wrap,#app.no-anim .sheet,#app.no-anim .gbox{animation:none!important}
 </style></head><body>
 <header class="top"><a class="brand" href="#inicio"><svg viewBox="0 0 48 48" fill="none" stroke="#e9dfc8"><circle cx="24" cy="24" r="21" stroke-width="1.5"/><circle cx="24" cy="24" r="14" stroke-width="3"/><circle cx="24" cy="24" r="6" stroke-width="2"/><circle cx="24" cy="24" r="2" fill="#e9dfc8"/><path d="M24 3v7M24 38v7M3 24h7M38 24h7M9 9l5 5M34 34l5 5M39 9l-5 5M14 34l-5 5" stroke-width="1"/></svg><span>CANDELA<br>OBSCURA</span></a>
 <nav><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
 <main id="app"></main><div id="md" class="ov" hidden></div><div id="toast"></div>
 <script>
-const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 let S={chars:[],cur:null,circ:null};
 try{S=Object.assign(S,JSON.parse(localStorage.getItem('co-ficha')||'{}'))}catch(e){}
 const save=()=>{try{localStorage.setItem('co-ficha',JSON.stringify(S))}catch(e){}};
@@ -126,11 +127,12 @@ Professor|Estudioso|Mente de Aço;Recursos da Universidade;Aprender com Meus Err
 Criminoso|Furtivo|Malandragem de Rua;Aproveitar;Casca-grossa;Nascido nas Sombras;Manhas do Ofício;Dedos Pegajosos|Faça algo ilegal;Faça um acordo;Enfrente autoridades|Papelada forjada;Equipamento de roubo;Armadura corporal (absorva 1 Corpo)
 Detetive|Furtivo|Palácio Mental;Interrogatório;Contra a Parede;Inspeção;Tocaia;Um Passo à Frente|Interrogue uma testemunha;Rastreie um alvo;Revele uma pista|Câmera;Equipamento investigativo;Documentos forjados
 Médium|Estranho|Miasma;Entortar Colheres;Leitura Fria;Premonições;Momentos Finais;Comungar|Conecte-se com alguém;Sinta fenômenos;Faça um escândalo|Arma estranha;Ferramentas de adivinhação;Texto ocultista
-Ocultista|Estranho|Lâmina Fantasma;Sangue do Pacto;Falar a Língua Deles;Bancar a Isca;Estender Seus Sentidos;Ritual Proibido|Consulte textos arcanos;Colete estranhezas;Aja excentricamente|Texto arcano;Escudo (absorva 1 Sangria);Suprimentos ocultistas`.split('\n').map(l=>{const[n,r,a,k,e]=l.split('|');return{n,r,a:a.split(';'),k:k.split(';'),e:e.split(';')}});
+Ocultista|Estranho|Lâmina Fantasma;Sangue do Pacto;Falar a Língua Deles;Bancar a Isca;Estender Seus Sentidos;Ritual Proibido|Consulte textos arcanos;Colete estranhezas;Aja excentricamente|Texto arcano;Escudo (absorva 1 Sangria);Suprimentos ocultistas`.split('\n').map(l=>{
+const[n,r,a,k,e]=l.split('|');return{n,r,a:a.split(';'),k:k.split(';'),e:e.split(';')}});
 const BASE=['Detector de sangria','Arma de mão','Frasco de contenção de sangria'];
 const CAB=[['Treinamento de Energia','três dados dourados no início de cada tarefa, +1d em qualquer rolagem'],['Ninguém Fica para Trás','+1d em rolagens para proteger um membro incapacitado'],['Estamos Juntos Nessa','ao ajudar com motivação, em 3 ou menos ambos recuperam 1 motivação'],['Interdisciplinar','uma vez por campanha, cada jogador pega uma habilidade de outro papel ou especialidade'],['Gestão de Recursos','a cada marco de iluminação, recupere 1 recurso (Curar, Renovar ou Treinar)'],['Última Jornada','a próxima tarefa será a última; quatro opções no avanço de personagem']];
-const mk=()=>({id:Date.now().toString(36),name:'',pron:'',circle:'',style:'',trig:'',quest:'',role:'',spec:'',dr:{Vigor:{cur:3,max:3,r:[0,0,0]},Astúcia:{cur:3,max:3,r:[0,0,0]},Intuição:{cur:3,max:3,r:[0,0,0]}},ac:{},gold:{},mk:{c:0,m:0,s:0},sc:['','',''],rel:Array(8).fill(''),eq:[],eqc:'',notes:'',ab:{},ks:[]});
-const mkC=()=>({name:'',mem:'',tone:'',hq:'',il:0,gd:3,ab:{},rs:{Curar:Array(6).fill(0),Renovar:Array(6).fill(0),Treinar:Array(6).fill(0)}});
+const mk=()=>({id:Date.now().toString(36),name:'',pron:'',circle:'',style:'',trig:'',quest:'',role:'',spec:'',dr:{Vigor:{cur:3,max:3,r:[0,0,0]},Astúcia:{cur:3,max:3,r:[0,0,0]},Intuição:{cur:3,max:3,r:[0,0,0]}},ac:{},gold:{},mk:{c:0,m:0,s:0},sc:['','',''],scx:[false,false,false],rel:Array(8).fill(''),eq:[],eqc:'',notes:'',ab:{},ks:[]});
+const mkC=()=>({name:'',mem:'',tone:'',hq:'',il:0,gd:3,ab:{},rs:{Curar:{cur:0,max:0},Renovar:{cur:0,max:0},Treinar:{cur:0,max:0}},gear:Array(6).fill('')});
 S.circ=S.circ||mkC();
 const C=()=>S.chars.find(x=>x.id===S.cur);
 const gp=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
@@ -139,92 +141,38 @@ const inp=(p,root,ph)=>`<input type="text" data-k="${p}" ${root?'data-r="circ"':
 const pips=(n,on,max,a,extra)=>Array.from({length:n},(_,i)=>`<b class="mp ${i%3==0?'g':''} ${i<on?'on':''} ${i>=max?'lk':''}" data-a="${a}" data-i="${i}" ${extra}></b>`).join('');
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t.h);t.h=setTimeout(()=>t.classList.remove('on'),2600)};
 const HT={
-guia:['Guia de criação',`<p>Siga a ordem abaixo. Cada seção da ficha tem um <b>?</b> com mais detalhes.</p><ol><li><b>Conceito:</b> nome, pronomes, círculo, estilo, estopim e pergunta. Defina com o mestre e o grupo.</li><li><b>Papel e Especialidade:</b> escolha um papel e uma das duas especialidades dele. Marque as habilidades que você tem.</li><li><b>Ações:</b> distribua pontos nos círculos das nove ações. As fichas prontas usam 5 pontos, no máximo 2 por ação. Marque uma ação dourada ◆.</li><li><b>Motivações:</b> ajuste o máximo de cada impulso (Vigor, Astúcia, Intuição).</li><li><b>Equipamento:</b> marque até 3 itens por tarefa.</li><li><b>Relações:</b> anote vínculos com os outros membros do círculo.</li><li><b>Círculo:</b> preencham juntos a ficha do círculo no menu superior.</li></ol>`],
-acoes:['Ações e rolagens',`<p>São nove ações, três para cada impulso. Preencha até 3 círculos em cada uma. <b>Clique no nome da ação</b> para rolar: você rola um d6 por ponto.</p><p>O ◆ marca uma ação dourada. Clique nele para ligar ou desligar.</p>`],
-rolagem:['Como ler uma rolagem',`<ul><li><b>6:</b> sucesso completo.</li><li><b>4 ou 5:</b> sucesso misto, com um custo.</li><li><b>1 a 3:</b> falha.</li><li><b>Dois ou mais 6:</b> sucesso crítico.</li><li>Sem pontos na ação, role 2 dados e fique com o <b>menor</b>.</li></ul><p>Gastar 1 motivação soma +1d. Valem a maior face dos dados.</p>`],
-mot:['Motivações',`<p>São pontos do impulso (Vigor, Astúcia ou Intuição). Gaste para somar +1d nas rolagens e recupere conforme o mestre e as habilidades indicarem.</p><p>Clique nas barras para gastar ou recuperar. <b>Máx.</b> é o limite da sua ficha; barras acima dele ficam bloqueadas.</p>`],
-res:['Resistência',`<p>Cada impulso tem três triângulos de resistência. Clique para queimar ou recuperar.</p><p>Queimar uma resistência permite <b>rolar de novo</b> um número de dados igual ao valor da ação. O botão aparece no resultado da rolagem e queima um triângulo do impulso automaticamente.</p>`],
-marcas:['Marcas e cicatrizes',`<p>Corpo, Mente e Sangria acumulam marcas. Nesta ficha cada trilha tem 3 marcas; ao encher, o personagem fica incapacitado e você deve registrar uma cicatriz.</p><p>Ao sofrer a quarta cicatriz, converse com o mestre sobre os momentos finais: o personagem não pode mais ser usado.</p>`],
-papel:['Papel, especialidade e habilidades',`<p>O papel dá três habilidades; a especialidade dá seis. Marque as que você escolheu. Esta ficha lista os nomes; o texto completo está nas fichas em PDF e no livro.</p>`],
-equip:['Equipamento',`<p>Escolha até <b>3 itens por tarefa</b>. O site avisa se tentar marcar mais. Use “Nova tarefa” para limpar a seleção e as chaves.</p>`],
-chaves:['Chaves de iluminação',`<p>São objetivos da sua especialidade. Marque os que cumpriu na tarefa. No fim, informe na ficha do círculo se ninguém, alguns ou todos cumpriram.</p>`],
-circ:['Ficha do círculo',`<p>O círculo é o grupo. Registre membros, tom da campanha e sede. Ao fim de cada tarefa, informe quantos jogadores cumpriram chaves: <b>alguns +2</b>, <b>todos +4</b>, ninguém 0. Com o contador cheio, o círculo avança.</p>`]};
+guia:['Guia de criação','<p>Siga a ordem abaixo. Cada seção da ficha tem um <b>?</b> com mais detalhes.</p><ol><li><b>Conceito:</b> nome, pronomes, círculo, estilo, estopim e pergunta. Defina com o mestre e o grupo.</li><li><b>Papel e Especialidade:</b> escolha um papel e uma das duas especialidades dele. Marque as habilidades que você tem.</li><li><b>Ações:</b> distribua pontos nos círculos das nove ações. As fichas prontas usam 5 pontos, no máximo 2 por ação. Marque uma ação dourada ◆.</li><li><b>Motivações:</b> ajuste o máximo de cada impulso (Vigor, Astúcia, Intuição).</li><li><b>Equipamento:</b> marque até 3 itens por tarefa.</li><li><b>Relações:</b> anote vínculos com os outros membros do círculo.</li><li><b>Círculo:</b> preencham juntos a ficha do círculo no menu superior.</li></ol>'],
+acoes:['Ações e rolagens','<p>São nove ações, três para cada impulso. Preencha até 3 círculos em cada uma. <b>Clique no nome da ação</b> para rolar: você rola um d6 por ponto.</p><p>O ◆ marca uma ação dourada. Clique nele para ligar ou desligar.</p>'],
+rolagem:['Como ler uma rolagem','<ul><li><b>6:</b> sucesso completo.</li><li><b>4 ou 5:</b> sucesso misto, com um custo.</li><li><b>1 a 3:</b> falha.</li><li><b>Dois ou mais 6:</b> sucesso crítico.</li><li>Sem pontos na ação, role 2 dados e fique com o <b>menor</b>.</li></ul><p>Gastar 1 motivação soma +1d. Valem a maior face dos dados.</p>'],
+mot:['Motivações','<p>São pontos do impulso (Vigor, Astúcia ou Intuição). Gaste para somar +1d nas rolagens e recupere conforme o mestre e as habilidades indicarem.</p><p>Clique nas barras para gastar ou recuperar. <b>Máx.</b> é o limite da sua ficha; barras acima dele ficam bloqueadas.</p>'],
+res:['Resistência','<p>Cada impulso tem três triângulos de resistência. Clique para queimar ou recuperar.</p><p>Queimar uma resistência permite <b>rolar de novo</b> um número de dados igual ao valor da ação. O botão aparece no resultado da rolagem e queima um triângulo do impulso automaticamente.</p>'],
+marcas:['Marcas e cicatrizes','<p>Corpo, Mente e Sangria acumulam marcas. Nesta ficha cada trilha tem 3 marcas; ao encher, o personagem fica incapacitado e você deve registrar uma cicatriz.</p><p>Ao sofrer a quarta cicatriz, converse com o mestre sobre os momentos finais: o personagem não pode mais ser usado.</p>'],
+papel:['Papel, especialidade e habilidades','<p>O papel dá três habilidades; a especialidade dá seis. Marque as que você escolheu. Esta ficha lista os nomes; o texto completo está nas fichas em PDF e no livro.</p>'],
+equip:['Equipamento','<p>Escolha até <b>3 itens por tarefa</b>. O site avisa se tentar marcar mais. Use “Nova tarefa” para limpar a seleção e as chaves.</p>'],
+chaves:['Chaves de iluminação','<p>São objetivos da sua especialidade. Marque os que cumpriu na tarefa. No fim, informe na ficha do círculo se ninguém, alguns ou todos cumpriram.</p>'],
+circ:['Ficha do círculo','<p>O círculo é o grupo. Registre membros, tom da campanha e sede. Ao fim de cada tarefa, informe quantos jogadores cumpriram chaves: <b>alguns +2</b>, <b>todos +4</b>, ninguém 0. Com o contador cheio, o círculo avança.</p>']};
 const openM=h=>{const m=$('#md');m.innerHTML=h;m.hidden=false};
 const closeM=()=>{$('#md').hidden=true};
 const help=k=>openM(`<div class="mod"><h2>${HT[k][0]}</h2>${HT[k][1]}<div class="row"><button class="btn" data-a="close">Entendi</button></div></div>`);
 const hb=k=>`<button class="hq" data-a="help" data-v="${k}" aria-label="Ajuda">?</button>`;
+function home(){const cs=S.chars;return `<div class="wrap"><div class="hero"><h1>Fichas</h1><p>${cs.length?'Escolha um personagem para continuar a investigação.':'Nenhum personagem ainda. Crie o primeiro e siga o guia passo a passo.'}</p></div><div class="grid">${cs.map(c=>`<div class="card" tabindex="0" data-a="open" data-v="${c.id}"><button class="x" data-a="ask" data-v="${c.id}" aria-label="Excluir">×</button><h3>${esc(c.name)||'Sem nome'}</h3><small>${[c.role,c.spec].filter(Boolean).join(' · ')||'Papel e especialidade a definir'}</small><small>${esc(c.circle)}</small><div class="mini"><span>Corpo ${c.mk.c}/3</span><span>Mente ${c.mk.m}/3</span><span>Sangria ${c.mk.s}/3</span></div></div>`).join('')}<button class="card new" data-a="new">+ Nova ficha</button></div></div>`}
 
-function home(){const cs=S.chars;return `<div class="wrap"><div class="hero"><h1>Fichas</h1><p>${cs.length?'Escolha um personagem para continuar a investigação.':'Nenhum personagem ainda. Crie o primeiro e siga o guia passo a passo.'}</p></div><div class="grid">${cs.map(c=>`<div class="card" tabindex="0" data-a="open" data-v="${c.id}"><button class="x" data-a="ask" data-v="${c.id}" aria-label="Excluir">×</button><h3>${esc(c.name)||'Sem nome'}</h3><small>${[c.role,c.spec].filter(Boolean).join(' · ')||'Papel e especialidade a definir'}</small><small>${esc(c.circle)}</small><div class="mini"><span>Corpo ${c.mk.c}/3</span><span>Mente ${c.mk.m}/3</span><span>Sangria ${c.mk.s}/3</span></div></div>`).join('')}<button class="card new" data-a="new">＋ Nova ficha</button></div></div>`}
-
-function sheet(c){const spc=SP.filter(s=>s.r===c.role),sel=SP.find(s=>s.n===c.spec),ab=(R[c.role]||'').split(';').filter(Boolean).concat(sel?sel.a:[]),eq=BASE.concat(sel?sel.e:[]),pts=Object.values(c.ac).reduce((a,b)=>a+b,0),ne=c.eq.filter(Boolean).length;
-const act=(a,d)=>{const[n,h]=a.split('|'),v=c.ac[n]||0;return `<div class="ar"><button class="dm ${c.gold[n]?'gd':''}" data-a="gold" data-n="${n}" title="Ação dourada">${c.gold[n]?'◆':'◇'}</button><div><button class="an" data-a="roll" data-n="${n}" data-d="${d}" title="Rolar ${n}">${n}</button> <small>${h}</small><div class="dots">${[0,1,2].map(i=>`<b class="dot ${i<v?'on':''}" data-a="dot" data-n="${n}" data-i="${i}"></b>`).join('')}</div></div></div>`};
-const drv=([d,as])=>{const x=c.dr[d];return `<div class="bar"><span>${d}</span><span><small>Motivações · Máx.</small> <input type="text" class="mx" inputmode="numeric" data-k="dr.${d}.max" data-num="9" value="${x.max}" aria-label="Máximo de ${d}">${pips(9,x.cur,x.max,'mp',`data-d="${d}"`)}</span></div><div class="drv"><div class="rs">Resistência ${[0,1,2].map(i=>`<button class="tri ${x.r[i]?'bn':''}" data-a="tri" data-d="${d}" data-i="${i}" title="Queimar ou recuperar">${x.r[i]?'▼':'▽'}</button>`).join('')}</div>${as.map(a=>act(a,d)).join('')}</div>`};
-const mkt=([l,k])=>`<div class="mk"><span>${l}</span><span>${pips(3,c.mk[k],3,'mkp',`data-t="${k}"`).replace(/ g /g,' ')}</span></div>${c.mk[k]>=3?`<div class="warn">${l}: incapacitado. Registre uma cicatriz.</div>`:''}`;
-return `<div class="sheet"><div class="hd"><div><label>Nome:${inp('name')}</label><label>Pronomes:${inp('pron')}</label><label>Círculo:${inp('circle')}</label></div><div><label>Estilo:${inp('style')}</label><label>Estopim:${inp('trig')}</label><label>Pergunta:${inp('quest')}</label></div></div>
-<div class="cols"><div>${D.map(drv).join('')}<div class="cnote">Pontos de ação: ${pts} ${hb('acoes')} ${hb('mot')} ${hb('res')} ${hb('rolagem')}<br>Clique no nome de uma ação para rolar.</div></div>
-<div><h3 class="t">Papel ${hb('papel')}</h3><select data-k="role" data-rr="1"><option value="">Escolha…</option>${Object.keys(R).map(r=>`<option ${r===c.role?'selected':''}>${r}</option>`).join('')}</select>
-<h3 class="t">Especialidade</h3><select data-k="spec" data-rr="1" ${c.role?'':'disabled'}><option value="">Escolha…</option>${spc.map(s=>`<option ${s.n===c.spec?'selected':''}>${s.n}</option>`).join('')}</select>
-${ab.map(n=>`<label class="ab"><input type="checkbox" data-k="ab.${n}" ${c.ab[n]?'checked':''}><span>${n}</span></label>`).join('')}
-${sel?`<div class="keys">Chaves de iluminação ${hb('chaves')}${sel.k.map((n,i)=>`<label class="ab"><input type="checkbox" data-k="ks.${i}" ${c.ks[i]?'checked':''}><span>${n}</span></label>`).join('')}</div>`:''}</div>
-<div><div class="bar" style="justify-content:flex-start"><span>Marcas</span> ${hb('marcas')}</div><div class="drv" style="border-radius:0 0 4px 22px">${[['Corpo','c'],['Mente','m'],['Sangria','s']].map(mkt).join('')}
-<h3 class="t" style="margin-top:12px">Cicatrizes</h3>${[0,1,2].map(i=>`<div class="sc">◇${inp('sc.'+i)}</div>`).join('')}
-<h3 class="t" style="margin-top:12px">Relações</h3><div class="rl">${[0,1,2,3].map(i=>inp('rel.'+(i*2))+inp('rel.'+(i*2+1))).join('')}</div>
-<h3 class="t" style="margin-top:12px">Equipamento ${hb('equip')}<small>${ne}/3</small></h3>${eq.map((n,i)=>`<label class="eq"><input type="checkbox" data-k="eq.${i}" ${c.eq[i]?'checked':''}>${n}</label>`).join('')}<label class="eq"><input type="checkbox" data-k="eq.6" ${c.eq[6]?'checked':''}>${inp('eqc',0,'Item livre')}</label>
-<h3 class="t" style="margin-top:12px">Anotações</h3><textarea data-k="notes">${esc(c.notes)}</textarea><p><button class="btn" data-a="task">Nova tarefa</button></p></div></div></div></div>`}
-
-function circ(){const c=S.circ,rp=(k)=>`<div class="mk" style="grid-template-columns:90px 1fr"><span>${k}</span><span>${[0,1,2,3,4,5].map(i=>`<b class="mp ${c.rs[k][i]?'on':''}" data-a="cb" data-k="rs.${k}.${i}" style="${i==3?'margin-left:14px':''}"></b>`).join('')}</span></div>`;
-return `<div class="sheet"><h2 style="font-size:26px;letter-spacing:.2em;margin-bottom:10px">Círculo ${hb('circ')}</h2><div class="hd"><div><label>Círculo:${inp('name',1)}</label><label>Membros:${inp('mem',1)}</label></div><div><label>Tom:${inp('tone',1)}</label><label>Sede:${inp('hq',1)}</label></div></div>
-<div class="cols" style="grid-template-columns:1fr 1fr 1fr"><div><div class="bar"><span>Iluminação</span><span>${c.il}/12</span></div><div class="drv" style="border-radius:0 0 4px 22px">${Array.from({length:12},(_,i)=>`<b class="mp ${i<c.il?'on':''}" style="border-color:var(--i);margin:2px;${i<c.il?'background:var(--g);':''}" data-a="cn" data-i="${i}"></b>`).join('')}${c.il>=12?'<div class="warn">Contador cheio: hora do avanço de círculo!</div>':''}<p>Ao fim da tarefa, quantos jogadores cumpriram chaves?</p><button class="btn" data-a="il" data-v="0">Ninguém</button> <button class="btn" data-a="il" data-v="2">Alguns +2</button> <button class="btn" data-a="il" data-v="4">Todos +4</button>
-<p style="margin-top:12px">Perguntas ao fim da tarefa:</p><ul class="cnote"><li>Vocês contiveram ou destruíram uma fonte de sangria?</li><li>Deram conforto ou suporte aos afligidos por fenômenos?</li><li>Levaram algo importante à Candela Obscura para proteção ou estudo?</li></ul></div></div>
-<div><div class="bar"><span>Habilidades</span></div><div class="drv" style="border-radius:0 0 4px 22px">${CAB.map(([n,d])=>`<label class="ab"><input type="checkbox" data-k="ab.${n}" data-r="circ" ${c.ab[n]?'checked':''}><span><b>${n}:</b> ${d}.</span></label>`).join('')}</div></div>
-<div><div class="bar"><span>Recursos</span></div><div class="drv" style="border-radius:0 0 4px 22px"><p class="cnote">Preencha as seções superior e inferior; ao usar, apague só a superior.</p>${['Curar','Renovar','Treinar'].map(rp).join('')}<div class="mk" style="grid-template-columns:120px 1fr;margin-top:14px"><span>Dados dourados</span><span>${[0,1,2].map(i=>`<b class="mp ${i<c.gd?'on':''}" style="border-color:var(--g);${i<c.gd?'background:var(--g);':''}" data-a="gd" data-i="${i}"></b>`).join('')}</span></div><button class="btn" data-a="ctask">Nova tarefa</button></div></div></div></div>`}
-
-function render(){const h=location.hash.slice(1),c=C();$('#app').innerHTML=h==='circulo'?circ():h==='ficha'&&c?sheet(c):home();document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('cur',a.getAttribute('href')==='#'+(h==='circulo'?'circulo':'inicio')))}
-addEventListener('hashchange',()=>{render();scrollTo(0,0)});
+let lastRoute = null;
+function render(forceAnim){
+  const h=location.hash.slice(1),c=C(),app=$('#app');
+  const routeKey = h + ':' + (c ? c.id : '');
+  const isRouteChange = forceAnim || (routeKey !== lastRoute);
+  lastRoute = routeKey;
+  if (!isRouteChange) app.classList.add('no-anim');
+  else app.classList.remove('no-anim');
+  app.innerHTML=h==='circulo'?circ():h==='ficha'&&c?sheet(c):home();
+  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('cur',a.getAttribute('href')==='#'+(h||'inicio')));
+}
+addEventListener('hashchange',()=>{render(true);scrollTo(0,0)});
 
 let RL={};
 const face=v=>String.fromCharCode(9855+v);
-function rollDice(n,g){const z=n<=0,k=z?2:n,d=Array.from({length:k},()=>1+Math.floor(Math.random()*6)),b=z?Math.min(...d):Math.max(...d),s=d.filter(x=>x==6).length;let l='Falha',q='f';if(!z&&s>1){l='Sucesso crítico';q='sc2'}else if(b==6){l='Sucesso';q='s6'}else if(b>=4){l='Sucesso misto';q='m'}return{d,z,b,l,q,g}}
-function rollUI(){const c=C(),x=c.dr[RL.d],r=c.ac[RL.n]||0,tot=r+RL.mot+RL.x,g=c.gold[RL.n],R0=RL.res;
-return `<div class="mod"><h2>${RL.n} <small>(${RL.d})</small> ${hb('rolagem')}</h2><div>Dados da ação: <b>${r}</b>${g?' · ação dourada':''}</div>
-<div class="st">Motivação gasta (${x.cur} disp.) <button data-a="st" data-f="mot" data-s="-1">−</button><b>${RL.mot}</b><button data-a="st" data-f="mot" data-s="1">+</button></div>
-<div class="st">Dados extras de habilidades <button data-a="st" data-f="x" data-s="-1">−</button><b>${RL.x}</b><button data-a="st" data-f="x" data-s="1">+</button></div>
-<div class="cnote">${tot<=0?'Sem dados: role 2 e use o menor.':'Total: '+tot+'d6'}</div>
-${R0?`<div class="dice">${R0.d.map((v,i)=>`<i class="die ${g&&i==0?'gl':''} ${v==R0.b?'k':'dim'}" style="--n:${i}">${face(v)}</i>`).join('')}</div><div class="res ${R0.q}">${R0.l}</div>`:''}
-<div class="row">${R0&&!RL.burned?`<button class="btn" data-a="burn">Queimar resistência e rolar de novo</button>`:''}<button class="btn" data-a="go">${R0?'Rolar outra vez':'Rolar'}</button><button class="btn" data-a="close">Fechar</button></div></div>`}
 
-document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t){if(e.target.id==='md')closeM();return}
-if(t.classList.contains('x'))e.stopPropagation();const a=t.dataset.a,v=t.dataset,c=C(),i=+v.i;
-switch(a){
-case'help':help(v.v);return;case'close':closeM();return;
-case'new':{const n=mk();S.chars.push(n);S.cur=n.id;save();location.hash==='#ficha'?render():location.hash='ficha';setTimeout(()=>help('guia'),500);return}
-case'open':S.cur=v.v;save();location.hash='ficha';return;
-case'ask':openM(`<div class="mod"><h2>Excluir ficha?</h2><p>Esta ação não pode ser desfeita.</p><div class="row"><button class="btn" data-a="close">Cancelar</button><button class="btn" data-a="del" data-v="${v.v}">Excluir</button></div></div>`);return;
-case'del':S.chars=S.chars.filter(x=>x.id!==v.v);save();closeM();render();return;
-case'mp':{const x=c.dr[v.d];if(i>=x.max)return toast('Acima do máximo de '+v.d);x.cur=x.cur===i+1?i:i+1;break}
-case'tri':{const r=c.dr[v.d].r;r[i]=r[i]?0:1;break}
-case'dot':{const n=v.n;c.ac[n]=(c.ac[n]||0)===i+1?i:i+1;break}
-case'gold':c.gold[v.n]=!c.gold[v.n];break;
-case'mkp':{const m=c.mk;m[v.t]=m[v.t]===i+1?i:i+1;if(m[v.t]===3)toast('Trilha cheia: incapacitado!');break}
-case'task':c.ks=[];c.eq=[];toast('Nova tarefa: equipamento e chaves limpos');break;
-case'roll':RL={n:v.n,d:v.d,mot:0,x:0,res:null,burned:false};openM(rollUI());return;
-case'st':{const f=v.f,s=+v.s,mx=f==='mot'?c.dr[RL.d].cur:9;RL[f]=Math.max(0,Math.min(mx,RL[f]+s));openM(rollUI());return}
-case'go':{const x=c.dr[RL.d],r=c.ac[RL.n]||0,sp0=Math.min(RL.mot,x.cur);x.cur-=sp0;RL.res=rollDice(r+sp0+RL.x);RL.mot=0;RL.burned=false;save();render();openM(rollUI());return}
-case'burn':{const x=c.dr[RL.d],k=x.r.indexOf(0);if(k<0)return toast('Sem resistência disponível em '+RL.d);x.r[k]=1;RL.res=rollDice(c.ac[RL.n]||0);RL.burned=true;save();render();openM(rollUI());return}
-case'cb':{const o=gp(S.circ,v.k);sp(S.circ,v.k,o?0:1);break}
-case'cn':S.circ.il=S.circ.il===i+1?i:i+1;break;
-case'il':S.circ.il=Math.min(12,S.circ.il+ +v.v);if(S.circ.il>=12)toast('Contador cheio: avanço de círculo!');break;
-case'gd':S.circ.gd=S.circ.gd===i+1?i:i+1;break;
-case'ctask':S.circ.gd=3;toast('Dados dourados restaurados');break;
-default:return}
-save();render()});
-
-document.addEventListener('input',e=>{const t=e.target,k=t.dataset.k;if(!k||t.type==='checkbox'||t.tagName==='SELECT')return;const o=t.dataset.r?S.circ:C();let val=t.value;if(t.dataset.num){val=Math.max(0,Math.min(9,parseInt(val)||0));const d=k.split('.')[1],x=o.dr[d];sp(o,k,val);x.cur=Math.min(x.cur,val);save();return}sp(o,k,val);save()});
-document.addEventListener('change',e=>{const t=e.target,k=t.dataset.k;if(!k)return;const o=t.dataset.r?S.circ:C();
-if(t.dataset.num){render();return}
-if(t.type==='checkbox'){if(k.startsWith('eq.')&&t.checked&&o.eq.filter(Boolean).length>=3){t.checked=false;t.parentElement.classList.add('shake');setTimeout(()=>t.parentElement.classList.remove('shake'),400);return toast('Limite de 3 equipamentos por tarefa')}sp(o,k,t.checked);save();if(k.startsWith('eq.'))render();return}
-if(t.tagName==='SELECT'){sp(o,k,t.value);if(k==='role'){o.spec='';o.ab={};o.ks=[];o.eq=[]}if(k==='spec'){o.ab={};o.ks=[];o.eq=[]}save();render()}});
-addEventListener('keydown',e=>{if(e.key==='Escape')closeM();if((e.key==='Enter')&&e.target.classList.contains('card'))e.target.click()});
 const T2=`Sociável|Conheço um Cara|uma vez por tarefa, pergunte ao mestre quem nos arredores pode ajudar você. Ele explicará quem é o NPC e por que ele pode ter informações úteis para a investigação.
 Sociável|Lábia|você sabe controlar a conversa. Após falar brevemente com alguém, você pode adicionar +1d a rolagens de Ler com aquela pessoa como alvo. Se a sua resistência de Astúcia for igual ou superior a 2, o dado é dourado.
 Sociável|Calma sob Pressão|em rolagens de risco alto, você sempre pode gastar Astúcia em vez da motivação correspondente à ação.
@@ -245,19 +193,19 @@ Jornalista|Livro Aberto|você faz as pessoas se abrirem muito rápido. Quando te
 Jornalista|Detector de Mentiras|ao rolar Ler para descobrir se uma pessoa está contando a verdade, torne dourado mais um dado. A primeira Astúcia que você gastar na rolagem valerá +2d em vez de +1d.
 Jornalista|Conferência de Imprensa|você pode gastar 1 Astúcia para reunir um grande grupo de pessoas e proferir anúncios, fazer perguntas ou criar uma distração. Todas as rolagens de Astúcia que você fizer nesta reunião têm +1d.
 Jornalista|Nas Trincheiras|você já atuou várias vezes em jornalismo de risco e sabe se cuidar. Uma vez por tarefa, você pode apagar 1 resistência de Astúcia para absorver uma marca do Corpo.
-Jornalista|Pesquisa Bem-feita|você pode gastar 1 Intuição para fazer uma pergunta específica ao mestre sobre um lugar, grupo ou conceito que pesquisou antes da tarefa. Ele contará o que você sabe devido a essa preparação.
+Jornalista|Pesquisa Bem-feita|você pode gastar 1 Astúcia para fazer uma pergunta específica ao mestre sobre um lugar, grupo ou conceito que pesquisou antes da tarefa. Ele contará o que você sabe devido a essa preparação.
 Mágico|Ludibriar|ao usar palavras ou ações para distrair um alvo daquilo que está acontecendo de verdade, role Esconder. A primeira Astúcia que você ou um aliado gastarem nesta rolagem vale +2d em vez de +1d.
 Mágico|Escapista|gaste 1 Vigor para escapar imediatamente de cordas, algemas, grilhões ou de uma criatura que agarrou você.
 Mágico|Padrão Praticado|você ensaiou muito para um momento como este. Ao rolar Influenciar ou Esconder, você pode gastar Intuição em vez de Astúcia.
 Mágico|Percepção Anormal|você pode gastar 1 Intuição para fazer uma pergunta ao mestre: <i>o que posso aproveitar daqui para ter uma vantagem? O que, aqui, não funciona do jeito que aparenta? O que, aqui, está fora do lugar?</i>
 Mágico|Prosperar|você sabe encobrir seus erros com talento. Em uma rolagem na qual poderia gastar Astúcia, em uma falha ou um sucesso misto, você pode gastar 2 Astúcia para subir o resultado em um patamar, de falha a sucesso misto ou de sucesso misto a sucesso completo.
-Mágico|O Grande Truque|suas mágicas costumam ser truques baratos, mas você aprendeu um que é verdadeiro. Role Sentir quando realizá-lo — se passar, sofra uma marca da Sangria. Circule uma opção ao escolher esta habilidade:
+Mágico|O Grande Truque|suas mágicas costumam ser truques baratos, mas você aprendeu um que é verdadeiro. Role Sentir quando realizá-lo – se passar, sofra uma marca da Sangria. Circule uma opção ao escolher esta habilidade:
 Explorador|Léxico Obscuro|ao encontrar uma linguagem antiga ou esotérica, você pode gastar 1 Intuição para entender o que ela diz.
 Explorador|Experiência de Campo|você viajou pelo mundo e já esteve em muitas situações de perigo. Uma vez por tarefa, descreva ao grupo como uma aventura anterior é parecida com a situação atual e recupere 1 Vigor para todos de seu círculo.
 Explorador|Mente Aguçada|quando tiver que usar uma ação específica para rolar, você também poderá sofrer uma marca da Mente para utilizar outra ação. Você também pode gastar a motivação correspondente à ação escolhida. Descreva como você se adapta à situação.
 Explorador|Persistente|quando você tiver 1 ou mais marcas da Sangria, torne dourado mais um dado em rolagens de Mover, Atacar e Controlar enquanto em perigo.
 Explorador|Escapar por Pouco|você já esteve em várias situações arriscadas durante suas desventuras. Adicione +1d à sua rolagem de Mover quando tentar escapar de uma armadilha ou emboscada.
-Explorador|De Novo Não|uma vez por tarefa, você pode sofrer uma cicatriz para ter sucesso completo automático em uma ação. Se fizer isso, é como se você tivesse a cicatriz desde sempre — conte ao círculo como a conseguiu e por que a lição aprendida está ajudando você a ter sucesso aqui. Não ajuste seus valores de ação ao sofrer essa cicatriz.
+Explorador|De Novo Não|uma vez por tarefa, você pode sofrer uma cicatriz para ter sucesso completo automático em uma ação. Se fizer isso, é como se você tivesse a cicatriz desde sempre – conte ao círculo como a conseguiu e por que a lição aprendida está ajudando você a ter sucesso aqui. Não ajuste seus valores de ação ao sofrer essa cicatriz.
 Soldado|Treinamento Básico|você tem experiência tática em situações de estresse alto. Ao rolar Avaliar em um lugar perigoso, adicione um número de dados igual à sua resistência de Vigor atual.
 Soldado|Equipado|você e um aliado do círculo podem marcar um espaço de equipamento a mais em cada tarefa.
 Soldado|Atirador de Elite|quando fizer um ataque à distância com uma arma, você pode gastar 1 Vigor para afirmar a mira antes de atirar, adicionando +2d ao seu próximo tiro contra este alvo.
@@ -294,10 +242,10 @@ Médium|Leitura Fria|em um sucesso em uma rolagem de Sentir, você entende por q
 Médium|Premonições|você tem visões do futuro. Quando um aliado estiver prestes a sofrer 1 ou mais marcas, apague uma resistência de Intuição para avisá-lo do perigo vindouro. Em seguida, absorva uma dessas marcas.
 Médium|Momentos Finais|ao tocar em um cadáver, você pode apagar uma resistência de Intuição para ouvir, cheirar e sentir os últimos momentos da vida daquela criatura. Escolhendo sofrer uma marca da Sangria, você pode ir além e ver uma imagem da última coisa que ela viu antes da morte.
 Médium|Comungar|você pode se conectar com um fenômeno senciente próximo para se comunicar com ele. Sofra uma marca da Mente e role Sentir para estabelecer um vínculo empático ou telepático e fazer uma pergunta. Em um sucesso, você consegue uma resposta. Se tirar 4 ou 5, o fenômeno fará uma pergunta de volta.
-Ocultista|Lâmina Fantasma|você pode sintonizar uma faca ritualística a si. Se banhá-la em seu sangue (sofra uma marca do Corpo), ela se torna bastante efetiva contra seres mágickos e pode atingir inimigos invisíveis ou etéreos.
+Ocultista|Lâmina Fantasma|você pode sintonizar uma faca ritualística a si. Se banhá-la em seu sangue (sofra uma marca do Corpo), ela se torna bastante efetiva contra seres mágicos e pode atingir inimigos invisíveis ou etéreos.
 Ocultista|Sangue do Pacto|na primeira vez que um fenômeno perigoso causar uma marca em alguém do círculo, você recupera um número de pontos, de qualquer motivação, igual à sua resistência de Intuição atual.
 Ocultista|Falar a Língua Deles|você sabe falar a linguagem sobrenatural de qualquer fenômeno que encontrar. Descreva de que maneira estranha ou aterrorizante vocês se comunicam.
-Ocultista|Bancar a Isca|você sabe chamar a atenção de um fenômeno — é só se colocar de isca. Role Sentir para atrair um fenômeno próximo para sua direção.
+Ocultista|Bancar a Isca|você sabe chamar a atenção de um fenômeno – é só se colocar de isca. Role Sentir para atrair um fenômeno próximo para sua direção.
 Ocultista|Estender Seus Sentidos|ao rolar Sentir para entender mais sobre um fenômeno que você encontrou, adicione à rolagem um número de dados igual à sua resistência atual.
 Ocultista|Ritual Proibido|você conhece um ritual muito complexo ou extremamente perigoso que terá um resultado desejado. Ao usá-lo, você sofre uma cicatriz da Sangria imediatamente. Determine o tipo de ritual e seus efeitos: <i>mudar o ambiente, conjurar um fenômeno ou salvar uma pessoa moribunda.</i>`;
 const AB2={};T2.split('\n').forEach(l=>{const[k,n,t]=l.split('|');(AB2[k]=AB2[k]||[]).push([n,t])});
@@ -307,22 +255,23 @@ HT.mot=['Motivações','<p>As barras grandes são os pontos que você tem agora;
 HT.circ=['Ficha do círculo','<p>Clique nos círculos do anel para preencher o contador de iluminação (os grossos são marcos). Use os botões para somar +2 ou +4 ao fim da tarefa. Nos recursos, defina primeiro o Máx. (membros do círculo + 1); os pontos disponíveis acompanham.</p>'];
 function fixC(){const c=S.circ;c.rs=c.rs||{};['Curar','Renovar','Treinar'].forEach(k=>{if(!c.rs[k]||Array.isArray(c.rs[k]))c.rs[k]={cur:0,max:0}});c.gear=c.gear||Array(6).fill('');c.il=Math.min(24,c.il||0);c.ab=c.ab||{}}
 const blocks=(n,on,a,x)=>Array.from({length:n},(_,i)=>`<b class="mb ${i%3==0?'g':''} ${i<on?'on':''}" data-a="${a}" data-i="${i}" ${x}></b>`).join('');
-const setMax=(o,i)=>{const old=o.max;o.max=old===i+1?i:i+1;o.cur=Math.min(o.max,o.cur+Math.max(0,o.max-old))};
-function extra(n,c){if(n==='O Grande Truque')return `<br><select data-k="opt.truque">${['','mudar aparência','levitar','invocar objeto mundano','teletransportar a uma distância curta','projetar a voz'].map(o=>`<option ${c.opt&&c.opt.truque===o?'selected':''}>${o}</option>`).join('')}</select>`;if(n==='Um Passo à Frente')return `<br>${inp('obj',0,'Objeto')}`;if(n==='Cuidados Médicos')return `<div class="trk">${[0,1,2,3,4,5].map(i=>`<b class="${i<(c.heal||0)?'on':''}" data-a="heal" data-i="${i}"></b>`).join('')}</div>`;return ''}
-function sheet(c){const spl=SP.filter(s=>s.r===c.role),sel=SP.find(s=>s.n===c.spec),ne=c.eq.filter(Boolean).length,lim=3+(c.ab['Equipado']?1:0),pts=Object.values(c.ac).reduce((a,b)=>a+b,0),eq=BASE.concat(sel?sel.e:[]);
+const setMax=(o,i)=>{const old=o.max;o.max=old==i+1?i:i+1;o.cur=Math.min(o.max,o.cur+Math.max(0,o.max-old))};
+function extra(n,c){if(n==='O Grande Truque')return `<br><select data-k="opt.truque">${['','mudar aparência','levitar','invocar objeto mundano','teletransportar a uma distância curta','projetar a voz'].map(o=>`<option ${c.opt&&c.opt.truque==o?'selected':''}>${o}</option>`).join('')}</select>`;if(n==='Um Passo à Frente')return `<br>${inp('obj',0,'Objeto')}`;if(n==='Cuidados Médicos')return `<div class="trk">${[0,1,2,3,4,5].map(i=>`<b class="${i<(c.heal||0)?'on':''}" data-a="heal" data-i="${i}"></b>`).join('')}</div>`;return ''}
+function sheet(c){const spl=SP.filter(s=>s.r===c.role),sel=SP.find(s=>s.n===c.spec),ne=(c.eq||[]).filter(Boolean).length,lim=3+(c.ab['Equipado']?1:0),pts=Object.values(c.ac).reduce((a,b)=>a+b,0),eq=BASE.concat(sel?sel.e:[]);
+c.scx=c.scx||[false,false,false];
 const abl=l=>(l||[]).map(([n,t])=>`<label class="ab2"><input type="checkbox" class="dia" data-k="ab.${n}" ${c.ab[n]?'checked':''}><span><b>${n}:</b> ${t}${extra(n,c)}</span></label>`).join('');
 const act=(a,d)=>{const[n,h]=a.split('|'),v=c.ac[n]||0;return `<div class="ar"><button class="dm ${c.gold[n]?'gd':''}" data-a="gold" data-n="${n}" title="Ação dourada">${c.gold[n]?'◆':'◇'}</button><div><button class="an" data-a="roll" data-n="${n}" data-d="${d}" title="Rolar ${n}">${n}</button> <small>${h}</small><div class="dots">${[0,1,2].map(i=>`<b class="dot ${i<v?'on':''}" data-a="dot" data-n="${n}" data-i="${i}"></b>`).join('')}</div></div></div>`};
-const drv=([d,as])=>{const x=c.dr[d],tr=i=>`<button class="tri ${x.r[i]?'bn':''} ${i>=Math.floor(x.max/3)?'lk':''}" data-a="tri" data-d="${d}" data-i="${i}" title="Queimar ou recuperar">${x.r[i]?'▼':'▽'}</button>`;return `<div class="bar"><span>${d}</span><span class="mt"><small>Motivações<br>Máx.</small><span class="mcol"><span>${pips(9,x.cur,x.max,'mp',`data-d="${d}"`)}</span><span>${blocks(9,x.max,'mxset',`data-g="d" data-t="${d}"`)}</span></span></span></div><div class="drv"><div class="rs">Resistência ${tr(0)}—${tr(1)}—${tr(2)}</div>${as.map(a=>act(a,d)).join('')}</div>`};
+const drv=([d,as])=>{const x=c.dr[d],tr=i=>`<button class="tri ${x.r[i]?'bn':''} ${i>=Math.floor(x.max/3)?'lk':''}" data-a="tri" data-d="${d}" data-i="${i}" title="Queimar ou recuperar">${x.r[i]?'▼':'▽'}</button>`;return `<div class="bar"><span>${d}</span><span class="mt"><small>Motivações<br>Máx.</small><span class="mcol"><span>${pips(9,x.cur,x.max,'mp',`data-d="${d}"`)}</span><span>${blocks(9,x.max,'mxset',`data-g="d" data-t="${d}"`)}</span></span></span></div><div class="drv"><div class="rs">Resistência ${tr(0)}–${tr(1)}–${tr(2)}</div>${as.map(a=>act(a,d)).join('')}</div>`};
 const mkc=([l,k])=>`<span class="mcol"><span>${pips(3,c.mk[k],3,'mkp',`data-t="${k}"`)}</span><small>${l}</small></span>`,mw=([l,k])=>c.mk[k]>=3?`<div class="warn">${l}: incapacitado. Registre uma cicatriz.</div>`:'';const MK=[['Corpo','c'],['Mente','m'],['Sangria','s']];
 return `<div class="sheet"><div class="hd"><div><label>Nome:${inp('name')}</label><label>Pronomes:${inp('pron')}</label><label>Círculo:${inp('circle')}</label></div><div><label>Estilo:${inp('style')}</label><label>Estopim:${inp('trig')}</label><label>Pergunta:${inp('quest')}</label></div></div>
-${guide(c)}<div class="cols"><div>${D.map(drv).join('')}<div class="cnote">Pontos de ação: ${pts} ${hb('acoes')} ${hb('mot')} ${hb('res')} ${hb('rolagem')}<br>Clique no nome de uma ação para rolar. Queime uma resistência: role de novo um número de dados igual ao seu valor de ação.</div></div>
-<div><h3 class="t">Papel ${hb('papel')}</h3><select data-k="role"><option value="">Escolha…</option>${Object.keys(R).map(r=>`<option ${r===c.role?'selected':''}>${r}</option>`).join('')}</select>${abl(AB2[c.role])}
-<h3 class="t" style="margin-top:12px">Especialidade</h3><select data-k="spec" ${c.role?'':'disabled'}><option value="">Escolha…</option>${spl.map(s=>`<option ${s.n===c.spec?'selected':''}>${s.n}</option>`).join('')}</select>${sel?abl(AB2[sel.n]):''}
-${sel?`<div class="keys">Chaves de iluminação ${hb('chaves')}${sel.k.map((n,i)=>`<label class="ab"><input type="checkbox" class="dia" data-k="ks.${i}" ${c.ks[i]?'checked':''}><span>${n}</span></label>`).join('')}</div>`:''}</div>
+${guide(c)}<div class="cols"><div>${D.map(drv).join('')}<div class="cnote">Pontos de ação: ${pts} ${hb('acoes')} ${hb('mot')} ${hb('res')} ${hb('rolagem')} <br>Clique no nome de uma ação para rolar. Queime uma resistência: role de novo um número de dados igual ao seu valor de ação.</div></div>
+<div><h3 class="t">Papel ${hb('papel')}</h3><select data-k="role"><option value="">Escolha...</option>${Object.keys(R).map(r=>`<option ${r===c.role?'selected':''}>${r}</option>`).join('')}</select>${abl(AB2[c.role])}
+<h3 class="t" style="margin-top:12px">Especialidade</h3><select data-k="spec" ${c.role?'':'disabled'}><option value="">Escolha...</option>${spl.map(s=>`<option ${s.n===c.spec?'selected':''}>${s.n}</option>`).join('')}</select>${sel?abl(AB2[sel.n]):''}
+${sel?`<div class="keys">Chaves de iluminação ${hb('chaves')}</div>${sel.k.map((n,i)=>`<label class="ab"><input type="checkbox" class="dia" data-k="ks.${i}" ${c.ks[i]?'checked':''}><span>${n}</span></label>`).join('')}`:''}</div>
 <div><div class="bar"><span>Marcas ${hb('marcas')}</span><span class="mt">${MK.map(mkc).join('')}</span></div><div class="drv">${MK.map(mw).join('')}
-<h3 class="t">Cicatrizes</h3><div class="cnote">Caso você sofra a quarta cicatriz, converse com o mestre para decidir seus momentos finais. Este personagem não pode mais ser usado.</div>${[0,1,2].map(i=>`<div class="sc"><input type="checkbox" class="dia" data-k="scx.${i}" ${(c.scx||[])[i]?'checked':''}>${inp('sc.'+i)}</div>`).join('')}
+<h3 class="t">Cicatrizes</h3><div class="cnote">Caso você sofra a quarta cicatriz, converse com o mestre para decidir seus momentos finais. Este personagem não pode mais ser usado.</div>${[0,1,2].map(i=>`<div class="sc"><input type="checkbox" class="dia" data-k="scx.${i}" ${c.scx[i]?'checked':''}>${inp('sc.'+i)}</div>`).join('')}
 <h3 class="t" style="margin-top:12px">Relações</h3><div class="rl">${[0,1,2,3].map(i=>inp('rel.'+(i*2))+inp('rel.'+(i*2+1))).join('')}</div>
-<h3 class="t" style="margin-top:12px">Equipamento ${hb('equip')}<small>${ne}/${lim}</small></h3><div class="cnote">Durante cada tarefa, escolha até três.</div>${eq.map((n,i)=>`<label class="eq"><input type="checkbox" data-k="eq.${i}" ${c.eq[i]?'checked':''}>${n}</label>`).join('')}<label class="eq"><input type="checkbox" data-k="eq.6" ${c.eq[6]?'checked':''}>${inp('eqc',0,'Item livre')}</label>
+<h3 class="t" style="margin-top:12px">Equipamento ${hb('equip')} <small id="eq-count">${ne}/${lim}</small></h3><div class="cnote">Durante cada tarefa, escolha até três.</div>${eq.map((n,i)=>`<label class="eq"><input type="checkbox" data-k="eq.${i}" ${c.eq[i]?'checked':''}>${n}</label>`).join('')}<label class="eq"><input type="checkbox" data-k="eq.6" ${c.eq[6]?'checked':''}>${inp('eqc',0,'Item livre')}</label>
 <h3 class="t" style="margin-top:12px">Anotações</h3><textarea data-k="notes">${esc(c.notes)}</textarea><p><button class="btn" data-a="task">Nova tarefa</button></p></div></div></div></div>`}
 function circ(){fixC();const c=S.circ,E=(a,k)=>c.ab[k]?'checked':'';
 const ring=Array.from({length:24},(_,i)=>{const a=-Math.PI/2+i*Math.PI/12;return `<b class="rc ${(i+1)%4==0?'ms':''} ${i<c.il?'on':''}" style="left:${130+108*Math.cos(a)}px;top:${130+108*Math.sin(a)}px" data-a="cn" data-i="${i}" title="${i+1}/24"></b>`}).join('');
@@ -332,21 +281,13 @@ return `<div class="sheet"><div class="hd2"><label>Membros:${inp('mem',1)}</labe
 <h3 class="hh" style="font-size:21px">Perguntas e chaves de iluminação</h3><p><b>Façam estas perguntas ao fim de cada tarefa. Para cada “sim”, marque um ponto no contador de iluminação.</b></p><ul><li>Vocês contiveram ou destruíram uma fonte de sangria?</li><li>Vocês deram conforto ou suporte aos afligidos por fenômenos?</li><li>Vocês levaram algo importante de volta à Candela Obscura para proteção ou estudo?</li></ul>
 <p><b>Receba 2 iluminações se apenas alguns dos jogadores cumpriram uma chave de iluminação durante a sessão. Receba 4 se todos os jogadores conseguiram ao menos uma. Se ninguém do círculo cumpriu alguma de suas chaves, não receba iluminação.</b></p><p><button class="btn" data-a="il" data-v="0">Ninguém</button> <button class="btn" data-a="il" data-v="2">Alguns +2</button> <button class="btn" data-a="il" data-v="4">Todos +4</button></p>
 <h3 class="hh">Habilidades de círculo</h3><p class="cnote">Escolha uma durante a criação de personagens e uma cada vez que o círculo avançar.</p>${CAB2.map(([n,t])=>`<label class="ab2"><input type="checkbox" class="dia" data-k="ab.${n}" data-r="circ" ${E(0,n)}><span><b>${n}:</b> ${t}</span></label>`).join('')}
-${c.ab['Treinamento de Energia']?`<div class="mk" style="grid-template-columns:130px 1fr"><span>Dados dourados</span><span>${[0,1,2].map(i=>`<b class="mp ${i<c.gd?'on':''}" style="border-color:var(--g);${i<c.gd?'background:var(--g);':''}" data-a="gd" data-i="${i}"></b>`).join('')}</span></div>`:''}</div>
-<div class="pg"><div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center"><div><div style="font-family:Cinzel,serif;text-align:center">Iluminação ${c.il}/24</div><div class="ring">${ring}<svg class="candle" viewBox="0 0 54 90"><g class="fl"><path d="M27 4C37 20 41 28 27 40 13 28 17 20 27 4Z" fill="#b08a45"/></g><path d="M13 46h28v36c0 4-28 4-28 0z" fill="#16110e"/><path d="M27 40v7" stroke="#16110e" stroke-width="2"/></svg></div></div>
+${c.ab['Treinamento de Energia']?`<div class="mk" style="grid-template-columns:130px 1fr"><span>Dados dourados</span><span>${[0,1,2].map(i=>`<b class="mp ${i<c.gd?'on':''}" style="border-color:var(--g);${i<c.gd?'background:var(--g);':''}" data-a="gd" data-i="${i}"></b>`).join('')} <button class="btn" data-a="ctask" style="margin-left:8px;padding:2px 8px;font-size:13px">Restaurar</button></span></div>`:''}</div>
+<div class="pg"><div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center"><div><div style="font-family:Cinzel,serif;text-align:center">Iluminação (${c.il}/24)</div><div class="ring">${ring}<svg class="candle" viewBox="0 0 54 90"><g class="fl"><path d="M27 4C37 20 41 28 27 40 13 28 17 20 27 4Z" fill="#b08a45"/></g><path d="M13 46h28v36c0 4-28 4-28 0Z" fill="#16110e"/><path d="M27 40v7" stroke="#16110e" stroke-width="2"/></svg></div></div>
 <div style="flex:1;min-width:210px"><h3 style="font-size:18px">Avanço de círculo</h3><p>Quando o contador de iluminação estiver cheio, limpe-o. Qualquer iluminação excedente conta para o próximo ciclo. Em seguida, escolham uma nova habilidade de círculo, e todos os jogadores podem escolher suas opções de avanço de personagem.</p><p class="cnote">Os círculos em negrito representam marcos, que podem ter benefícios mecânicos, dependendo das habilidades do círculo.</p>${c.il>=24?'<div class="warn">Contador cheio: hora do avanço!</div>':''}<button class="btn" data-a="clr">Limpar contador</button></div></div>
-<h3 class="hh">Avanço de personagem</h3><p><b>No avanço de personagem, cada jogador pode escolher entre duas opções:</b></p><ul><li>Adicione 1 ponto de ação.</li><li>Adicione 2 pontos de motivação.</li><li>Escolha uma nova habilidade.</li><li>Torne dourada mais uma ação.</li></ul>
+<h3 class="hh">Avanço de personagem</h3><p><b>No avanço de personagem, cada jogador pode escolher entre duas opções:</b></p><ul><li>Adicione 1 ponto de ação.</li><li>Adicione 2 pontos de motivação.</li><li>Escolha uma nova habilidade.</li><li>Torne dourada mais uma ação.</li></ul><p class="cnote">Em um avanço de personagem, apenas um ponto de ação pode ser trocado.</p>
 <h3 class="hh">Recursos da Candela Obscura</h3><p><b>Em cada um dos recursos a seguir, preencha ambas as seções (superior e inferior) com o número de membros do círculo mais um. Entre tarefas, cada jogador pode gastar até dois recursos à escolha dele. Ao usar recursos, apague apenas a seção superior.</b></p>${['Curar','Renovar','Treinar'].map(rb).join('')}
 <h3 class="hh">Equipamento do círculo</h3><div class="rl" style="grid-template-columns:1fr 1fr">${c.gear.map((g,i)=>inp('gear.'+i,1)).join('')}</div></div></div></div>`}
-document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,v=t.dataset,i=+v.i,c=C();let h=1;
-if(a==='mxset'){const o=v.g==='d'?c.dr[v.t]:S.circ.rs[v.t];setMax(o,i)}
-else if(a==='rp'){const o=S.circ.rs[v.t];if(i>=o.max)toast('Defina primeiro o Máx.');else o.cur=o.cur===i+1?i:i+1}
-else if(a==='heal'){c.heal=(c.heal||0)===i+1?i:i+1;if(c.heal===6)toast('Cicatriz curada! Um ponto de ação pode ser trocado.')}
-else if(a==='il'){S.circ.il=Math.min(24,S.circ.il+ +v.v);if(S.circ.il>=24)toast('Contador cheio: avanço de círculo!')}
-else if(a==='clr'){S.circ.il=0}
-else h=0;
-if(h){e.stopImmediatePropagation();save();render()}},true);
-document.addEventListener('change',e=>{const t=e.target,k=t.dataset.k;if(!k||!k.startsWith('eq.')||!t.checked)return;const c=C(),lim=3+(c.ab['Equipado']?1:0);if(c.eq.filter(Boolean).length>=lim){e.stopImmediatePropagation();t.checked=false;t.parentElement.classList.add('shake');setTimeout(()=>t.parentElement.classList.remove('shake'),400);toast('Limite de '+lim+' equipamentos por tarefa')}},true);
+
 const PRE=`Jornalista|Ler1,Avaliar2,Focar1,Sentir1|Avaliar|Astúcia3
 Mágico|Influenciar2,Ler1,Esconder1,Focar1|Influenciar|Astúcia1,Intuição2
 Explorador|Mover1,Atacar2,Avaliar1,Focar1|Mover|Vigor3
@@ -359,35 +300,112 @@ Médium|Ler2,Avaliar1,Sentir2|Sentir|Astúcia1,Intuição2
 Ocultista|Controlar1,Ler1,Focar1,Sentir2|Focar|Intuição3`;
 const PREM={};const sp2=s=>s.split(',').map(t=>[t.slice(0,-1),+t.slice(-1)]);PRE.split('\n').forEach(l=>{const[n,a,g,d]=l.split('|');PREM[n]={a:sp2(a),g,d:sp2(d)}});
 function applyPre(c,n){const p=PREM[n];if(!p)return;c.ac={};c.gold={};p.a.forEach(([k,v])=>c.ac[k]=v);c.gold[p.g]=true;D.forEach(([d])=>{const m=(p.d.find(x=>x[0]===d)||[0,0])[1];c.dr[d]={cur:m,max:m,r:[0,0,0]}})}
-function guide(c){if(c.done)return '<div style="text-align:right;margin-bottom:8px"><button class="btn" data-a="reopen">Guia de criação</button></div>';
+function guide(c){if(c.done)return '<div id="guide-wrap" style="text-align:right;margin-bottom:8px"><button class="btn" data-a="reopen">Guia de criação</button></div>';
 const sm=o=>Object.values(o).reduce((a,b)=>a+b,0),ac=sm(c.ac),mx=D.reduce((s,[d])=>s+c.dr[d].max,0),gd=Object.values(c.gold).filter(Boolean).length,rn=(AB2[c.role]||[]).filter(([n])=>c.ab[n]).length,sn=(AB2[c.spec]||[]).filter(([n])=>c.ab[n]).length,o2=Object.values(c.ac).some(v=>v>2),o6=D.some(([d])=>c.dr[d].max>6);
-const ch=(ok,t)=>`<span class="chip ${ok?'ok':''}">${ok?'✔':'○'} ${t}</span>`;
+const ch=(ok,t)=>`<span class="chip ${ok?'ok':''}">${ok?'✓':'o'} ${t}</span>`;
 const nx=!c.role?'Escolha um papel.':!c.spec?'Escolha uma especialidade: ações, motivações e ação dourada iniciais entram sozinhas.':ac<9?`Faltam ${9-ac} ponto(s) de ação: suba uma ação de nível 0 para 1 e distribua 3 pontos livres.`:ac>9?'Há mais pontos de ação do que o previsto na criação.':mx<9?`Faltam ${9-mx} ponto(s) de motivação para distribuir.`:mx>9?'Há mais motivações do que o previsto na criação.':gd<2?'Doure mais uma ação à sua escolha (clique no ◇).':rn<1||sn<1?'Marque uma habilidade de papel e uma de especialidade.':'Tudo certo! Preencha nome, relações e equipamento e conclua.';
-return `<div class="gbox"><b style="font-family:Cinzel,serif">Guia de criação</b> ${hb('guia')}<div>${ch(ac===9&&!o2,`Ações ${ac}/9`)}${ch(mx===9&&!o6,`Motivações ${mx}/9`)}${ch(gd>=2,`Douradas ${gd}/2`)}${ch(rn===1,`Papel ${rn}/1`)}${ch(sn===1,`Especialidade ${sn}/1`)}</div><div class="cnote">${nx}${o2?' Nenhuma ação passa de 2 na criação.':''}${o6?' Nenhum impulso passa de 6 na criação.':''}</div><div style="margin-top:6px"><button class="btn" data-a="repre">Reaplicar valores iniciais</button> <button class="btn" data-a="fin">Concluir criação</button></div></div>`}
-HT.guia=['Guia de criação',`<p>Escolha um <b>papel</b> e uma <b>especialidade</b>: o site já preenche os valores iniciais dela.</p><ol><li><b>Ações:</b> 5 pontos vêm da especialidade. Suba uma ação de nível 0 para 1 e distribua mais 3 pontos livres. Nenhuma ação passa de 2.</li><li><b>Motivações:</b> 3 pontos de Máx. vêm da especialidade. Distribua mais 6 livres, até 6 por impulso.</li><li><b>Resistência:</b> cada 3 pontos de Máx. de um impulso liberam 1 resistência.</li><li><b>Ações douradas:</b> uma vem da especialidade; doure mais uma, de preferência de um impulso que você tenha pontos para gastar.</li><li><b>Habilidades:</b> uma do papel e uma da especialidade (a primeira já vem marcada).</li><li><b>Equipamento, relações e conceito:</b> preencha com o grupo e o mestre.</li></ol><p>Os contadores no topo da ficha mostram o que falta.</p>`];
-HT.res=['Resistência',`<p>A cada <b>3 pontos de Máx.</b> de um impulso você ganha 1 resistência (triângulos bloqueados ainda não foram liberados). Ela não diminui quando você gasta motivação.</p><p>Queimar uma resistência permite <b>rolar de novo</b> um número de dados igual ao valor da ação (sem os dados de motivação ou ajuda). O botão aparece no resultado da rolagem.</p>`];
-HT.rolagem=['Como rolar',`<p>Role um d6 por ponto da ação. Gastar motivação do impulso da ação soma dados. O mestre diz o risco antes.</p><ul><li><b>6:</b> sucesso completo. <b>4 ou 5:</b> sucesso misto. <b>1 a 3:</b> falha. <b>Dois ou mais 6:</b> crítico.</li><li>Ação com 0 pontos: role 2 dados e fique com o <b>menor</b> (sem crítico).</li></ul><p><b>Dado dourado:</b> numa ação dourada (◆), um dos seus dados vira dourado. Habilidades podem dourar mais dados. Depois de rolar você pode escolher o resultado do dado dourado, mesmo menor, para <b>recuperar 1 motivação</b> do impulso da ação. Com ação 0, não há escolha, mas se o dourado for o menor você recupera.</p>`];
-function rollDice(n,gc){const z=n<=0,k=z?2:n,d=Array.from({length:k},(_,i)=>({v:1+Math.floor(Math.random()*6),g:i<gc})),vs=d.map(o=>o.v),gm=Math.max(0,...d.filter(o=>o.g).map(o=>o.v));return{d,z,gc,gm,gmax:gm,best:z?Math.min(...vs):Math.max(...vs),s:vs.filter(v=>v==6).length,pick:null,fin:null,rec:false,l:'',q:''}}
-function fin(R0,pick,c){R0.pick=pick;R0.fin=pick==='gold'?R0.gm:R0.best;const crit=!R0.z&&pick==='best'&&R0.s>1,v=R0.fin;R0.l=crit?'Sucesso crítico':v==6?'Sucesso':v>=4?'Sucesso misto':'Falha';R0.q=crit?'sc2':v==6?'s6':v>=4?'m':'f';const rec=R0.gc>0&&(pick==='gold'||(R0.z?R0.d.some(o=>o.g&&o.v===R0.best):R0.gm===R0.best));if(rec){const x=c.dr[RL.d];x.cur=Math.min(x.max,x.cur+1);R0.rec=true}}
+return `<div id="guide-wrap"><div class="gbox"><b style="font-family:Cinzel,serif">Guia de criação</b> ${hb('guia')}<div>${ch(ac===9&&!o2,`Ações ${ac}/9`)}${ch(mx===9&&!o6,`Motivações ${mx}/9`)}${ch(gd===2,`Douradas ${gd}/2`)}${ch(rn===1,`Papel ${rn}/1`)}${ch(sn===1,`Especialidade ${sn}/1`)}</div><div class="cnote">${nx}${o2?' Nenhuma ação passa de 2 na criação.':''}${o6?' Nenhum impulso passa de 6 na criação.':''}</div><div style="margin-top:6px"><button class="btn" data-a="repre">Reaplicar valores iniciais</button> <button class="btn" data-a="fin">Concluir criação</button></div></div></div>`}
+HT.guia=['Guia de criação','<p>Escolha um <b>papel</b> e uma <b>especialidade</b>: o site já preenche os valores iniciais dela.</p><ol><li><b>Ações:</b> 5 pontos vêm da especialidade. Suba uma ação de nível 0 para 1 e distribua mais 3 pontos livres. Nenhuma ação passa de 2.</li><li><b>Motivações:</b> 3 pontos de Máx. vêm da especialidade. Distribua mais 6 livres, até 6 por impulso.</li><li><b>Resistência:</b> cada 3 pontos de Máx. de um impulso liberam 1 resistência.</li><li><b>Ações douradas:</b> uma vem da especialidade; doure mais uma, de preferência de um impulso que você tenha pontos para gastar.</li><li><b>Habilidades:</b> uma do papel e uma da especialidade (a primeira já vem marcada).</li><li><b>Equipamento, relações e conceito:</b> preencha com o grupo e o mestre.</li></ol><p>Os contadores no topo da ficha mostram o que falta.</p>'];
+HT.res=['Resistência','<p>A cada <b>3 pontos de Máx.</b> de um impulso você ganha 1 resistência (triângulos bloqueados ainda não foram liberados). Ela não diminui quando você gasta motivação.</p><p>Queimar uma resistência permite <b>rolar de novo</b> um número de dados igual ao valor da ação (sem os dados de motivação ou ajuda). O botão aparece no resultado da rolagem.</p>'];
+HT.rolagem=['Como rolar','<p>Role um d6 por ponto da ação. Gastar motivação do impulso da ação soma dados. O mestre diz o risco antes.</p><ul><li><b>6:</b> sucesso completo.</li><li><b>4 ou 5:</b> sucesso misto.</li><li><b>1 a 3:</b> falha.</li><li><b>Dois ou mais 6:</b> crítico.</li><li><b>Ação com 0 pontos:</b> role 2 dados e fique com o <b>menor</b> (sem crítico).</li></ul><p><b>Dado dourado:</b> numa ação dourada (◆), um dos seus dados vira dourado. Habilidades podem dourar mais dados. Depois de rolar você pode escolher o resultado do dado dourado, mesmo menor, para <b>recuperar 1 motivação</b> do impulso da ação. Com ação 0, não há escolha, mas se o dourado for o menor você recupera.</p>'];
+function rollDice(n,gc){const z=n<=0,k=z?2:n,d=Array.from({length:k},(_,i)=>({v:1+Math.floor(Math.random()*6),g:i<gc})),vs=d.map(o=>o.v),gm=Math.max(0,...d.filter(o=>o.g).map(o=>o.v));return{d,z,gc,gm,gmax:gm,best:z?Math.min(...vs):Math.max(...vs),s:vs.filter(v=>v===6).length,pick:null,fin:null,rec:false,l:'',q:''}}
+function fin(R0,pick,c){R0.pick=pick;R0.fin=pick==='gold'?R0.gm:R0.best;const crit=!R0.z&&pick==='best'&&R0.s>1,v=R0.fin;R0.l=crit?'Sucesso crítico':v===6?'Sucesso':v>=4?'Sucesso misto':'Falha';R0.q=crit?'sc2':v===6?'s6':v>=4?'m':'f';const rec=R0.gc>0&&(pick==='gold'||(R0.z?R0.d.some(o=>o.g&&o.v===R0.best):R0.gm===R0.best));if(rec){const x=c.dr[RL.d];x.cur=Math.min(x.max,x.cur+1);R0.rec=true}}
 const settle=(R0,c)=>{if(R0.gc>0&&!R0.z&&R0.gm<R0.best)return;fin(R0,'best',c)};
-function rollUI(){const c=C(),x=c.dr[RL.d],r=c.ac[RL.n]||0,g=!!c.gold[RL.n],cir=S.circ.ab&&S.circ.ab['Treinamento de Energia']?(S.circ.gd||0):0,tot=r+RL.mot+RL.x+RL.cx,R0=RL.res,stp=(l,f)=>`<div class="st">${l} <button data-a="st" data-f="${f}" data-s="-1">−</button><b>${RL[f]}</b><button data-a="st" data-f="${f}" data-s="1">+</button></div>`;
+function rollUI(){const c=C(),x=c.dr[RL.d],r=c.ac[RL.n]||0,g=!!c.gold[RL.n],cir=S.circ.ab&&S.circ.ab['Treinamento de Energia']?(S.circ.gd||0):0,tot=r+RL.mot+RL.x+RL.cx,R0=RL.res,stp=(l,f)=>`<div class="st">${l} <button data-a="st" data-f="${f}" data-s="-1">-</button><b>${RL[f]}</b><button data-a="st" data-f="${f}" data-s="1">+</button></div>`;
 let body='';if(R0){body=`<div class="dice">${R0.d.map((o,i)=>`<div class="dw"><i class="die ${o.g?'gl':''} ${R0.fin!=null&&o.v===R0.fin?'k':'dim'}" style="--n:${i}">${face(o.v)}</i>${o.g?'<em class="gb">dourado</em>':''}</div>`).join('')}</div>`;
 body+=R0.pick==null?`<div class="cnote" style="text-align:center">Há um dado dourado melhor ou pior que o maior: escolha o resultado.</div><div class="row" style="justify-content:center"><button class="btn" data-a="pick" data-v="best">Maior: ${R0.best}</button><button class="btn" data-a="pick" data-v="gold">Dourado: ${R0.gm} (+1 ${RL.d})</button></div>`:`<div class="res ${R0.q}">${R0.l}</div>${R0.rec?`<div class="cnote" style="text-align:center">Dado dourado: +1 ponto de ${RL.d} recuperado.</div>`:''}`}
 return `<div class="mod"><h2>${g?'◆ ':''}${RL.n} <small>(${RL.d})</small> ${hb('rolagem')}</h2><div>Dados da ação: <b>${r}</b>${g?' · ação dourada: um dado será dourado':''}</div>${stp(`Motivação gasta (${x.cur} disp.)`,'mot')}${stp('Dados extras de habilidades','x')}${stp('Dados dourados de habilidades','gx')}${cir?stp(`Dados dourados do círculo (${cir})`,'cx'):''}<div class="cnote">${tot<=0?'Sem dados: role 2 e use o menor.':'Total: '+tot+'d6'}</div>${body}<div class="row">${R0&&R0.pick!=null&&!RL.burned?'<button class="btn" data-a="burn">Queimar resistência e rolar de novo</button>':''}<button class="btn" data-a="go">${R0?'Rolar outra vez':'Rolar'}</button><button class="btn" data-a="close">Fechar</button></div></div>`}
-document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,v=t.dataset,c=C();let h=1,m=0;
-if(a==='roll'){RL={n:v.n,d:v.d,mot:0,x:0,gx:0,cx:0,res:null,burned:false};m=1}
-else if(a==='st'){const f=v.f,mx=f==='mot'?c.dr[RL.d].cur:f==='cx'?(S.circ.gd||0):9;RL[f]=Math.max(0,Math.min(mx,RL[f]+ +v.s));m=1}
-else if(a==='go'){const x=c.dr[RL.d],r=c.ac[RL.n]||0,g=c.gold[RL.n]?1:0,sp0=Math.min(RL.mot,x.cur),cx=Math.min(RL.cx,S.circ.gd||0),n=r+sp0+RL.x+cx,gc=n<=0?g:Math.min(n,g+RL.gx+cx);x.cur-=sp0;S.circ.gd=(S.circ.gd||0)-cx;RL.res=rollDice(n,gc);settle(RL.res,c);RL.mot=0;RL.cx=0;RL.burned=false;m=1}
-else if(a==='burn'){const x=c.dr[RL.d],k=x.r.slice(0,Math.floor(x.max/3)).indexOf(0);if(k<0){toast('Sem resistência disponível em '+RL.d);e.stopImmediatePropagation();return}x.r[k]=1;const g=c.gold[RL.n]?1:0;RL.res=rollDice(c.ac[RL.n]||0,g);settle(RL.res,c);RL.burned=true;m=1}
-else if(a==='pick'){fin(RL.res,v.v,c);m=1}
-else if(a==='tri'){const x=c.dr[v.d],i=+v.i;if(i>=Math.floor(x.max/3))toast('Cada 3 pontos de Máx. liberam 1 resistência');else x.r[i]=x.r[i]?0:1}
-else if(a==='repre'){if(c.spec){applyPre(c,c.spec);toast('Valores iniciais de '+c.spec+' reaplicados')}else toast('Escolha uma especialidade primeiro')}
-else if(a==='fin')c.done=true;else if(a==='reopen')c.done=false;
-else h=0;
-if(h){e.stopImmediatePropagation();save();render();if(m)openM(rollUI())}},true);
-document.addEventListener('change',e=>{const t=e.target,k=t.dataset.k;if(t.tagName!=='SELECT'||(k!=='role'&&k!=='spec'))return;e.stopImmediatePropagation();const c=C(),v=t.value;
-if(k==='role'){c.role=v;c.spec='';c.ab={};c.ks=[];c.eq=[];c.heal=0;if(AB2[v])c.ab[AB2[v][0][0]]=true}
-else{(AB2[c.spec]||[]).forEach(([n])=>delete c.ab[n]);c.spec=v;c.ks=[];c.eq=[];c.heal=0;if(v){applyPre(c,v);c.ab[AB2[v][0][0]]=true;c.done=false;toast('Valores iniciais de '+v+' aplicados')}}
-save();render()},true);
-render();
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-a]');
+  if(!t){if(e.target.id==='md')closeM();return}
+  if(t.classList.contains('x'))e.stopPropagation();
+  const a=t.dataset.a,v=t.dataset,i=+v.i,c=C();
+  switch(a){
+    case'help':help(v.v);return;
+    case'close':closeM();return;
+    case'new':{const n=mk();S.chars.push(n);S.cur=n.id;save();location.hash==='#ficha'?render(true):location.hash='ficha';return}
+    case'open':S.cur=v.v;save();location.hash='ficha';return;
+    case'ask':openM(`<div class="mod"><h2>Excluir ficha?</h2><p>Esta ação não pode ser desfeita.</p><div class="row"><button class="btn" data-a="del" data-v="${v.v}">Excluir</button><button class="btn" data-a="close">Cancelar</button></div></div>`);return;
+    case'del':S.chars=S.chars.filter(x=>x.id!=v.v);save();closeM();render(true);return;
+    case'mp':{const x=c.dr[v.d];if(i>=x.max)return toast('Acima do máximo de '+v.d);x.cur=x.cur===i+1?i:i+1;break}
+    case'tri':{const x=c.dr[v.d];if(i>=Math.floor(x.max/3))return toast('Cada 3 pontos de Máx. liberam 1 resistência');x.r[i]=x.r[i]?0:1;break}
+    case'dot':{const n=v.n;c.ac[n]=(c.ac[n]||0)===i+1?i:i+1;break}
+    case'gold':c.gold[v.n]=!c.gold[v.n];break;
+    case'mkp':{const m=c.mk;m[v.t]=m[v.t]===i+1?i:i+1;if(m[v.t]===3)toast('Trilha cheia: incapacitado!');break}
+    case'task':c.ks=[];c.eq=[];toast('Nova tarefa: equipamento e chaves limpos');break;
+    case'roll':RL={n:v.n,d:v.d,mot:0,x:0,gx:0,cx:0,res:null,burned:false};openM(rollUI());return;
+    case'st':{const f=v.f,mx=f==='mot'?c.dr[RL.d].cur:f==='cx'?(S.circ.gd||0):9;RL[f]=Math.max(0,Math.min(mx,RL[f]+ +v.s));openM(rollUI());return}
+    case'go':{const x=c.dr[RL.d],r=c.ac[RL.n]||0,g=c.gold[RL.n]?1:0,sp0=Math.min(RL.mot,x.cur),cx=Math.min(RL.cx,S.circ.gd||0),n=r+sp0+RL.x+cx,gc=n>0?Math.min(n,g+RL.gx+cx):g+RL.gx+cx;x.cur-=sp0;S.circ.gd=(S.circ.gd||0)-cx;RL.res=rollDice(n,gc);settle(RL.res,c);RL.mot=0;RL.cx=0;RL.burned=false;save();render();openM(rollUI());return}
+    case'burn':{const x=c.dr[RL.d],k=x.r.slice(0,Math.floor(x.max/3)).indexOf(0);if(k<0)return toast('Sem resistência disponível em '+RL.d);x.r[k]=1;const g=c.gold[RL.n]?1:0;RL.res=rollDice(c.ac[RL.n]||0,g);settle(RL.res,c);RL.burned=true;save();render();openM(rollUI());return}
+    case'pick':fin(RL.res,v.v,c);save();render();openM(rollUI());return;
+    case'repre':if(c.spec){applyPre(c,c.spec);toast('Valores iniciais de '+c.spec+' reaplicados')}else toast('Escolha uma especialidade primeiro');break;
+    case'fin':c.done=true;break;
+    case'reopen':c.done=false;break;
+    case'mxset':{const o=v.g==='d'?c.dr[v.t]:S.circ.rs[v.t];setMax(o,i);break}
+    case'rp':{const o=S.circ.rs[v.t];if(i>=o.max)return toast('Defina primeiro o Máx.');o.cur=o.cur===i+1?i:i+1;break}
+    case'heal':c.heal=(c.heal||0)===i+1?i:i+1;if(c.heal===6)toast('Cicatriz curada! Um ponto de ação pode ser trocado.');break;
+    case'cn':S.circ.il=S.circ.il===i+1?i:i+1;break;
+    case'il':S.circ.il=Math.min(24,S.circ.il+ +v.v);if(S.circ.il>=24)toast('Contador cheio: avanço de círculo!');break;
+    case'clr':S.circ.il=0;break;
+    case'gd':S.circ.gd=S.circ.gd===i+1?i:i+1;break;
+    case'ctask':S.circ.gd=3;toast('Dados dourados restaurados');break;
+    default:return;
+  }
+  save();render();
+});
+
+document.addEventListener('input',e=>{
+  const t=e.target,k=t.dataset.k;
+  if(!k||t.type==='checkbox'||t.tagName==='SELECT')return;
+  const o=t.dataset.r?S.circ:C();
+  sp(o,k,t.value);
+  save();
+});
+
+document.addEventListener('change',e=>{
+  const t=e.target,k=t.dataset.k;
+  if(!k)return;
+  const o=t.dataset.r?S.circ:C();
+  if(t.tagName==='SELECT'&&(k==='role'||k==='spec')){
+    const c=C(),v=t.value;
+    if(k==='role'){c.role=v;c.spec='';c.ab={};c.ks=[];c.eq=[];c.heal=0;if(AB2[v])c.ab[AB2[v][0][0]]=true}
+    else{(AB2[c.spec]||[]).forEach(([n])=>delete c.ab[n]);c.spec=v;c.ks=[];c.eq=[];c.heal=0;if(v){applyPre(c,v);c.ab[AB2[v][0][0]]=true;c.done=false;toast('Valores iniciais de '+v+' aplicados')}}
+    save();render();return;
+  }
+  if(t.type==='checkbox'){
+    if(k.startsWith('eq.')&&t.checked){
+      const lim=3+(o.ab&&o.ab['Equipado']?1:0);
+      if((o.eq||[]).filter(Boolean).length>=lim){
+        t.checked=false;
+        t.parentElement.classList.add('shake');
+        setTimeout(()=>t.parentElement.classList.remove('shake'),400);
+        toast('Limite de '+lim+' equipamentos por tarefa');
+        return;
+      }
+    }
+    sp(o,k,t.checked);
+    save();
+    // Se mudou habilidade que tem sub-opção (O Grande Truque, Um Passo à Frente, Cuidados Médicos, Equipado) ou Treinamento de Energia no círculo, re-renderiza sem piscar
+    const abName=k.startsWith('ab.')?k.slice(3):'';
+    if(['O Grande Truque','Um Passo à Frente','Cuidados Médicos','Equipado','Treinamento de Energia'].includes(abName)){
+      render();
+      return;
+    }
+    // Atualiza apenas o contador de equipamentos e o guia de criação sem destruir os checkboxes
+    if(!t.dataset.r&&o){
+      const eqCount=$('#eq-count');
+      if(eqCount){const lim=3+(o.ab&&o.ab['Equipado']?1:0);eqCount.textContent=`${(o.eq||[]).filter(Boolean).length}/${lim}`;}
+      const gw=$('#guide-wrap');
+      if(gw){const tmp=document.createElement('div');tmp.innerHTML=guide(o);gw.replaceWith(tmp.firstElementChild);}
+    }
+    return;
+  }
+  sp(o,k,t.value);
+  save();
+  if(t.dataset.num)render();
+});
+
+addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+render(true);
 </script></body></html>
