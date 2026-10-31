@@ -122,9 +122,31 @@ input.dia:checked::after{background:var(--g)}input.dia:hover{transform:scale(1.2
 .card .th{position:absolute;right:14px;top:40px;width:72px;height:96px;object-fit:cover;border:1px solid var(--i);border-radius:8px 2px 8px 2px;filter:sepia(.22)}
 .card .th~small{padding-right:84px}
 .card:has(.th){min-height:210px}
+.vt .hero .btn,.conn .btn{color:var(--p);border-color:var(--g)}.vt .hero .btn:hover,.conn .btn:hover{background:var(--g);color:var(--i)}
+.pn{background:var(--p);color:var(--i);border-radius:22px 4px 22px 4px;padding:16px 20px;margin:16px 0;box-shadow:0 12px 34px #000a;animation:rise .6s both}.pn h3{font-size:22px;margin-bottom:8px}.pn .btn{margin:2px}
+.bar2{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.bar2 input{width:auto;min-width:200px;flex:1}
+.code{font:600 36px Cinzel,serif;letter-spacing:.3em;margin:4px 0}
+.pgrid,.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}.tg{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.pc{border:1px solid var(--i);border-radius:14px 3px 14px 3px;padding:10px 12px;position:relative;cursor:pointer;transition:.25s;background:#ffffff30}.pc:hover{box-shadow:0 0 0 1px var(--g),0 8px 20px #0006;transform:translateY(-3px)}.pc.off{opacity:.5}
+.pc b{font-family:Cinzel,serif;font-size:19px;display:block;padding-right:48px}.pc small{display:block;color:var(--m)}
+.pth{position:absolute;right:10px;top:10px;width:42px;height:56px;object-fit:cover;border:1px solid var(--i);border-radius:6px 2px 6px 2px}
+.pd{display:grid;grid-template-columns:72px 40px 1fr;font-size:15px;font-family:Cinzel,serif}.pm{display:flex;gap:8px;flex-wrap:wrap;font-size:14px;margin-top:4px}
+.tt{position:relative;border:2px solid var(--i);border-radius:10px 2px 10px 2px;overflow:hidden;cursor:pointer;aspect-ratio:16/10;transition:.25s}.tt img{width:100%;height:100%;object-fit:cover;display:block}
+.tt span{position:absolute;left:0;right:0;bottom:0;background:#000b;color:var(--p);font-size:13px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt:hover{border-color:var(--g);transform:scale(1.04)}.tt.on{border-color:var(--g);box-shadow:0 0 14px var(--g)}
+.tt button{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:#000c;color:var(--p);opacity:0;transition:.2s}.tt:hover button{opacity:1}
+.tr{display:flex;gap:10px;align-items:center;padding:4px 6px;border-bottom:1px dotted var(--m)}.tr.on{background:#b08a4533}.tr span{flex:1}.tr .btn{padding:2px 10px}
+.cgrid{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(260px,1fr);gap:20px}@media(max-width:940px){.cgrid{grid-template-columns:1fr}}
+.stage{position:relative;aspect-ratio:16/9;background:#000;border:2px solid var(--g);border-radius:26px 4px 26px 4px;overflow:hidden;box-shadow:0 0 40px #b08a4533;display:grid;place-items:center}
+.stage img{width:100%;height:100%;object-fit:contain;animation:fi 1.1s}.stage .cap{position:absolute;bottom:0;left:0;right:0;padding:18px;text-align:center;font:22px Cinzel,serif;letter-spacing:.15em;background:linear-gradient(transparent,#000c)}.stage .empty{color:var(--m);font-style:italic;padding:20px;text-align:center}
+.rolls{max-height:75vh;overflow:auto}.re{background:var(--p);color:var(--i);border-radius:14px 3px 14px 3px;padding:8px 12px;margin-bottom:10px;animation:rise .5s both}.re .dice{margin:4px 0}.die.sm{font-size:42px;color:var(--i)}.die.sm.gl{color:#9a6f1c}.re .res{font-size:19px;animation:none;color:var(--i)}.re .res.f{color:var(--b)}
+.conn{background:#ffffff0d;border:1px solid #3a2f22;border-radius:12px;padding:10px 14px;margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.conn input{width:auto;min-width:120px;border:1px solid var(--m);border-radius:3px}
+#vt-mini{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border:1px solid var(--g);border-radius:12px;padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:min(92vw,420px);z-index:40;color:var(--p)}
+#vt-mini[hidden]{display:none}#vt-mini input{width:90px;border:0;padding:0}#vt-mini .t{font-family:Cinzel,serif;font-size:14px}#vt-mini button{border:1px solid var(--g);padding:1px 8px;border-radius:3px;font-size:13px}#vt-yt{width:100%}#vt-yt iframe{display:block;border:0;border-radius:6px}
+nav a .dot-s{display:inline-block;width:7px;height:7px;border-radius:50%;background:#6b6150;margin-left:6px}nav a.live .dot-s{background:#6bc16b;box-shadow:0 0 6px #6bc16b}
 </style></head><body>
 <header class="top"><a class="brand" href="#inicio"><svg viewBox="0 0 48 48" fill="none" stroke="#e9dfc8"><circle cx="24" cy="24" r="21" stroke-width="1.5"/><circle cx="24" cy="24" r="14" stroke-width="3"/><circle cx="24" cy="24" r="6" stroke-width="2"/><circle cx="24" cy="24" r="2" fill="#e9dfc8"/><path d="M24 3v7M24 38v7M3 24h7M38 24h7M9 9l5 5M34 34l5 5M39 9l-5 5M14 34l-5 5" stroke-width="1"/></svg><span>CANDELA<br>OBSCURA</span></a>
-<nav><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
+<nav><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><a href="#cena" id="vt-cena">Cena<i class="dot-s"></i></a><a href="#mestre">Mestre</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
 <main id="app"></main><div id="md" class="ov" hidden></div><div id="toast"></div><input type="file" id="ptr-file" accept="image/*" hidden><input type="file" id="imp-file" accept=".json,application/json" hidden>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -180,7 +202,7 @@ function render(forceAnim){
   lastRoute = routeKey;
   if (!isRouteChange) app.classList.add('no-anim');
   else app.classList.remove('no-anim');
-  app.innerHTML=h==='circulo'?circ():h==='ficha'&&c?sheet(c):home();
+  app.innerHTML=h==='circulo'?circ():h==='ficha'&&c?sheet(c):(h==='cena'||h==='mestre')&&window.VTT?VTT[h]():home();
   document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('cur',a.getAttribute('href')==='#'+(h||'inicio')));
 }
 addEventListener('hashchange',()=>{render(true);scrollTo(0,0)});
@@ -455,4 +477,125 @@ $('#imp-file').addEventListener('change',e=>{const f=e.target.files[0];e.target.
   const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result),c=normChar(j&&j.char?j.char:j);S.chars.push(c);save();if((location.hash.slice(1)||'inicio')!=='inicio')location.hash='inicio';else render(true);toast('Ficha “'+(c.name||'Sem nome')+'” importada')}catch(err){toast('Arquivo inválido: não é uma ficha exportada')}};
   r.onerror=()=>toast('Não foi possível ler o arquivo');r.readAsText(f)});
 render(true);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+(()=>{
+const PFX='candela-obscura-vtt-',LS=localStorage;
+const VT={role:'off',peer:null,conns:[],gm:null,code:'',pl:{},who:[],log:[],scene:null,music:null,vol:+(LS.getItem('co-vol')||.5),mute:false,blocked:false,lib:{imgs:[],tracks:[]},pre:'',last:''};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const idb=(m,f)=>new Promise((ok,no)=>{const r=indexedDB.open('co-gm',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>{const tx=r.result.transaction('k',m),q=f(tx.objectStore('k'));tx.oncomplete=()=>ok(q&&q.result);tx.onerror=()=>no(tx.error)};r.onerror=()=>no(r.error)});
+const saveLib=()=>idb('readwrite',s=>s.put(VT.lib,'lib')).catch(()=>toast('Não foi possível salvar a biblioteca neste navegador'));
+idb('readonly',s=>s.get('lib')).then(l=>{if(l){VT.lib=l;if(location.hash==='#mestre')render()}}).catch(()=>{});
+const bc=m=>VT.conns.forEach(c=>c.open&&c.send(m));
+const snap=c=>{const o=JSON.parse(JSON.stringify(c));o.notes='';return o};
+const noPeer=()=>typeof Peer==='undefined'&&(toast('A biblioteca de conexão não carregou (é preciso internet)'),true);
+
+/* ---------- rolagens compartilhadas ---------- */
+const rollH=e=>`<div class="re"><div class="rh"><b>${esc(e.who)}</b> · ${esc(e.act)} <small>${esc(e.drv)}${e.gold?' · ◆':''}</small></div><div class="dice">${e.d.map((o,i)=>`<div class="dw"><i class="die sm ${o.g?'gl':''} ${o.v===e.fin?'k':'dim'}" style="--n:${i}">${face(o.v)}</i>${o.g?'<em class="gb">dourado</em>':''}</div>`).join('')}</div><div class="res ${e.q}">${esc(e.l)}${e.rec?' · +1 motivação':''}</div></div>`;
+function addRoll(e,mine,quiet){if(VT.log.some(x=>x.id===e.id))return;VT.log.push(e);if(VT.log.length>60)VT.log.shift();
+  const r=$('#rolls');if(r){const n=r.querySelector('.cnote');if(n)n.remove();r.insertAdjacentHTML('afterbegin',rollH(e))}else if(!mine&&!quiet)toast(`${e.who}: ${e.act} — ${e.l}`);
+  if(mine){if(VT.role==='player'&&VT.gm&&VT.gm.open)VT.gm.send({t:'roll',e});else if(VT.role==='gm')bc({t:'roll',e})}}
+const _fin=fin;
+fin=function(R0,pick,c){_fin(R0,pick,c);try{addRoll({id:uid(),who:c.name||'Sem nome',act:RL.n,drv:RL.d,gold:!!c.gold[RL.n],d:R0.d.map(o=>({v:o.v,g:o.g})),fin:R0.fin,l:R0.l,q:R0.q,rec:R0.rec},true)}catch(e){}};
+
+/* ---------- cena e música ---------- */
+const stageH=()=>VT.scene&&VT.scene.src?`<img src="${esc(VT.scene.src)}" alt=""><div class="cap">${esc(VT.scene.title||'')}</div>`:'<div class="empty">A cena ainda não foi revelada…</div>';
+function setScene(s){VT.scene=s;const st=$('#stage');if(st)st.innerHTML=stageH()}
+const aud=new Audio();aud.loop=true;
+const yp=(f,a)=>{const i=$('#vt-yt iframe');if(i&&i.contentWindow)i.contentWindow.postMessage(JSON.stringify({event:'command',func:f,args:a||[]}),'*')};
+const vol=()=>{aud.volume=VT.vol;aud.muted=VT.mute;yp('setVolume',[Math.round(VT.vol*100)]);yp(VT.mute?'mute':'unMute')};
+function mini(){const el=$('#vt-mini'),m=VT.music;el.hidden=!(m&&m.on);if(el.hidden)return;el.querySelector('.t').textContent='♪ '+(m.title||'Trilha');el.querySelector('input').value=VT.vol*100;el.querySelector('.mu').textContent=VT.mute?'Ativar som':'Silenciar';el.querySelector('.go').hidden=!VT.blocked}
+function applyMusic(m){VT.music=m;aud.pause();if(aud.src&&aud.src.startsWith('blob:'))URL.revokeObjectURL(aud.src);aud.removeAttribute('src');$('#vt-yt').innerHTML='';VT.blocked=false;
+  if(m&&m.on){if(m.kind==='yt'){$('#vt-yt').innerHTML=`<iframe width="160" height="90" allow="autoplay" src="https://www.youtube.com/embed/${encodeURIComponent(m.id)}?autoplay=1&loop=1&playlist=${encodeURIComponent(m.id)}&controls=0&enablejsapi=1&playsinline=1"></iframe>`;$('#vt-yt iframe').onload=vol}
+  else{aud.src=m.kind==='file'?URL.createObjectURL(new Blob([m.buf],{type:m.mime||'audio/mpeg'})):m.src;vol();aud.play().catch(()=>{VT.blocked=true;mini()})}}
+  mini()}
+
+/* ---------- rede (PeerJS, sem servidor próprio) ---------- */
+const connH=()=>VT.role==='off'?`<b style="font-family:Cinzel,serif">Entrar na sala</b><input id="vt-code" type="text" placeholder="Código" maxlength="8" value="${esc(VT.pre)}" style="max-width:110px;text-transform:uppercase"><input id="vt-name" type="text" placeholder="Seu nome" value="${esc((C()&&C().name)||'')}"><button class="btn" data-vt="join">Conectar</button><span class="cnote">Mestre? <a href="#mestre" style="color:var(--g)">Crie a sala aqui</a>.</span>`
+ :VT.role==='gm'?`<span>Você é o mestre da sala <b>${VT.code}</b> · ${VT.who.length} jogador(es) conectado(s)</span><a href="#mestre" style="color:var(--g)">Painel do mestre</a>`
+ :`<span>Conectado à sala <b>${VT.code}</b>${VT.who.length?' · Na sala: '+VT.who.map(esc).join(', '):''}</span><button class="btn" data-vt="leave">Sair</button>`;
+const roomH=()=>VT.role==='gm'?`<h3>Sala</h3><div class="code">${VT.code}</div><p>Mande este link aos jogadores no Discord:<br><small>${esc(location.origin+location.pathname+'?sala='+VT.code)}</small></p><button class="btn" data-vt="copy">Copiar link</button> <button class="btn" data-vt="clearlog">Limpar rolagens</button> <a class="btn" href="#cena" style="text-decoration:none;display:inline-block">Ver a cena</a> <button class="btn" data-vt="leave">Encerrar sala</button>`
+ :VT.role==='player'?`<h3>Sala</h3><p>Você está conectado como jogador. Saia da sala para criar uma nova.</p><button class="btn" data-vt="leave">Sair</button>`
+ :`<h3>Sala</h3><p>Crie uma sala e mande o link aos jogadores pelo Discord. Não precisa instalar nada nem abrir portas.</p><button class="btn" data-vt="host">Criar sala</button>`;
+const refresh=()=>{const a=$('#vt-cena');if(a)a.classList.toggle('live',VT.role!=='off');const c=$('.conn'),r=$('#vt-room'),p=$('#vt-pl');if(c)c.innerHTML=connH();if(r)r.innerHTML=roomH();if(p)p.innerHTML=plAll()};
+function who(){VT.who=Object.values(VT.pl).filter(p=>p.on).map(p=>p.name);bc({t:'who',n:VT.who});refresh()}
+function host(){if(noPeer())return;const code=LS.getItem('co-room')||Math.random().toString(36).slice(2,7).toUpperCase(),p=new Peer(PFX+code);VT.peer=p;
+  p.on('open',()=>{VT.role='gm';VT.code=code;LS.setItem('co-room',code);refresh();toast('Sala criada: '+code)});
+  p.on('connection',c=>{c.on('data',d=>gmData(c,d));c.on('close',()=>gone(c));c.on('error',()=>gone(c))});
+  p.on('error',e=>{if(e.type==='unavailable-id'){LS.removeItem('co-room');try{p.destroy()}catch(x){}toast('Código em uso, gerando outro…');setTimeout(host,300)}else toast('Erro de rede: '+e.type)})}
+function gmData(c,d){if(!d||!d.t)return;
+  if(d.t==='hi'){if(!VT.conns.includes(c))VT.conns.push(c);VT.pl[c.peer]={name:d.name,char:d.char,on:true};c.send({t:'init',scene:VT.scene,music:VT.music,log:VT.log});who();upd(c.peer)}
+  else if(d.t==='sheet'&&VT.pl[c.peer]){VT.pl[c.peer].char=d.char;upd(c.peer)}
+  else if(d.t==='roll'){addRoll(d.e,false);bc({t:'roll',e:d.e})}}
+function gone(c){VT.conns=VT.conns.filter(x=>x!==c);if(VT.pl[c.peer]){VT.pl[c.peer].on=false;upd(c.peer)}who()}
+function join(){const code=($('#vt-code').value||'').trim().toUpperCase(),name=($('#vt-name').value||'').trim()||'Jogador';if(!code)return toast('Digite o código da sala');if(noPeer())return;
+  leave(true);const p=new Peer();VT.peer=p;
+  const to=setTimeout(()=>{toast('Não consegui conectar. Confira o código e a internet.');leave(true)},12000);
+  p.on('open',()=>{const c=p.connect(PFX+code,{reliable:true});VT.gm=c;
+    c.on('open',()=>{clearTimeout(to);VT.role='player';VT.code=code;const ch=C();VT.last=ch?JSON.stringify(snap(ch)):'';c.send({t:'hi',name,char:ch?snap(ch):null});refresh();toast('Conectado à sala '+code)});
+    c.on('data',playerData);c.on('close',()=>{if(VT.role==='player'){toast('A conexão com o mestre foi encerrada');leave(true)}})});
+  p.on('error',e=>{clearTimeout(to);toast(e.type==='peer-unavailable'?'Sala não encontrada. Confira o código.':'Erro de rede: '+e.type);leave(true)})}
+function playerData(d){if(!d||!d.t)return;
+  if(d.t==='init'){setScene(d.scene);(d.log||[]).forEach(e=>addRoll(e,false,true));applyMusic(d.music)}
+  else if(d.t==='scene')setScene(d.s);else if(d.t==='music')applyMusic(d.m);else if(d.t==='roll')addRoll(d.e,false);
+  else if(d.t==='clearlog'){VT.log=[];const r=$('#rolls');if(r)r.innerHTML=''}
+  else if(d.t==='who'){VT.who=d.n;refresh()}}
+function leave(silent){const was=VT.role;if(VT.peer){try{VT.peer.destroy()}catch(e){}}VT.peer=null;VT.conns=[];VT.gm=null;VT.role='off';VT.pl={};VT.who=[];if(was!=='off')applyMusic(null);refresh();if(!silent&&was!=='off')toast('Você saiu da sala')}
+setInterval(()=>{if(VT.role!=='player'||!VT.gm||!VT.gm.open)return;const c=C();if(!c)return;const j=JSON.stringify(snap(c));if(j!==VT.last){VT.last=j;VT.gm.send({t:'sheet',char:JSON.parse(j)})}},2000);
+
+/* ---------- página da cena (todos) ---------- */
+function cena(){return `<div class="wrap vt"><div class="conn">${connH()}</div><div class="cgrid"><div class="stage" id="stage">${stageH()}</div><div><h3 style="font-size:20px;margin-bottom:8px">Rolagens</h3><div class="rolls" id="rolls">${VT.log.slice().reverse().map(rollH).join('')||'<div class="cnote">Nenhuma rolagem ainda. Role uma ação na sua ficha e ela aparece aqui.</div>'}</div></div></div></div>`}
+
+/* ---------- painel do mestre ---------- */
+const rs=c=>D.map(([d])=>{const x=c.dr[d],t=Math.floor(x.max/3),b=x.r.slice(0,t).filter(Boolean).length;return{d,cur:x.cur,max:x.max,t,b}});
+function plCard(id){const p=VT.pl[id],c=p.char;if(!c)return `<div class="pc off" id="pc-${id}"><b>${esc(p.name)}</b><small>sem ficha aberta</small></div>`;const k=c.mk||{c:0,m:0,s:0};
+  return `<div class="pc ${p.on?'':'off'}" id="pc-${id}" data-vt="view" data-id="${id}">${c.img?`<img class="pth" src="${esc(c.img)}" alt="">`:''}<b>${esc(c.name||p.name)}</b><small>${esc(p.name)}${c.role?' · '+esc(c.role)+(c.spec?' / '+esc(c.spec):''):''}${p.on?'':' · offline'}</small>${rs(c).map(x=>`<div class="pd"><span>${x.d}</span><span>${x.cur}/${x.max}</span><span>${'▽'.repeat(x.t-x.b)+'▼'.repeat(x.b)}</span></div>`).join('')}<div class="pm"><span>Corpo ${k.c}/3</span><span>Mente ${k.m}/3</span><span>Sangria ${k.s}/3</span></div><small>Cicatrizes: ${(c.sc||[]).filter((s,i)=>s||(c.scx&&c.scx[i])).length}/3</small></div>`}
+const plAll=()=>Object.keys(VT.pl).map(plCard).join('')||'<div class="cnote">Ninguém conectado ainda. Envie o link da sala aos jogadores.</div>';
+function upd(id){const el=document.getElementById('pc-'+id),l=$('#vt-pl');if(!l)return;if(el)el.outerHTML=plCard(id);else l.innerHTML=plAll()}
+function viewH(id){const p=VT.pl[id],c=p&&p.char;if(!c)return '<div class="mod"><h2>Sem ficha</h2><div class="row"><button class="btn" data-a="close">Fechar</button></div></div>';
+  const sel=SP.find(s=>s.n===c.spec),eq=BASE.concat(sel?sel.e:[]).filter((n,i)=>c.eq&&c.eq[i]).concat(c.eq&&c.eq[6]&&c.eqc?[c.eqc]:[]),ab=(AB2[c.role]||[]).concat(AB2[c.spec]||[]).filter(([n])=>c.ab&&c.ab[n]),
+  ac=Object.entries(c.ac||{}).filter(([,v])=>v>0).map(([k,v])=>`${c.gold&&c.gold[k]?'◆ ':''}${k} ${v}`).join(' · '),k=c.mk||{c:0,m:0,s:0};
+  return `<div class="mod"><h2>${esc(c.name||p.name)}</h2><p class="cnote">${esc(p.name)} · ${esc(c.role||'sem papel')}${c.spec?' / '+esc(c.spec):''}${c.pron?' · '+esc(c.pron):''}</p>${['style','trig','quest'].map((f,i)=>c[f]?`<p><b>${['Estilo','Estopim','Pergunta'][i]}:</b> ${esc(c[f])}</p>`:'').join('')}<p><b>Ações:</b> ${esc(ac)||'—'}</p><p><b>Impulsos:</b> ${rs(c).map(x=>`${x.d} ${x.cur}/${x.max} (resistência ${x.t-x.b}/${x.t})`).join(' · ')}</p><p><b>Marcas:</b> Corpo ${k.c}/3 · Mente ${k.m}/3 · Sangria ${k.s}/3</p><p><b>Cicatrizes:</b> ${(c.sc||[]).filter(Boolean).map(esc).join('; ')||'—'}</p><p><b>Equipamento:</b> ${eq.map(esc).join(', ')||'—'}</p><p><b>Relações:</b> ${(c.rel||[]).filter(Boolean).map(esc).join(' · ')||'—'}</p><h3 style="margin-top:12px;font-size:18px">Habilidades</h3>${ab.map(([n,t])=>`<p><b>${n}:</b> ${t}</p>`).join('')||'<p class="cnote">Nenhuma marcada.</p>'}<div class="row"><button class="btn" data-a="close">Fechar</button></div></div>`}
+const libH=()=>{const L=VT.lib,m=VT.music;return `<div class="pn"><h3>Imagens</h3><div class="bar2"><button class="btn" data-vt="addimg">Adicionar imagens</button><input id="vt-url" type="text" placeholder="…ou cole o link de uma imagem"><button class="btn" data-vt="urlimg">Adicionar link</button><button class="btn" data-vt="hide">Esconder cena</button></div><div class="tg">${L.imgs.map(i=>`<div class="tt ${VT.scene&&VT.scene.id===i.id?'on':''}" data-vt="show" data-id="${i.id}" title="Mostrar para todos"><img src="${esc(i.th)}" alt=""><span>${esc(i.title)}</span><button data-vt="delimg" data-id="${i.id}" aria-label="Remover">×</button></div>`).join('')||'<div class="cnote">Arraste imagens para esta página ou use o botão. Um clique na miniatura mostra a imagem para todos.</div>'}</div></div>
+<div class="pn"><h3>Trilha sonora</h3><div class="bar2"><input id="vt-tl" type="text" placeholder="Link do YouTube ou de um áudio (.mp3)"><input id="vt-tt" type="text" placeholder="Nome (opcional)" style="max-width:170px"><button class="btn" data-vt="addtr">Adicionar</button><button class="btn" data-vt="addaud">Enviar arquivo de áudio</button><button class="btn" data-vt="stopm">Parar música</button></div>${L.tracks.map(t=>`<div class="tr ${m&&m.on&&m.tid===t.id?'on':''}"><button class="btn" data-vt="play" data-id="${t.id}" title="Tocar para todos">▶</button><span>${esc(t.title)}</span><small>${t.kind==='yt'?'YouTube':t.kind==='file'?'arquivo':'link'}</small><button data-vt="deltr" data-id="${t.id}" aria-label="Remover">×</button></div>`).join('')||'<div class="cnote">Nenhuma faixa ainda. Arquivos de áudio são enviados aos jogadores quando você toca (até 12 MB).</div>'}</div>`};
+const redo=()=>{const g=$('#vt-lib');if(g)g.innerHTML=libH()};
+function mestre(){return `<div class="wrap vt"><div class="hero"><h1>Mestre</h1><p>Crie a sala, acompanhe as fichas e conduza a cena com poucos cliques.</p></div><div class="pn" id="vt-room">${roomH()}</div><div class="pn"><h3>Jogadores</h3><div class="pgrid" id="vt-pl">${plAll()}</div></div><div id="vt-lib">${libH()}</div></div>`}
+window.VTT={cena,mestre};
+
+/* ---------- ações (cliques) ---------- */
+const hostOnly=()=>VT.role!=='player';
+document.addEventListener('click',e=>{const t=e.target.closest('[data-vt]');if(!t)return;const a=t.dataset.vt,id=t.dataset.id,L=VT.lib;
+  switch(a){
+  case'host':host();break;case'join':join();break;case'leave':leave();break;
+  case'copy':{const u=location.origin+location.pathname+'?sala='+VT.code;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copiado'),()=>prompt('Copie o link:',u));break}
+  case'clearlog':VT.log=[];bc({t:'clearlog'});{const r=$('#rolls');if(r)r.innerHTML=''}toast('Rolagens limpas');break;
+  case'view':openM(viewH(id));break;
+  case'addimg':$('#vt-img').click();break;
+  case'urlimg':{const u=$('#vt-url').value.trim();if(!/^https?:\/\//.test(u))return toast('Cole um link de imagem que comece com http');L.imgs.push({id:uid(),title:(decodeURIComponent(u.split('/').pop().split('?')[0])||'Imagem').replace(/\.\w+$/,''),src:u,th:u});saveLib();redo();break}
+  case'show':{const i=L.imgs.find(x=>x.id===id);if(i){const s={id:i.id,src:i.src,title:i.title};setScene(s);bc({t:'scene',s});redo()}break}
+  case'hide':setScene(null);bc({t:'scene',s:null});redo();break;
+  case'delimg':L.imgs=L.imgs.filter(x=>x.id!==id);if(VT.scene&&VT.scene.id===id){setScene(null);bc({t:'scene',s:null})}saveLib();redo();break;
+  case'addtr':{const u=$('#vt-tl').value.trim(),n=$('#vt-tt').value.trim(),y=u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
+    if(y)L.tracks.push({id:uid(),kind:'yt',src:y[1],title:n||'YouTube '+y[1]});
+    else if(/^https?:\/\//.test(u))L.tracks.push({id:uid(),kind:'url',src:u,title:n||decodeURIComponent(u.split('/').pop().split('?')[0])||'Áudio'});
+    else return toast('Cole um link do YouTube ou de um arquivo de áudio');saveLib();redo();break}
+  case'addaud':$('#vt-aud').click();break;
+  case'deltr':L.tracks=L.tracks.filter(x=>x.id!==id);saveLib();redo();break;
+  case'play':{const k=L.tracks.find(x=>x.id===id);if(!k)break;const m={kind:k.kind,title:k.title,on:true,id:k.src,src:k.src,buf:k.data,mime:k.mime,tid:k.id};applyMusic(m);bc({t:'music',m});if(k.kind==='file'&&VT.conns.length)toast('Enviando o áudio aos jogadores…');redo();break}
+  case'stopm':{const m={on:false};applyMusic(m);bc({t:'music',m});redo();break}
+  case'mute':VT.mute=!VT.mute;vol();mini();break;
+  case'unblock':aud.play().then(()=>{VT.blocked=false;mini()}).catch(()=>{});break}});
+const small=(f,mx,q)=>new Promise(ok=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const sz=(m,q)=>{const k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)};const r={id:uid(),title:f.name.replace(/\.\w+$/,''),src:sz(1600,.82),th:sz(240,.7)};URL.revokeObjectURL(u);ok(r)};im.onerror=()=>{URL.revokeObjectURL(u);ok(null)};im.src=u});
+async function addFiles(files){let n=0;for(const f of files){if(f.type.startsWith('image/')){const r=await small(f);if(r){VT.lib.imgs.push(r);n++}}else if(f.type.startsWith('audio/')){if(f.size>12e6){toast('Áudio acima de 12 MB: use um link do YouTube'+' ou comprima o arquivo');continue}VT.lib.tracks.push({id:uid(),kind:'file',title:f.name.replace(/\.\w+$/,''),data:await f.arrayBuffer(),mime:f.type});n++}}
+  if(n){await saveLib();redo();toast(n+' item(ns) adicionado(s)')}}
+document.body.insertAdjacentHTML('beforeend','<input type="file" id="vt-img" accept="image/*" multiple hidden><input type="file" id="vt-aud" accept="audio/*" hidden><div id="vt-mini" hidden><span class="t"></span><input type="range" min="0" max="100" aria-label="Volume"><button class="mu" data-vt="mute"></button><button class="go" data-vt="unblock" hidden>Ativar música</button><div id="vt-yt"></div></div>');
+['#vt-img','#vt-aud'].forEach(s=>$(s).addEventListener('change',e=>{addFiles([...e.target.files]);e.target.value=''}));
+$('#vt-mini input').addEventListener('input',e=>{VT.vol=e.target.value/100;LS.setItem('co-vol',VT.vol);vol()});
+addEventListener('dragover',e=>{if(location.hash==='#mestre')e.preventDefault()});
+addEventListener('drop',e=>{if(location.hash==='#mestre'&&e.dataTransfer&&e.dataTransfer.files.length){e.preventDefault();addFiles([...e.dataTransfer.files])}});
+const q=new URLSearchParams(location.search).get('sala');if(q){VT.pre=q.toUpperCase();if(location.hash!=='#cena')location.hash='cena'}
+refresh();render();
+})();
+
 </script></body></html>
