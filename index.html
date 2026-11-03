@@ -144,9 +144,19 @@ input.dia:checked::after{background:var(--g)}input.dia:hover{transform:scale(1.2
 #vt-mini{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border:1px solid var(--g);border-radius:12px;padding:8px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:min(92vw,420px);z-index:40;color:var(--p)}
 #vt-mini[hidden]{display:none}#vt-mini input{width:90px;border:0;padding:0}#vt-mini .t{font-family:Cinzel,serif;font-size:14px}#vt-mini button{border:1px solid var(--g);padding:1px 8px;border-radius:3px;font-size:13px}#vt-yt{width:100%}#vt-yt iframe{display:block;border:0;border-radius:6px}
 nav a .dot-s{display:inline-block;width:7px;height:7px;border-radius:50%;background:#6b6150;margin-left:6px}nav a.live .dot-s{background:#6bc16b;box-shadow:0 0 6px #6bc16b}
+.kx{position:absolute;top:4px;right:6px;width:22px;height:22px;border-radius:50%;color:var(--m);font-size:16px;line-height:1;transition:.2s;z-index:2}.kx:hover{background:var(--b);color:var(--p);transform:rotate(90deg)}.pth{top:30px}
+#vt-mini .mn{width:22px;height:22px;padding:0;text-align:center;border-radius:50%}
+#vt-mini.min{padding:4px 8px}#vt-mini.min .t,#vt-mini.min input,#vt-mini.min .mu{display:none}#vt-mini.min #vt-yt{position:absolute;left:0;bottom:0;width:160px;height:90px;opacity:.01;pointer-events:none;z-index:-1}
+.burger{display:none;font-size:26px;line-height:1;color:var(--p);padding:2px 8px;margin-left:auto;border:1px solid #3a2f22;border-radius:4px;transition:.2s}.burger:hover{border-color:var(--g);color:#f3d99a}
+@media(max-width:720px){.top{padding:10px 14px}.burger{display:block}nav{display:none!important;flex-direction:column;align-items:stretch;width:100%;margin-left:0;animation:rise .3s both}nav.open{display:flex!important}nav a{padding:12px 6px;border-bottom:1px solid #3a2f22}nav .hq{align-self:flex-start;margin:8px 6px}}
+.wrap.cen{max-width:1700px}.zm{width:100%;height:100%;transform-origin:center;user-select:none;-webkit-user-select:none}.stage{cursor:grab;touch-action:pan-y}.stage img{-webkit-user-drag:none}
+.stb{position:absolute;top:8px;right:8px;display:flex;gap:4px;z-index:3;opacity:.45;transition:.2s}.stage:hover .stb,.stage:focus-within .stb{opacity:1}.stb button{width:32px;height:32px;border-radius:50%;background:#000b;border:1px solid var(--g);color:var(--p);transition:.2s}.stb button:hover{background:var(--g);color:var(--i)}
+.stage:fullscreen{max-height:none;height:100vh;width:100vw;border:0;border-radius:0;aspect-ratio:auto}.rcol{min-width:0;overflow:hidden}.split{display:none}
+@media(min-width:941px){.cgrid{grid-template-columns:minmax(0,1fr) 12px var(--rw,300px);gap:0}.split{display:block;cursor:col-resize;position:relative;touch-action:none}.split::after{content:"";position:absolute;left:5px;top:20%;bottom:20%;width:2px;background:var(--m);border-radius:2px;transition:.2s}.split:hover::after{background:var(--g);box-shadow:0 0 8px var(--g)}.rcol{padding-left:8px}.stage{max-height:86vh}}
+@media(max-width:940px){.stage{aspect-ratio:auto;height:62vh;border-radius:14px 3px 14px 3px}}
 </style></head><body>
 <header class="top"><a class="brand" href="#inicio"><svg viewBox="0 0 48 48" fill="none" stroke="#e9dfc8"><circle cx="24" cy="24" r="21" stroke-width="1.5"/><circle cx="24" cy="24" r="14" stroke-width="3"/><circle cx="24" cy="24" r="6" stroke-width="2"/><circle cx="24" cy="24" r="2" fill="#e9dfc8"/><path d="M24 3v7M24 38v7M3 24h7M38 24h7M9 9l5 5M34 34l5 5M39 9l-5 5M14 34l-5 5" stroke-width="1"/></svg><span>CANDELA<br>OBSCURA</span></a>
-<nav><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><a href="#cena" id="vt-cena">Cena<i class="dot-s"></i></a><a href="#mestre">Mestre</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
+<button class="burger" data-vt="menu" aria-label="Menu" aria-expanded="false">☰</button><nav id="nav"><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><a href="#cena" id="vt-cena">Cena<i class="dot-s"></i></a><a href="#mestre">Mestre</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
 <main id="app"></main><div id="md" class="ov" hidden></div><div id="toast"></div><input type="file" id="ptr-file" accept="image/*" hidden><input type="file" id="imp-file" accept=".json,application/json" hidden>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -482,7 +492,7 @@ render(true);
 <script>
 (()=>{
 const PFX='candela-obscura-vtt-',LS=localStorage;
-const VT={role:'off',peer:null,conns:[],gm:null,code:'',pl:{},who:[],log:[],scene:null,music:null,vol:+(LS.getItem('co-vol')||.5),mute:false,blocked:false,lib:{imgs:[],tracks:[]},pre:'',last:''};
+const VT={role:'off',peer:null,conns:[],gm:null,code:'',pl:{},who:[],log:[],scene:null,music:null,vol:+(LS.getItem('co-vol')||.5),mute:false,blocked:false,lib:{imgs:[],tracks:[]},pre:'',last:'',min:LS.getItem('co-min')==='1'};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const idb=(m,f)=>new Promise((ok,no)=>{const r=indexedDB.open('co-gm',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>{const tx=r.result.transaction('k',m),q=f(tx.objectStore('k'));tx.oncomplete=()=>ok(q&&q.result);tx.onerror=()=>no(tx.error)};r.onerror=()=>no(r.error)});
 const saveLib=()=>idb('readwrite',s=>s.put(VT.lib,'lib')).catch(()=>toast('Não foi possível salvar a biblioteca neste navegador'));
@@ -500,12 +510,13 @@ const _fin=fin;
 fin=function(R0,pick,c){_fin(R0,pick,c);try{addRoll({id:uid(),who:c.name||'Sem nome',act:RL.n,drv:RL.d,gold:!!c.gold[RL.n],d:R0.d.map(o=>({v:o.v,g:o.g})),fin:R0.fin,l:R0.l,q:R0.q,rec:R0.rec},true)}catch(e){}};
 
 /* ---------- cena e música ---------- */
-const stageH=()=>VT.scene&&VT.scene.src?`<img src="${esc(VT.scene.src)}" alt=""><div class="cap">${esc(VT.scene.title||'')}</div>`:'<div class="empty">A cena ainda não foi revelada…</div>';
-function setScene(s){VT.scene=s;const st=$('#stage');if(st)st.innerHTML=stageH()}
+const Z={s:1,x:0,y:0,p:new Map(),d:0,t:0};
+const stageH=()=>VT.scene&&VT.scene.src?`<div id="zm" class="zm"><img src="${esc(VT.scene.src)}" alt="" draggable="false"></div><div class="cap">${esc(VT.scene.title||'')}</div><div class="stb"><button data-vt="zin" aria-label="Aproximar">+</button><button data-vt="zout" aria-label="Afastar">−</button><button data-vt="zrst" aria-label="Ajustar à tela">⟲</button><button data-vt="fs" aria-label="Tela cheia">⛶</button></div>`:'<div class="empty">A cena ainda não foi revelada…</div>';
+function setScene(s){VT.scene=s;const st=$('#stage');Z.s=1;Z.x=Z.y=0;Z.p.clear();if(st){st.innerHTML=stageH();st.style.touchAction='pan-y'}}
 const aud=new Audio();aud.loop=true;
 const yp=(f,a)=>{const i=$('#vt-yt iframe');if(i&&i.contentWindow)i.contentWindow.postMessage(JSON.stringify({event:'command',func:f,args:a||[]}),'*')};
 const vol=()=>{aud.volume=VT.vol;aud.muted=VT.mute;yp('setVolume',[Math.round(VT.vol*100)]);yp(VT.mute?'mute':'unMute')};
-function mini(){const el=$('#vt-mini'),m=VT.music;el.hidden=!(m&&m.on);if(el.hidden)return;el.querySelector('.t').textContent='♪ '+(m.title||'Trilha');el.querySelector('input').value=VT.vol*100;el.querySelector('.mu').textContent=VT.mute?'Ativar som':'Silenciar';el.querySelector('.go').hidden=!VT.blocked}
+function mini(){const el=$('#vt-mini'),m=VT.music;el.hidden=!(m&&m.on);if(el.hidden)return;el.classList.toggle('min',VT.min);el.querySelector('.mn').textContent=VT.min?'♪':'–';el.querySelector('.t').textContent='♪ '+(m.title||'Trilha');el.querySelector('input').value=VT.vol*100;el.querySelector('.mu').textContent=VT.mute?'Ativar som':'Silenciar';el.querySelector('.go').hidden=!VT.blocked}
 function applyMusic(m){VT.music=m;aud.pause();if(aud.src&&aud.src.startsWith('blob:'))URL.revokeObjectURL(aud.src);aud.removeAttribute('src');$('#vt-yt').innerHTML='';VT.blocked=false;
   if(m&&m.on){if(m.kind==='yt'){$('#vt-yt').innerHTML=`<iframe width="160" height="90" allow="autoplay" src="https://www.youtube.com/embed/${encodeURIComponent(m.id)}?autoplay=1&loop=1&playlist=${encodeURIComponent(m.id)}&controls=0&enablejsapi=1&playsinline=1"></iframe>`;$('#vt-yt iframe').onload=vol}
   else{aud.src=m.kind==='file'?URL.createObjectURL(new Blob([m.buf],{type:m.mime||'audio/mpeg'})):m.src;vol();aud.play().catch(()=>{VT.blocked=true;mini()})}}
@@ -525,7 +536,7 @@ function host(){if(noPeer())return;const code=LS.getItem('co-room')||Math.random
   p.on('connection',c=>{c.on('data',d=>gmData(c,d));c.on('close',()=>gone(c));c.on('error',()=>gone(c))});
   p.on('error',e=>{if(e.type==='unavailable-id'){LS.removeItem('co-room');try{p.destroy()}catch(x){}toast('Código em uso, gerando outro…');setTimeout(host,300)}else toast('Erro de rede: '+e.type)})}
 function gmData(c,d){if(!d||!d.t)return;
-  if(d.t==='hi'){if(!VT.conns.includes(c))VT.conns.push(c);VT.pl[c.peer]={name:d.name,char:d.char,on:true};c.send({t:'init',scene:VT.scene,music:VT.music,log:VT.log});who();upd(c.peer)}
+  if(d.t==='hi'){if(!VT.conns.includes(c))VT.conns.push(c);Object.keys(VT.pl).forEach(k=>{if(k!==c.peer&&!VT.pl[k].on&&VT.pl[k].name===d.name)delete VT.pl[k]});VT.pl[c.peer]={name:d.name,char:d.char,on:true,conn:c};c.send({t:'init',scene:VT.scene,music:VT.music,log:VT.log});who();upd(c.peer)}
   else if(d.t==='sheet'&&VT.pl[c.peer]){VT.pl[c.peer].char=d.char;upd(c.peer)}
   else if(d.t==='roll'){addRoll(d.e,false);bc({t:'roll',e:d.e})}}
 function gone(c){VT.conns=VT.conns.filter(x=>x!==c);if(VT.pl[c.peer]){VT.pl[c.peer].on=false;upd(c.peer)}who()}
@@ -540,17 +551,18 @@ function playerData(d){if(!d||!d.t)return;
   if(d.t==='init'){setScene(d.scene);(d.log||[]).forEach(e=>addRoll(e,false,true));applyMusic(d.music)}
   else if(d.t==='scene')setScene(d.s);else if(d.t==='music')applyMusic(d.m);else if(d.t==='roll')addRoll(d.e,false);
   else if(d.t==='clearlog'){VT.log=[];const r=$('#rolls');if(r)r.innerHTML=''}
-  else if(d.t==='who'){VT.who=d.n;refresh()}}
+  else if(d.t==='who'){VT.who=d.n;refresh()}
+  else if(d.t==='kick'){toast('Você foi removido da sala pelo mestre');leave(true)}}
 function leave(silent){const was=VT.role;if(VT.peer){try{VT.peer.destroy()}catch(e){}}VT.peer=null;VT.conns=[];VT.gm=null;VT.role='off';VT.pl={};VT.who=[];if(was!=='off')applyMusic(null);refresh();if(!silent&&was!=='off')toast('Você saiu da sala')}
 setInterval(()=>{if(VT.role!=='player'||!VT.gm||!VT.gm.open)return;const c=C();if(!c)return;const j=JSON.stringify(snap(c));if(j!==VT.last){VT.last=j;VT.gm.send({t:'sheet',char:JSON.parse(j)})}},2000);
 
 /* ---------- página da cena (todos) ---------- */
-function cena(){return `<div class="wrap vt"><div class="conn">${connH()}</div><div class="cgrid"><div class="stage" id="stage">${stageH()}</div><div><h3 style="font-size:20px;margin-bottom:8px">Rolagens</h3><div class="rolls" id="rolls">${VT.log.slice().reverse().map(rollH).join('')||'<div class="cnote">Nenhuma rolagem ainda. Role uma ação na sua ficha e ela aparece aqui.</div>'}</div></div></div></div>`}
+function cena(){return `<div class="wrap vt cen"><div class="conn">${connH()}</div><div class="cgrid" style="--rw:${LS.getItem('co-rw')??300}px"><div class="stage" id="stage">${stageH()}</div><div class="split" id="split" title="Arraste para ajustar a largura (duplo clique restaura)"></div><div class="rcol"><h3 style="font-size:20px;margin-bottom:8px">Rolagens</h3><div class="rolls" id="rolls">${VT.log.slice().reverse().map(rollH).join('')||'<div class="cnote">Nenhuma rolagem ainda. Role uma ação na sua ficha e ela aparece aqui.</div>'}</div></div></div></div>`}
 
 /* ---------- painel do mestre ---------- */
 const rs=c=>D.map(([d])=>{const x=c.dr[d],t=Math.floor(x.max/3),b=x.r.slice(0,t).filter(Boolean).length;return{d,cur:x.cur,max:x.max,t,b}});
-function plCard(id){const p=VT.pl[id],c=p.char;if(!c)return `<div class="pc off" id="pc-${id}"><b>${esc(p.name)}</b><small>sem ficha aberta</small></div>`;const k=c.mk||{c:0,m:0,s:0};
-  return `<div class="pc ${p.on?'':'off'}" id="pc-${id}" data-vt="view" data-id="${id}">${c.img?`<img class="pth" src="${esc(c.img)}" alt="">`:''}<b>${esc(c.name||p.name)}</b><small>${esc(p.name)}${c.role?' · '+esc(c.role)+(c.spec?' / '+esc(c.spec):''):''}${p.on?'':' · offline'}</small>${rs(c).map(x=>`<div class="pd"><span>${x.d}</span><span>${x.cur}/${x.max}</span><span>${'▽'.repeat(x.t-x.b)+'▼'.repeat(x.b)}</span></div>`).join('')}<div class="pm"><span>Corpo ${k.c}/3</span><span>Mente ${k.m}/3</span><span>Sangria ${k.s}/3</span></div><small>Cicatrizes: ${(c.sc||[]).filter((s,i)=>s||(c.scx&&c.scx[i])).length}/3</small></div>`}
+function plCard(id){const p=VT.pl[id],c=p.char;if(!c)return `<div class="pc off" id="pc-${id}"><button class="kx" data-vt="kick" data-id="${id}" aria-label="Remover jogador" title="Remover da sala">×</button><b>${esc(p.name)}</b><small>sem ficha aberta</small></div>`;const k=c.mk||{c:0,m:0,s:0};
+  return `<div class="pc ${p.on?'':'off'}" id="pc-${id}" data-vt="view" data-id="${id}"><button class="kx" data-vt="kick" data-id="${id}" aria-label="Remover jogador" title="Remover da sala">×</button>${c.img?`<img class="pth" src="${esc(c.img)}" alt="">`:''}<b>${esc(c.name||p.name)}</b><small>${esc(p.name)}${c.role?' · '+esc(c.role)+(c.spec?' / '+esc(c.spec):''):''}${p.on?'':' · offline'}</small>${rs(c).map(x=>`<div class="pd"><span>${x.d}</span><span>${x.cur}/${x.max}</span><span>${'▽'.repeat(x.t-x.b)+'▼'.repeat(x.b)}</span></div>`).join('')}<div class="pm"><span>Corpo ${k.c}/3</span><span>Mente ${k.m}/3</span><span>Sangria ${k.s}/3</span></div><small>Cicatrizes: ${(c.sc||[]).filter((s,i)=>s||(c.scx&&c.scx[i])).length}/3</small></div>`}
 const plAll=()=>Object.keys(VT.pl).map(plCard).join('')||'<div class="cnote">Ninguém conectado ainda. Envie o link da sala aos jogadores.</div>';
 function upd(id){const el=document.getElementById('pc-'+id),l=$('#vt-pl');if(!l)return;if(el)el.outerHTML=plCard(id);else l.innerHTML=plAll()}
 function viewH(id){const p=VT.pl[id],c=p&&p.char;if(!c)return '<div class="mod"><h2>Sem ficha</h2><div class="row"><button class="btn" data-a="close">Fechar</button></div></div>';
@@ -560,13 +572,20 @@ function viewH(id){const p=VT.pl[id],c=p&&p.char;if(!c)return '<div class="mod">
 const libH=()=>{const L=VT.lib,m=VT.music;return `<div class="pn"><h3>Imagens</h3><div class="bar2"><button class="btn" data-vt="addimg">Adicionar imagens</button><input id="vt-url" type="text" placeholder="…ou cole o link de uma imagem"><button class="btn" data-vt="urlimg">Adicionar link</button><button class="btn" data-vt="hide">Esconder cena</button></div><div class="tg">${L.imgs.map(i=>`<div class="tt ${VT.scene&&VT.scene.id===i.id?'on':''}" data-vt="show" data-id="${i.id}" title="Mostrar para todos"><img src="${esc(i.th)}" alt=""><span>${esc(i.title)}</span><button data-vt="delimg" data-id="${i.id}" aria-label="Remover">×</button></div>`).join('')||'<div class="cnote">Arraste imagens para esta página ou use o botão. Um clique na miniatura mostra a imagem para todos.</div>'}</div></div>
 <div class="pn"><h3>Trilha sonora</h3><div class="bar2"><input id="vt-tl" type="text" placeholder="Link do YouTube ou de um áudio (.mp3)"><input id="vt-tt" type="text" placeholder="Nome (opcional)" style="max-width:170px"><button class="btn" data-vt="addtr">Adicionar</button><button class="btn" data-vt="addaud">Enviar arquivo de áudio</button><button class="btn" data-vt="stopm">Parar música</button></div>${L.tracks.map(t=>`<div class="tr ${m&&m.on&&m.tid===t.id?'on':''}"><button class="btn" data-vt="play" data-id="${t.id}" title="Tocar para todos">▶</button><span>${esc(t.title)}</span><small>${t.kind==='yt'?'YouTube':t.kind==='file'?'arquivo':'link'}</small><button data-vt="deltr" data-id="${t.id}" aria-label="Remover">×</button></div>`).join('')||'<div class="cnote">Nenhuma faixa ainda. Arquivos de áudio são enviados aos jogadores quando você toca (até 12 MB).</div>'}</div>`};
 const redo=()=>{const g=$('#vt-lib');if(g)g.innerHTML=libH()};
-function mestre(){return `<div class="wrap vt"><div class="hero"><h1>Mestre</h1><p>Crie a sala, acompanhe as fichas e conduza a cena com poucos cliques.</p></div><div class="pn" id="vt-room">${roomH()}</div><div class="pn"><h3>Jogadores</h3><div class="pgrid" id="vt-pl">${plAll()}</div></div><div id="vt-lib">${libH()}</div></div>`}
+function mestre(){return `<div class="wrap vt"><div class="hero"><h1>Mestre</h1><p>Crie a sala, acompanhe as fichas e conduza a cena com poucos cliques.</p></div><div class="pn" id="vt-room">${roomH()}</div><div class="pn"><h3>Jogadores <button class="btn" data-vt="clroff" style="font-size:12px;float:right" title="Remove da lista quem está offline">Limpar offline</button></h3><div class="pgrid" id="vt-pl">${plAll()}</div></div><div id="vt-lib">${libH()}</div></div>`}
 window.VTT={cena,mestre};
 
 /* ---------- ações (cliques) ---------- */
 const hostOnly=()=>VT.role!=='player';
-document.addEventListener('click',e=>{const t=e.target.closest('[data-vt]');if(!t)return;const a=t.dataset.vt,id=t.dataset.id,L=VT.lib;
+document.addEventListener('click',e=>{if(e.target.closest('nav a')){const n=$('#nav');n&&n.classList.remove('open')}const t=e.target.closest('[data-vt]');if(!t)return;const a=t.dataset.vt,id=t.dataset.id,L=VT.lib;
   switch(a){
+  case'menu':{const n=$('#nav');n.classList.toggle('open');t.setAttribute('aria-expanded',n.classList.contains('open'))}break;
+  case'min':VT.min=!VT.min;LS.setItem('co-min',VT.min?'1':'0');mini();break;
+  case'kick':{const k=VT.pl[id];if(!k)break;if(k.on&&k.conn)openM(`<div class="mod"><h2>Remover jogador?</h2><p>${esc(k.name)} será desconectado da sala.</p><div class="row"><button class="btn" data-vt="kickok" data-id="${id}">Remover</button><button class="btn" data-a="close">Cancelar</button></div></div>`);else{delete VT.pl[id];who()}break}
+  case'kickok':{const k=VT.pl[id];if(k&&k.conn){const c=k.conn;try{c.send({t:'kick'})}catch(x){}setTimeout(()=>{try{c.close()}catch(x){}},300);VT.conns=VT.conns.filter(x=>x!==c)}delete VT.pl[id];closeM();who();break}
+  case'clroff':Object.keys(VT.pl).forEach(k=>{if(!VT.pl[k].on)delete VT.pl[k]});who();break;
+  case'zin':Z.s*=1.4;zap();break;case'zout':Z.s/=1.4;zap();break;case'zrst':zreset();break;
+  case'fs':{const st=$('#stage');if(document.fullscreenElement)document.exitFullscreen();else if(st&&st.requestFullscreen)st.requestFullscreen().catch(()=>toast('Tela cheia indisponível neste navegador'));break}
   case'host':host();break;case'join':join();break;case'leave':leave();break;
   case'copy':{const u=location.origin+location.pathname+'?sala='+VT.code;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copiado'),()=>prompt('Copie o link:',u));break}
   case'clearlog':VT.log=[];bc({t:'clearlog'});{const r=$('#rolls');if(r)r.innerHTML=''}toast('Rolagens limpas');break;
@@ -589,12 +608,27 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-vt]');if(!
 const small=(f,mx,q)=>new Promise(ok=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const sz=(m,q)=>{const k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)};const r={id:uid(),title:f.name.replace(/\.\w+$/,''),src:sz(1600,.82),th:sz(240,.7)};URL.revokeObjectURL(u);ok(r)};im.onerror=()=>{URL.revokeObjectURL(u);ok(null)};im.src=u});
 async function addFiles(files){let n=0;for(const f of files){if(f.type.startsWith('image/')){const r=await small(f);if(r){VT.lib.imgs.push(r);n++}}else if(f.type.startsWith('audio/')){if(f.size>12e6){toast('Áudio acima de 12 MB: use um link do YouTube'+' ou comprima o arquivo');continue}VT.lib.tracks.push({id:uid(),kind:'file',title:f.name.replace(/\.\w+$/,''),data:await f.arrayBuffer(),mime:f.type});n++}}
   if(n){await saveLib();redo();toast(n+' item(ns) adicionado(s)')}}
-document.body.insertAdjacentHTML('beforeend','<input type="file" id="vt-img" accept="image/*" multiple hidden><input type="file" id="vt-aud" accept="audio/*" hidden><div id="vt-mini" hidden><span class="t"></span><input type="range" min="0" max="100" aria-label="Volume"><button class="mu" data-vt="mute"></button><button class="go" data-vt="unblock" hidden>Ativar música</button><div id="vt-yt"></div></div>');
+document.body.insertAdjacentHTML('beforeend','<input type="file" id="vt-img" accept="image/*" multiple hidden><input type="file" id="vt-aud" accept="audio/*" hidden><div id="vt-mini" hidden><button class="mn" data-vt="min" aria-label="Minimizar ou expandir o player">–</button><span class="t"></span><input type="range" min="0" max="100" aria-label="Volume"><button class="mu" data-vt="mute"></button><button class="go" data-vt="unblock" hidden>Ativar música</button><div id="vt-yt"></div></div>');
 ['#vt-img','#vt-aud'].forEach(s=>$(s).addEventListener('change',e=>{addFiles([...e.target.files]);e.target.value=''}));
 $('#vt-mini input').addEventListener('input',e=>{VT.vol=e.target.value/100;LS.setItem('co-vol',VT.vol);vol()});
 addEventListener('dragover',e=>{if(location.hash==='#mestre')e.preventDefault()});
 addEventListener('drop',e=>{if(location.hash==='#mestre'&&e.dataTransfer&&e.dataTransfer.files.length){e.preventDefault();addFiles([...e.dataTransfer.files])}});
 const q=new URLSearchParams(location.search).get('sala');if(q){VT.pre=q.toUpperCase();if(location.hash!=='#cena')location.hash='cena'}
+const zap=()=>{const z=$('#zm'),st=$('#stage');if(!z||!st)return;if(Z.s<=1){Z.s=1;Z.x=Z.y=0}else{Z.s=Math.min(Z.s,6);const mx=st.clientWidth*(Z.s-1)/2,my=st.clientHeight*(Z.s-1)/2;Z.x=Math.max(-mx,Math.min(mx,Z.x));Z.y=Math.max(-my,Math.min(my,Z.y))}z.style.transform=`translate(${Z.x}px,${Z.y}px) scale(${Z.s})`;st.style.touchAction=Z.s>1?'none':'pan-y'};
+const zreset=()=>{Z.s=1;Z.x=Z.y=0;Z.p.clear();zap()};
+document.addEventListener('pointerdown',e=>{const st=e.target.closest('#stage');if(!st||e.target.closest('button'))return;Z.p.set(e.pointerId,{x:e.clientX,y:e.clientY});try{st.setPointerCapture(e.pointerId)}catch(x){}
+  if(Z.p.size===1){const n=Date.now();if(n-Z.t<300){if(Z.s>1)zreset();else{Z.s=2.5;zap()}Z.t=0}else Z.t=n}
+  if(Z.p.size===2){const[a,b]=[...Z.p.values()];Z.d=Math.hypot(a.x-b.x,a.y-b.y)}});
+document.addEventListener('pointermove',e=>{if(!Z.p.has(e.pointerId))return;const o=Z.p.get(e.pointerId),n={x:e.clientX,y:e.clientY};Z.p.set(e.pointerId,n);
+  if(Z.p.size===2){const[a,b]=[...Z.p.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(Z.d>0)Z.s*=d/Z.d;Z.d=d;Z.x+=(n.x-o.x)/2;Z.y+=(n.y-o.y)/2;zap()}
+  else if(Z.s>1){Z.x+=n.x-o.x;Z.y+=n.y-o.y;zap()}});
+['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,e=>{Z.p.delete(e.pointerId);Z.d=0}));
+document.addEventListener('wheel',e=>{if(!e.target.closest('#stage'))return;e.preventDefault();Z.s*=e.deltaY<0?1.15:1/1.15;zap()},{passive:false});
+document.addEventListener('pointerdown',e=>{const sp=e.target.closest('#split');if(!sp)return;const g=sp.parentElement;sp.setPointerCapture(e.pointerId);
+  const mv=ev=>{const r=g.getBoundingClientRect();g.style.setProperty('--rw',Math.max(0,Math.min(640,r.right-ev.clientX-6))+'px')},up=()=>{sp.removeEventListener('pointermove',mv);sp.removeEventListener('pointerup',up);LS.setItem('co-rw',parseInt(g.style.getPropertyValue('--rw'))||0)};
+  sp.addEventListener('pointermove',mv);sp.addEventListener('pointerup',up);e.preventDefault()});
+document.addEventListener('dblclick',e=>{const sp=e.target.closest('#split');if(sp){sp.parentElement.style.setProperty('--rw','300px');LS.setItem('co-rw',300)}});
+addEventListener('hashchange',()=>{const n=$('#nav');n&&n.classList.remove('open')});
 refresh();render();
 })();
 
