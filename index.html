@@ -154,6 +154,7 @@ nav a .dot-s{display:inline-block;width:7px;height:7px;border-radius:50%;backgro
 .stage:fullscreen{max-height:none;height:100vh;width:100vw;border:0;border-radius:0;aspect-ratio:auto}.rcol{min-width:0;overflow:hidden}.split{display:none}
 @media(min-width:941px){.cgrid{grid-template-columns:minmax(0,1fr) 12px var(--rw,300px);gap:0}.split{display:block;cursor:col-resize;position:relative;touch-action:none}.split::after{content:"";position:absolute;left:5px;top:20%;bottom:20%;width:2px;background:var(--m);border-radius:2px;transition:.2s}.split:hover::after{background:var(--g);box-shadow:0 0 8px var(--g)}.rcol{padding-left:8px}.stage{max-height:86vh}}
 @media(max-width:940px){.stage{aspect-ratio:auto;height:62vh;border-radius:14px 3px 14px 3px}}
+nav a.warn .dot-s{background:#e0a030;box-shadow:0 0 6px #e0a030}
 </style></head><body>
 <header class="top"><a class="brand" href="#inicio"><svg viewBox="0 0 48 48" fill="none" stroke="#e9dfc8"><circle cx="24" cy="24" r="21" stroke-width="1.5"/><circle cx="24" cy="24" r="14" stroke-width="3"/><circle cx="24" cy="24" r="6" stroke-width="2"/><circle cx="24" cy="24" r="2" fill="#e9dfc8"/><path d="M24 3v7M24 38v7M3 24h7M38 24h7M9 9l5 5M34 34l5 5M39 9l-5 5M14 34l-5 5" stroke-width="1"/></svg><span>CANDELA<br>OBSCURA</span></a>
 <button class="burger" data-vt="menu" aria-label="Menu" aria-expanded="false">☰</button><nav id="nav"><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><a href="#cena" id="vt-cena">Cena<i class="dot-s"></i></a><a href="#mestre">Mestre</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
@@ -522,39 +523,102 @@ function applyMusic(m){VT.music=m;aud.pause();if(aud.src&&aud.src.startsWith('bl
   else{aud.src=m.kind==='file'?URL.createObjectURL(new Blob([m.buf],{type:m.mime||'audio/mpeg'})):m.src;vol();aud.play().catch(()=>{VT.blocked=true;mini()})}}
   mini()}
 
-/* ---------- rede (PeerJS, sem servidor próprio) ---------- */
-const connH=()=>VT.role==='off'?`<b style="font-family:Cinzel,serif">Entrar na sala</b><input id="vt-code" type="text" placeholder="Código" maxlength="8" value="${esc(VT.pre)}" style="max-width:110px;text-transform:uppercase"><input id="vt-name" type="text" placeholder="Seu nome" value="${esc((C()&&C().name)||'')}"><button class="btn" data-vt="join">Conectar</button><span class="cnote">Mestre? <a href="#mestre" style="color:var(--g)">Crie a sala aqui</a>.</span>`
+/* ---------- rede (PeerJS) com reconexão automática ---------- */
+const SS=sessionStorage;
+const CID=(()=>{let c=SS.getItem('co-cid');if(!c){c=uid()+uid();SS.setItem('co-cid',c)}return c})();
+const AL='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',newCode=()=>Array.from(crypto.getRandomValues(new Uint8Array(5)),b=>AL[b%AL.length]).join('');
+const rooms=()=>{try{return JSON.parse(LS.getItem('co-rooms')||'[]')}catch(e){return[]}};
+const putRoom=code=>{const a=rooms().filter(r=>r.code!==code);a.unshift({code,ts:Date.now()});LS.setItem('co-rooms',JSON.stringify(a.slice(0,12)))};
+const linkOf=c=>location.origin+location.pathname+'?sala='+c;
+let wl=null;
+const wake=async on=>{try{if(on&&'wakeLock' in navigator&&document.visibilityState==='visible'&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}else if(!on&&wl){await wl.release();wl=null}}catch(e){}};
+let rt=0;
+const saveRoom=()=>{if(VT.role!=='gm')return;clearTimeout(rt);rt=setTimeout(()=>{const o={pl:{},log:VT.log.slice(-60),scene:VT.scene&&VT.scene.id};Object.entries(VT.pl).forEach(([k,v])=>{o.pl[k]={name:v.name,char:v.char}});idb('readwrite',s=>s.put(o,'room-'+VT.code)).catch(()=>{})},1500)};
+const live=()=>VT.role==='gm'||(VT.role==='player'&&VT.on);
+const connH=()=>VT.role==='off'?`<b style="font-family:Cinzel,serif">Entrar na sala</b><input id="vt-code" type="text" placeholder="Código" maxlength="8" value="${esc(VT.pre)}" style="max-width:110px;text-transform:uppercase"><input id="vt-name" type="text" placeholder="Seu nome" value="${esc(LS.getItem('co-name')||(C()&&C().name)||'')}"><button class="btn" data-vt="join">Conectar</button><span class="cnote">Mestre? <a href="#mestre" style="color:var(--g)">Crie a sala aqui</a>.</span>`
  :VT.role==='gm'?`<span>Você é o mestre da sala <b>${VT.code}</b> · ${VT.who.length} jogador(es) conectado(s)</span><a href="#mestre" style="color:var(--g)">Painel do mestre</a>`
- :`<span>Conectado à sala <b>${VT.code}</b>${VT.who.length?' · Na sala: '+VT.who.map(esc).join(', '):''}</span><button class="btn" data-vt="leave">Sair</button>`;
-const roomH=()=>VT.role==='gm'?`<h3>Sala</h3><div class="code">${VT.code}</div><p>Mande este link aos jogadores no Discord:<br><small>${esc(location.origin+location.pathname+'?sala='+VT.code)}</small></p><button class="btn" data-vt="copy">Copiar link</button> <button class="btn" data-vt="clearlog">Limpar rolagens</button> <a class="btn" href="#cena" style="text-decoration:none;display:inline-block">Ver a cena</a> <button class="btn" data-vt="leave">Encerrar sala</button>`
- :VT.role==='player'?`<h3>Sala</h3><p>Você está conectado como jogador. Saia da sala para criar uma nova.</p><button class="btn" data-vt="leave">Sair</button>`
- :`<h3>Sala</h3><p>Crie uma sala e mande o link aos jogadores pelo Discord. Não precisa instalar nada nem abrir portas.</p><button class="btn" data-vt="host">Criar sala</button>`;
-const refresh=()=>{const a=$('#vt-cena');if(a)a.classList.toggle('live',VT.role!=='off');const c=$('.conn'),r=$('#vt-room'),p=$('#vt-pl');if(c)c.innerHTML=connH();if(r)r.innerHTML=roomH();if(p)p.innerHTML=plAll()};
+ :VT.on?`<span>Conectado à sala <b>${VT.code}</b>${VT.who.length?' · Na sala: '+VT.who.map(esc).join(', '):''}</span><button class="btn" data-vt="leave">Sair</button>`
+ :`<span>Reconectando à sala <b>${VT.code}</b>… o mestre pode ter saído por um instante.</span><button class="btn" data-vt="leave">Sair</button>`;
+const roomH=()=>{
+ if(VT.role==='gm')return `<h3>Sala</h3><div class="code">${VT.code}</div><p>Link permanente desta sala (vale sempre que você reabri-la):<br><small>${esc(linkOf(VT.code))}</small></p><button class="btn" data-vt="copy">Copiar link</button> <button class="btn" data-vt="clearlog">Limpar rolagens</button> <a class="btn" href="#cena" style="text-decoration:none;display:inline-block">Ver a cena</a> <button class="btn" data-vt="endask">Encerrar sala</button><p class="cnote">Mantenha esta aba aberta. Se a conexão cair ou o aparelho dormir, a sala volta sozinha e os jogadores reconectam.</p>`;
+ if(VT.opening)return `<h3>Sala</h3><div class="code">${VT.code}</div><p>Abrindo a sala…</p>`;
+ if(VT.role==='player')return `<h3>Sala</h3><p>Você está conectado como jogador. Saia da sala para criar uma nova.</p><button class="btn" data-vt="leave">Sair</button>`;
+ const rs=rooms();
+ return `<h3>Sala</h3><p>Crie uma sala e mande o link aos jogadores pelo Discord. Cada sala nova ganha um código diferente, e o link dela continua valendo para sempre.</p><button class="btn" data-vt="host">Criar sala nova</button>${rs.length?`<h3 style="margin-top:14px;font-size:18px">Minhas salas</h3>${rs.map(r=>`<div class="tr"><span><b>${r.code}</b> <small>${new Date(r.ts).toLocaleDateString('pt-BR')}</small></span><button class="btn" data-vt="reopen" data-id="${r.code}">Reabrir</button><button data-vt="delroom" data-id="${r.code}" aria-label="Apagar sala">×</button></div>`).join('')}`:''}`};
+const refresh=()=>{const a=$('#vt-cena');if(a){a.classList.toggle('live',live());a.classList.toggle('warn',VT.role==='player'&&!VT.on)}const c=$('.conn'),r=$('#vt-room'),p=$('#vt-pl');if(c)c.innerHTML=connH();if(r)r.innerHTML=roomH();if(p)p.innerHTML=plAll()};
 function who(){VT.who=Object.values(VT.pl).filter(p=>p.on).map(p=>p.name);bc({t:'who',n:VT.who});refresh()}
-function host(){if(noPeer())return;const AL='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',code=Array.from(crypto.getRandomValues(new Uint8Array(5)),b=>AL[b%AL.length]).join(''),p=new Peer(PFX+code);VT.peer=p;
-  p.on('open',()=>{VT.role='gm';VT.code=code;LS.setItem('co-room',code);refresh();toast('Sala criada: '+code)});
+
+/* mestre: abre (ou reabre) a sala e a mantém de pé */
+function host(code){if(noPeer())return;if(VT.peer||VT.opening||VT.role!=='off')return toast('Você já está em uma sala');
+  const fresh=!code;code=code||newCode();VT.code=code;VT.opening=true;VT.reopen=!fresh;if(fresh){VT.pl={};VT.log=[]}refresh();
+  (fresh?Promise.resolve(null):idb('readonly',s=>s.get('room-'+code)).catch(()=>null)).then(r=>{
+    if(r){VT.pl={};Object.entries(r.pl||{}).forEach(([k,v])=>{VT.pl[k]={name:v.name,char:v.char,on:false}});VT.log=r.log||[];const im=r.scene&&VT.lib.imgs.find(x=>x.id===r.scene);if(im)VT.scene={id:im.id,src:im.src,title:im.title}}
+    openPeer(code,0)})}
+function openPeer(code,n){const p=new Peer(PFX+code);VT.peer=p;
+  p.on('open',()=>{VT.role='gm';VT.opening=false;VT.on=true;putRoom(code);SS.setItem('co-open',code);wake(true);refresh();toast((VT.reopen||n)?'Sala reaberta: '+code:'Sala criada: '+code)});
   p.on('connection',c=>{c.on('data',d=>gmData(c,d));c.on('close',()=>gone(c));c.on('error',()=>gone(c))});
-  p.on('error',e=>{if(e.type==='unavailable-id'){LS.removeItem('co-room');try{p.destroy()}catch(x){}toast('Código em uso, gerando outro…');setTimeout(host,300)}else toast('Erro de rede: '+e.type)})}
+  p.on('disconnected',()=>{if(VT.peer===p)setTimeout(()=>{if(VT.peer===p&&!p.destroyed){try{p.reconnect()}catch(e){}}},1500)});
+  p.on('close',()=>{if(VT.peer===p&&!VT.ending){VT.peer=null;setTimeout(()=>{if(VT.role==='gm'||VT.opening)openPeer(code,n+1)},2000)}});
+  p.on('error',e=>{
+    if(e.type==='unavailable-id'){VT.peer=null;try{p.destroy()}catch(x){}
+      if(!VT.reopen&&n===0){const c2=newCode();VT.code=c2;setTimeout(()=>openPeer(c2,0),200);return}
+      if(n<40){VT.opening=true;refresh();setTimeout(()=>{if(VT.opening||VT.role==='gm')openPeer(code,n+1)},3000)}
+      else{VT.opening=false;VT.role='off';refresh();toast('Não foi possível reabrir a sala '+code+'. Tente novamente em instantes.')}}
+    else if(['network','server-error','socket-error','socket-closed'].includes(e.type)){/* o evento 'disconnected' retoma sozinho */}
+    else toast('Erro de rede: '+e.type)})}
 function gmData(c,d){if(!d||!d.t)return;
-  if(d.t==='hi'){if(!VT.conns.includes(c))VT.conns.push(c);Object.keys(VT.pl).forEach(k=>{if(k!==c.peer&&!VT.pl[k].on&&VT.pl[k].name===d.name)delete VT.pl[k]});VT.pl[c.peer]={name:d.name,char:d.char,on:true,conn:c};c.send({t:'init',scene:VT.scene,music:VT.music,log:VT.log});who();upd(c.peer)}
-  else if(d.t==='sheet'&&VT.pl[c.peer]){VT.pl[c.peer].char=d.char;upd(c.peer)}
-  else if(d.t==='roll'){addRoll(d.e,false);bc({t:'roll',e:d.e})}}
-function gone(c){VT.conns=VT.conns.filter(x=>x!==c);if(VT.pl[c.peer]){VT.pl[c.peer].on=false;upd(c.peer)}who()}
-function join(){const code=($('#vt-code').value||'').trim().toUpperCase(),name=($('#vt-name').value||'').trim()||'Jogador';if(!code)return toast('Digite o código da sala');if(noPeer())return;
-  leave(true);const p=new Peer();VT.peer=p;
-  const to=setTimeout(()=>{toast('Não consegui conectar. Confira o código e a internet.');leave(true)},12000);
-  p.on('open',()=>{const c=p.connect(PFX+code,{reliable:true});VT.gm=c;
-    c.on('open',()=>{clearTimeout(to);VT.role='player';VT.code=code;const ch=C();VT.last=ch?JSON.stringify(snap(ch)):'';c.send({t:'hi',name,char:ch?snap(ch):null});refresh();toast('Conectado à sala '+code)});
-    c.on('data',playerData);c.on('close',()=>{if(VT.role==='player'){toast('A conexão com o mestre foi encerrada');leave(true)}})});
-  p.on('error',e=>{clearTimeout(to);toast(e.type==='peer-unavailable'?'Sala não encontrada. Confira o código.':'Erro de rede: '+e.type);leave(true)})}
+  if(d.t==='hi'){const id=c._cid=d.cid||c.peer,old=VT.pl[id];
+    if(old&&old.conn&&old.conn!==c){const oc=old.conn;VT.conns=VT.conns.filter(x=>x!==oc);try{oc.close()}catch(e){}}
+    Object.keys(VT.pl).forEach(k=>{if(k!==id&&!VT.pl[k].on&&VT.pl[k].name===d.name)delete VT.pl[k]});
+    if(!VT.conns.includes(c))VT.conns.push(c);VT.pl[id]={name:d.name,char:d.char,on:true,conn:c,seen:Date.now()};
+    c.send({t:'init',scene:VT.scene,music:VT.music,log:VT.log});who();upd(id);saveRoom();return}
+  const id=c._cid,p=id&&VT.pl[id];if(!p)return;p.seen=Date.now();
+  if(d.t==='sheet'){p.char=d.char;upd(id);saveRoom()}
+  else if(d.t==='roll'){addRoll(d.e,false);bc({t:'roll',e:d.e});saveRoom()}}
+function gone(c){VT.conns=VT.conns.filter(x=>x!==c);const p=c._cid&&VT.pl[c._cid];if(p&&p.conn===c){p.on=false;upd(c._cid)}who()}
+
+/* jogador: entra e reconecta sozinho até sair, ser removido ou o mestre encerrar */
+const dropPeer=()=>{const p=VT.peer;VT.gm=null;VT.peer=null;try{p&&p.destroy()}catch(e){}};
+function join(){const code=($('#vt-code').value||'').trim().toUpperCase(),name=($('#vt-name').value||'').trim()||'Jogador';if(!code)return toast('Digite o código da sala');if(noPeer())return;if(VT.role==='gm')return toast('Encerre a sua sala antes de entrar em outra');
+  VT.want={code,name};VT.wasIn=false;VT.att=0;SS.setItem('co-want',JSON.stringify(VT.want));LS.setItem('co-name',name);tryJoin()}
+function sched(){if(!VT.want||VT.timer)return;if(VT.att>40){toast('Não foi possível reconectar à sala');leave(true);return}
+  const d=Math.min(15000,1500*2**Math.min(VT.att,4));VT.att++;VT.timer=setTimeout(()=>{VT.timer=0;if(VT.want&&!VT.on)tryJoin()},d)}
+function tryJoin(){const w=VT.want;if(!w||VT.joining||VT.on||noPeer())return;VT.joining=true;dropPeer();
+  const p=new Peer();VT.peer=p;let done=false;
+  const fail=why=>{if(done)return;done=true;clearTimeout(to);VT.joining=false;dropPeer();
+    if(!VT.wasIn){VT.want=null;SS.removeItem('co-want');toast(why);refresh();return}
+    VT.on=false;refresh();sched()};
+  const to=setTimeout(()=>fail('Não consegui conectar. Confira o código e a internet.'),12000);
+  p.on('open',()=>{const c=p.connect(PFX+w.code,{reliable:true});VT.gm=c;
+    c.on('open',()=>{if(done)return;done=true;clearTimeout(to);VT.joining=false;VT.on=true;VT.wasIn=true;VT.att=0;VT.role='player';VT.code=w.code;VT.lastMsg=Date.now();
+      const ch=C();VT.last=ch?JSON.stringify(snap(ch)):'';c.send({t:'hi',cid:CID,name:w.name,char:ch?snap(ch):null});refresh();toast('Conectado à sala '+w.code)});
+    c.on('data',d=>{VT.lastMsg=Date.now();playerData(d)});
+    c.on('close',()=>{if(VT.gm===c&&VT.on){VT.on=false;VT.gm=null;refresh();sched()}});
+    c.on('error',()=>{})});
+  p.on('error',e=>fail(e.type==='peer-unavailable'?(VT.wasIn?'Mestre ausente':'Sala não encontrada. Confira o código.'):'Erro de rede: '+e.type))}
 function playerData(d){if(!d||!d.t)return;
-  if(d.t==='init'){setScene(d.scene);(d.log||[]).forEach(e=>addRoll(e,false,true));applyMusic(d.music)}
+  if(d.t==='init'){setScene(d.scene);(d.log||[]).forEach(e=>addRoll(e,false,true));const a=VT.music,b=d.music;if(!(a&&b&&a.on&&b.on&&a.tid===b.tid&&a.id===b.id))applyMusic(b)}
+  else if(d.t==='ping'){if(VT.gm&&VT.gm.open)VT.gm.send({t:'pong'})}
   else if(d.t==='scene')setScene(d.s);else if(d.t==='music')applyMusic(d.m);else if(d.t==='roll')addRoll(d.e,false);
   else if(d.t==='clearlog'){VT.log=[];const r=$('#rolls');if(r)r.innerHTML=''}
   else if(d.t==='who'){VT.who=d.n;refresh()}
+  else if(d.t==='end'){toast('O mestre encerrou a sala');leave(true)}
   else if(d.t==='kick'){toast('Você foi removido da sala pelo mestre');leave(true)}}
-function leave(silent){const was=VT.role;if(VT.peer){try{VT.peer.destroy()}catch(e){}}VT.peer=null;VT.conns=[];VT.gm=null;VT.role='off';VT.pl={};VT.who=[];if(was!=='off')applyMusic(null);refresh();if(!silent&&was!=='off')toast('Você saiu da sala')}
-setInterval(()=>{if(VT.role!=='player'||!VT.gm||!VT.gm.open)return;const c=C();if(!c)return;const j=JSON.stringify(snap(c));if(j!==VT.last){VT.last=j;VT.gm.send({t:'sheet',char:JSON.parse(j)})}},2000);
+function leave(silent){const was=VT.role;
+  if(was==='gm'){VT.ending=true;bc({t:'end'});SS.removeItem('co-open');const p=VT.peer,cs=VT.conns.slice();VT.peer=null;wake(false);setTimeout(()=>{cs.forEach(c=>{try{c.close()}catch(e){}});try{p&&p.destroy()}catch(e){}VT.ending=false},500)}
+  else{VT.want=null;SS.removeItem('co-want');clearTimeout(VT.timer);VT.timer=0;dropPeer()}
+  VT.conns=[];VT.role='off';VT.on=false;VT.wasIn=false;VT.joining=false;VT.opening=false;VT.pl={};VT.who=[];
+  if(was!=='off')applyMusic(null);refresh();if(!silent&&was!=='off')toast(was==='gm'?'Sala encerrada':'Você saiu da sala')}
+
+/* monitoramento: ping do mestre, detecção de queda e retomada ao voltar à tela ou à internet */
+setInterval(()=>{const n=Date.now();
+  if(VT.role==='gm'){bc({t:'ping'});Object.values(VT.pl).forEach(p=>{if(p.on&&p.conn&&n-(p.seen||0)>35000){const c=p.conn;try{c.close()}catch(e){}gone(c)}})}
+  else if(VT.role==='player'&&VT.on&&n-VT.lastMsg>30000){VT.on=false;dropPeer();refresh();sched()}},8000);
+setInterval(()=>{if(VT.role!=='player'||!VT.on||!VT.gm||!VT.gm.open)return;const c=C();if(!c)return;const j=JSON.stringify(snap(c));if(j!==VT.last){VT.last=j;VT.gm.send({t:'sheet',char:JSON.parse(j)})}},2000);
+const ensure=f=>{if(!f&&document.visibilityState!=='visible')return;
+  if(VT.role==='gm'){wake(true);const p=VT.peer;if(p&&p.disconnected&&!p.destroyed){try{p.reconnect()}catch(e){}}else if(!p&&!VT.ending)openPeer(VT.code,1)}
+  else if(VT.want&&!VT.on)tryJoin()};
+document.addEventListener('visibilitychange',()=>ensure());addEventListener('online',()=>ensure(1));
 
 /* ---------- página da cena (todos) ---------- */
 function cena(){return `<div class="wrap vt cen"><div class="conn">${connH()}</div><div class="cgrid" style="--rw:${LS.getItem('co-rw')??300}px"><div class="stage" id="stage">${stageH()}</div><div class="split" id="split" title="Arraste para ajustar a largura (duplo clique restaura)"></div><div class="rcol"><h3 style="font-size:20px;margin-bottom:8px">Rolagens</h3><div class="rolls" id="rolls">${VT.log.slice().reverse().map(rollH).join('')||'<div class="cnote">Nenhuma rolagem ainda. Role uma ação na sua ficha e ela aparece aqui.</div>'}</div></div></div></div>`}
@@ -586,7 +650,10 @@ document.addEventListener('click',e=>{if(e.target.closest('nav a')){const n=$('#
   case'clroff':Object.keys(VT.pl).forEach(k=>{if(!VT.pl[k].on)delete VT.pl[k]});who();break;
   case'zin':Z.s*=1.4;zap();break;case'zout':Z.s/=1.4;zap();break;case'zrst':zreset();break;
   case'fs':{const st=$('#stage');if(document.fullscreenElement)document.exitFullscreen();else if(st&&st.requestFullscreen)st.requestFullscreen().catch(()=>toast('Tela cheia indisponível neste navegador'));break}
-  case'host':host();break;case'join':join();break;case'leave':leave();break;
+  case'host':host();break;case'join':join();break;case'leave':closeM();leave();break;
+  case'reopen':host(id);break;
+  case'delroom':{LS.setItem('co-rooms',JSON.stringify(rooms().filter(r=>r.code!==id)));idb('readwrite',s=>s.delete('room-'+id)).catch(()=>{});refresh();break}
+  case'endask':openM('<div class="mod"><h2>Encerrar a sala?</h2><p>Todos os jogadores serão desconectados. O link continua guardado em <b>Minhas salas</b> e você pode reabrir a mesma sala depois.</p><div class="row"><button class="btn" data-vt="leave">Encerrar sala</button><button class="btn" data-a="close">Cancelar</button></div></div>');break;
   case'copy':{const u=location.origin+location.pathname+'?sala='+VT.code;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copiado'),()=>prompt('Copie o link:',u));break}
   case'clearlog':VT.log=[];bc({t:'clearlog'});{const r=$('#rolls');if(r)r.innerHTML=''}toast('Rolagens limpas');break;
   case'view':openM(viewH(id));break;
@@ -629,6 +696,9 @@ document.addEventListener('pointerdown',e=>{const sp=e.target.closest('#split');
   sp.addEventListener('pointermove',mv);sp.addEventListener('pointerup',up);e.preventDefault()});
 document.addEventListener('dblclick',e=>{const sp=e.target.closest('#split');if(sp){sp.parentElement.style.setProperty('--rw','300px');LS.setItem('co-rw',300)}});
 addEventListener('hashchange',()=>{const n=$('#nav');n&&n.classList.remove('open')});
+try{const w=JSON.parse(SS.getItem('co-want')||'null'),o=SS.getItem('co-open');
+  if(w&&w.code&&(!q||q.toUpperCase()===w.code)){VT.want=w;VT.wasIn=true;VT.role='player';VT.code=w.code;VT.on=false;VT.att=0;refresh();setTimeout(tryJoin,400)}
+  else if(o&&!q)setTimeout(()=>host(o),400)}catch(e){}
 refresh();render();
 })();
 
