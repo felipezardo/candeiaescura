@@ -489,6 +489,21 @@ $('#imp-file').addEventListener('change',e=>{const f=e.target.files[0];e.target.
   r.onerror=()=>toast('Não foi possível ler o arquivo');r.readAsText(f)});
 render(true);
 </script>
+<script>
+/* ===== CONFIGURAÇÃO DO FIREBASE: cole aqui os dados do seu projeto (veja as instruções) =====
+   Enquanto databaseURL estiver vazio, o site usa a conexão P2P antiga como reserva. */
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyBCiZn_rnvezGnnxcOWv4qFGsJq1iQQBwQ",
+  authDomain:"candela-ccb6e.firebaseapp.com",
+  databaseURL:"https://candela-ccb6e-default-rtdb.firebaseio.com",
+  projectId:"candela-ccb6e",
+  storageBucket:"candela-ccb6e.firebasestorage.app",
+  messagingSenderId:"317430061799",
+  appId:"1:317430061799:web:f6ec67a1f4be6abe37a042"
+};
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 (()=>{
@@ -498,7 +513,7 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const idb=(m,f)=>new Promise((ok,no)=>{const r=indexedDB.open('co-gm',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>{const tx=r.result.transaction('k',m),q=f(tx.objectStore('k'));tx.oncomplete=()=>ok(q&&q.result);tx.onerror=()=>no(tx.error)};r.onerror=()=>no(r.error)});
 const saveLib=()=>idb('readwrite',s=>s.put(VT.lib,'lib')).catch(()=>toast('Não foi possível salvar a biblioteca neste navegador'));
 idb('readonly',s=>s.get('lib')).then(l=>{if(l){VT.lib=l;if(location.hash==='#mestre')render()}}).catch(()=>{});
-const bc=m=>VT.conns.forEach(c=>c.open&&c.send(m));
+const bc=m=>VT.fb?fbBc(m):VT.conns.forEach(c=>c.open&&c.send(m));
 const snap=c=>{const o=JSON.parse(JSON.stringify(c));o.notes='';return o};
 const noPeer=()=>typeof Peer==='undefined'&&(toast('A biblioteca de conexão não carregou (é preciso internet)'),true);
 
@@ -547,10 +562,10 @@ const saveRoom=()=>{if(VT.role!=='gm')return;clearTimeout(rt);rt=setTimeout(()=>
 const live=()=>VT.role==='gm'||(VT.role==='player'&&VT.on);
 const connH=()=>VT.role==='off'?`<b style="font-family:Cinzel,serif">Entrar na sala</b><input id="vt-code" type="text" placeholder="Código" maxlength="8" value="${esc(VT.pre)}" style="max-width:110px;text-transform:uppercase"><input id="vt-name" type="text" placeholder="Seu nome" value="${esc(LS.getItem('co-name')||(C()&&C().name)||'')}"><button class="btn" data-vt="join">Conectar</button><span class="cnote">Mestre? <a href="#mestre" style="color:var(--g)">Crie a sala aqui</a>.</span>`
  :VT.role==='gm'?`<span>Você é o mestre da sala <b>${VT.code}</b> · ${VT.who.length} jogador(es) conectado(s)</span><a href="#mestre" style="color:var(--g)">Painel do mestre</a>`
- :VT.on?`<span>Conectado à sala <b>${VT.code}</b>${VT.who.length?' · Na sala: '+VT.who.map(esc).join(', '):''}</span><button class="btn" data-vt="leave">Sair</button>`
+ :VT.on?`<span>Conectado à sala <b>${VT.code}</b>${VT.fb&&VT.gmOn===false?' (mestre ausente por enquanto)':''}${VT.who.length?' · Na sala: '+VT.who.map(esc).join(', '):''}</span><button class="btn" data-vt="leave">Sair</button>`
  :`<span>Reconectando à sala <b>${VT.code}</b>… o mestre pode ter saído por um instante.</span><button class="btn" data-vt="leave">Sair</button>`;
 const roomH=()=>{
- if(VT.role==='gm')return `<h3>Sala</h3><div class="code">${VT.code}</div><p>Link permanente desta sala (vale sempre que você reabri-la):<br><small>${esc(linkOf(VT.code))}</small></p><button class="btn" data-vt="copy">Copiar link</button> <button class="btn" data-vt="clearlog">Limpar rolagens</button> <a class="btn" href="#cena" style="text-decoration:none;display:inline-block">Ver a cena</a> <button class="btn" data-vt="endask">Encerrar sala</button><p><button class="btn" data-vt="ka">Manter ativa em segundo plano: ${LS.getItem('co-ka')!=='0'&&!VT.kaBlocked?'ligado':VT.kaBlocked?'toque para ativar':'desligado'}</button></p><p class="cnote">Com o modo ligado, o navegador trata a sala como uma mídia tocando (um som inaudível) e evita suspender a aba. Se a conexão cair mesmo assim, a sala volta sozinha e os jogadores reconectam.</p>`;
+ if(VT.role==='gm')return `<h3>Sala</h3><div class="code">${VT.code}</div><p>Link permanente desta sala (vale sempre que você reabri-la):<br><small>${esc(linkOf(VT.code))}</small></p><button class="btn" data-vt="copy">Copiar link</button> <button class="btn" data-vt="clearlog">Limpar rolagens</button> <a class="btn" href="#cena" style="text-decoration:none;display:inline-block">Ver a cena</a> <button class="btn" data-vt="endask">Encerrar sala</button>${USE_FB?'<p class="cnote">A sala fica guardada na nuvem: você pode fechar a aba ou o aparelho e os jogadores continuam nela. Ela só fecha quando você clicar em Encerrar sala.</p>':`<p><button class="btn" data-vt="ka">Manter ativa em segundo plano: ${LS.getItem('co-ka')!=='0'&&!VT.kaBlocked?'ligado':VT.kaBlocked?'toque para ativar':'desligado'}</button></p><p class="cnote">Com o modo ligado, o navegador trata a sala como uma mídia tocando (um som inaudível) e evita suspender a aba. Se a conexão cair mesmo assim, a sala volta sozinha e os jogadores reconectam.</p>`}`;
  if(VT.opening)return `<h3>Sala</h3><div class="code">${VT.code}</div><p>Abrindo a sala…</p>`;
  if(VT.role==='player')return `<h3>Sala</h3><p>Você está conectado como jogador. Saia da sala para criar uma nova.</p><button class="btn" data-vt="leave">Sair</button>`;
  const rs=rooms();
@@ -621,14 +636,94 @@ function leave(silent){const was=VT.role;
   if(was!=='off')applyMusic(null);refresh();if(!silent&&was!=='off')toast(was==='gm'?'Sala encerrada':'Você saiu da sala')}
 
 /* monitoramento: ping do mestre, detecção de queda e retomada ao voltar à tela ou à internet */
-setInterval(()=>{const n=Date.now();
+setInterval(()=>{const n=Date.now();if(VT.fb)return;
   if(VT.role==='gm'){bc({t:'ping'});Object.values(VT.pl).forEach(p=>{if(p.on&&p.conn&&n-(p.seen||0)>35000){const c=p.conn;try{c.close()}catch(e){}gone(c)}})}
   else if(VT.role==='player'&&VT.on&&n-VT.lastMsg>30000){VT.on=false;dropPeer();refresh();sched()}},8000);
 setInterval(()=>{if(VT.role!=='player'||!VT.on||!VT.gm||!VT.gm.open)return;const c=C();if(!c)return;const j=JSON.stringify(snap(c));if(j!==VT.last){VT.last=j;VT.gm.send({t:'sheet',char:JSON.parse(j)})}},2000);
-const ensure=f=>{if(!f&&document.visibilityState!=='visible')return;
+const ensure=f=>{if(VT.fb)return;if(!f&&document.visibilityState!=='visible')return;
   if(VT.role==='gm'){wake(true);if(kaOn&&kaAudio.paused)keepAlive(true);const p=VT.peer;if(p&&p.disconnected&&!p.destroyed){try{p.reconnect()}catch(e){}}else if(!p&&!VT.ending)openPeer(VT.code,1)}
   else if(VT.want&&!VT.on)tryJoin()};
 document.addEventListener('visibilitychange',()=>ensure());addEventListener('online',()=>ensure(1));
+
+/* ---------- Firebase Realtime Database: a sala vive na nuvem (plano gratuito Spark) ---------- */
+const USE_FB=!!(typeof FIREBASE_CONFIG!=='undefined'&&FIREBASE_CONFIG.databaseURL&&window.firebase);
+let DB=null,R=null,offs=[];
+if(USE_FB){try{firebase.initializeApp(FIREBASE_CONFIG);DB=firebase.database()}catch(e){console.error('Firebase',e)}}
+const b64e=buf=>{const u=new Uint8Array(buf);let s='';for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)};
+const b64d=t=>{const s=atob(t),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer};
+const clean=o=>JSON.parse(JSON.stringify(o));
+const listen=(ref,ev,fn)=>{ref.on(ev,fn);offs.push(()=>ref.off(ev,fn))};
+const unlisten=()=>{offs.forEach(f=>{try{f()}catch(e){}});offs=[]};
+const fbErr=e=>e&&(e.code||e.message)||'erro';
+/* mestre -> nuvem */
+function fbBc(m){if(!R)return;
+  if(m.t==='scene')R.child('scene').set(m.s?clean(m.s):null);
+  else if(m.t==='music'){const x=Object.assign({},m.m);if(x.buf){x.b64=b64e(x.buf);delete x.buf}R.child('music').set(clean(x))}
+  else if(m.t==='roll')R.child('log').push(clean(m.e));
+  else if(m.t==='clearlog'){R.child('log').remove();R.child('meta/clr').set(Date.now())}
+  else if(m.t==='end')R.child('meta/ended').set(true)}
+/* jogador -> nuvem (imita a conexão antiga: send({t:'sheet'|'roll'})) */
+const fbGm={open:true,send:m=>{if(!R)return;if(m.t==='sheet')R.child('players/'+CID+'/char').set(clean(m.char));else if(m.t==='roll')R.child('log').push(clean(m.e))}};
+const plSet=s=>{const v=s.val()||{};if(v.kicked)return;const id=s.key;
+  VT.pl[id]={name:v.name||'Jogador',char:v.char||null,on:!!v.on,conn:{send:m=>{if(m.t==='kick'&&R)R.child('players/'+id+'/kicked').set(true)},close(){setTimeout(()=>{R&&R.child('players/'+id).remove().catch(()=>{});R&&R.child('who/'+id).remove().catch(()=>{})},1500)}}};
+  who();upd(id)};
+const fbRemoveOffline=()=>{if(!R)return;R.child('players').once('value').then(s=>{s.forEach(c=>{if(!(c.val()||{}).on)c.ref.remove()})})};
+async function fbHost(code){
+  if(!DB)return toast('O Firebase não iniciou. Confira a configuração no início do arquivo.');
+  if(VT.role!=='off'||VT.opening)return toast('Você já está em uma sala');
+  const fresh=!code;VT.opening=true;VT.code=code||'';refresh();
+  try{let c=code;
+    if(fresh){for(let i=0;i<6;i++){c=newCode();if(!(await DB.ref('salas/'+c+'/meta').once('value')).exists())break}}
+    R=DB.ref('salas/'+c);
+    const mu={ts:Date.now(),ended:false,gm:CID,gmOn:true};if(fresh)mu.clr=Date.now();
+    await R.child('meta').update(mu);R.child('meta/gmOn').onDisconnect().set(false);
+    VT.code=c;VT.fb=true;VT.role='gm';VT.opening=false;VT.on=true;VT.pl={};VT.log=[];VT.reopen=!fresh;
+    const lr=$('#rolls');if(lr)lr.innerHTML='';
+    putRoom(c);SS.setItem('co-open',c);
+    const q=R.child('log').limitToLast(60);let ready=false;
+    listen(q,'value',()=>{ready=true});listen(q,'child_added',s=>{const e=s.val();if(e&&e.id)addRoll(e,false,!ready)});
+    ['child_added','child_changed'].forEach(ev=>listen(R.child('players'),ev,plSet));
+    listen(R.child('players'),'child_removed',s=>{delete VT.pl[s.key];who()});
+    R.child('scene').once('value').then(s=>{const v=s.val();if(v&&!VT.scene)setScene(v)});
+    if(fresh){R.child('scene').remove();R.child('music').remove();setScene(null)}
+    refresh();toast((fresh?'Sala criada: ':'Sala reaberta: ')+c)
+  }catch(e){VT.opening=false;VT.fb=false;R=null;refresh();toast('Não foi possível abrir a sala ('+fbErr(e)+'). Confira as regras do banco.')}}
+async function fbJoin(resume){
+  if(!DB)return toast('O Firebase não iniciou. Confira a configuração no início do arquivo.');
+  if(VT.role==='gm')return toast('Encerre a sua sala antes de entrar em outra');
+  const code=resume?VT.want.code:($('#vt-code').value||'').trim().toUpperCase(),name=resume?VT.want.name:(($('#vt-name').value||'').trim()||'Jogador');
+  if(!code)return toast('Digite o código da sala');
+  try{const m=(await DB.ref('salas/'+code+'/meta').once('value')).val();
+    if(!m){VT.want=null;SS.removeItem('co-want');if(resume){VT.role='off';refresh()}return toast('Sala não encontrada. Confira o código.')}
+    if(m.ended){VT.want=null;SS.removeItem('co-want');if(resume){VT.role='off';refresh()}return toast('Esta sala está encerrada. Peça ao mestre para reabri-la.')}
+    VT.want={code,name};SS.setItem('co-want',JSON.stringify(VT.want));LS.setItem('co-name',name);
+    R=DB.ref('salas/'+code);VT.fb=true;VT.role='player';VT.code=code;VT.on=false;VT.gm=fbGm;VT.log=[];VT.clr=undefined;
+    const me=R.child('players/'+CID),wr=R.child('who/'+CID);
+    listen(DB.ref('.info/connected'),'value',s=>{VT.on=!!s.val();if(VT.on){const ch=C();VT.last=ch?JSON.stringify(snap(ch)):'';me.update({name,on:true,char:ch?clean(snap(ch)):null,kicked:null});me.onDisconnect().update({on:false});wr.set(name);wr.onDisconnect().remove()}refresh()});
+    listen(me.child('kicked'),'value',s=>{if(s.val()){toast('Você foi removido da sala pelo mestre');fbLeave(true)}});
+    listen(R.child('meta'),'value',s=>{const v=s.val();if(!v||v.ended){toast('O mestre encerrou a sala');fbLeave(true);return}
+      if(v.clr&&v.clr!==VT.clr){if(VT.clr!==undefined){VT.log=[];const r=$('#rolls');if(r)r.innerHTML=''}VT.clr=v.clr}
+      if(VT.gmOn!==!!v.gmOn){VT.gmOn=!!v.gmOn;refresh()}});
+    listen(R.child('who'),'value',s=>{VT.who=Object.values(s.val()||{});refresh()});
+    const q=R.child('log').limitToLast(60);let ready=false;
+    listen(q,'value',()=>{ready=true});listen(q,'child_added',s=>{const e=s.val();if(e&&e.id)addRoll(e,false,!ready)});
+    listen(R.child('scene'),'value',s=>{const v=s.val(),cur=VT.scene;if(!!cur===!!v&&(!v||cur.id===v.id))return;setScene(v)});
+    listen(R.child('music'),'value',s=>{const v=s.val();if(!v){if(VT.music)applyMusic(null);return}const m2=Object.assign({},v);if(m2.b64){m2.buf=b64d(m2.b64);delete m2.b64}const a=VT.music;if(a&&a.on&&m2.on&&a.tid===m2.tid&&a.id===m2.id)return;applyMusic(m2)});
+    refresh();toast('Conectado à sala '+code)
+  }catch(e){toast('Não foi possível entrar na sala ('+fbErr(e)+')')}}
+function fbLeave(silent){const was=VT.role;
+  if(was==='gm'&&R){bc({t:'end'});R.child('meta/gmOn').set(false);SS.removeItem('co-open')}
+  else if(was==='player'&&R){R.child('players/'+CID+'/on').set(false);R.child('who/'+CID).remove()}
+  unlisten();R=null;VT.fb=false;VT.gm=null;VT.want=null;SS.removeItem('co-want');
+  VT.role='off';VT.on=false;VT.opening=false;VT.pl={};VT.who=[];
+  if(was!=='off')applyMusic(null);refresh();if(!silent&&was!=='off')toast(was==='gm'?'Sala encerrada':'Você saiu da sala')}
+function fbResume(w,o,q){
+  if(w&&w.code&&(!q||q.toUpperCase()===w.code)){VT.want=w;VT.role='player';VT.code=w.code;VT.on=false;refresh();setTimeout(()=>fbJoin(true),400)}
+  else if(o&&!q)setTimeout(()=>host(o),400)}
+{const _host=host,_join=join,_leave=leave;
+  host=c=>USE_FB&&DB?fbHost(c):_host(c);
+  join=()=>USE_FB&&DB?fbJoin():_join();
+  leave=s=>VT.fb?fbLeave(s):_leave(s)}
 
 /* ---------- página da cena (todos) ---------- */
 function cena(){return `<div class="wrap vt cen"><div class="conn">${connH()}</div><div class="cgrid" style="--rw:${LS.getItem('co-rw')??300}px"><div class="stage" id="stage">${stageH()}</div><div class="split" id="split" title="Arraste para ajustar a largura (duplo clique restaura)"></div><div class="rcol"><h3 style="font-size:20px;margin-bottom:8px">Rolagens</h3><div class="rolls" id="rolls">${VT.log.slice().reverse().map(rollH).join('')||'<div class="cnote">Nenhuma rolagem ainda. Role uma ação na sua ficha e ela aparece aqui.</div>'}</div></div></div></div>`}
@@ -644,7 +739,7 @@ function viewH(id){const p=VT.pl[id],c=p&&p.char;if(!c)return '<div class="mod">
   ac=Object.entries(c.ac||{}).filter(([,v])=>v>0).map(([k,v])=>`${c.gold&&c.gold[k]?'◆ ':''}${k} ${v}`).join(' · '),k=c.mk||{c:0,m:0,s:0};
   return `<div class="mod"><h2>${esc(c.name||p.name)}</h2><p class="cnote">${esc(p.name)} · ${esc(c.role||'sem papel')}${c.spec?' / '+esc(c.spec):''}${c.pron?' · '+esc(c.pron):''}</p>${['style','trig','quest'].map((f,i)=>c[f]?`<p><b>${['Estilo','Estopim','Pergunta'][i]}:</b> ${esc(c[f])}</p>`:'').join('')}<p><b>Ações:</b> ${esc(ac)||'—'}</p><p><b>Impulsos:</b> ${rs(c).map(x=>`${x.d} ${x.cur}/${x.max} (resistência ${x.t-x.b}/${x.t})`).join(' · ')}</p><p><b>Marcas:</b> Corpo ${k.c}/3 · Mente ${k.m}/3 · Sangria ${k.s}/3</p><p><b>Cicatrizes:</b> ${(c.sc||[]).filter(Boolean).map(esc).join('; ')||'—'}</p><p><b>Equipamento:</b> ${eq.map(esc).join(', ')||'—'}</p><p><b>Relações:</b> ${(c.rel||[]).filter(Boolean).map(esc).join(' · ')||'—'}</p><h3 style="margin-top:12px;font-size:18px">Habilidades</h3>${ab.map(([n,t])=>`<p><b>${n}:</b> ${t}</p>`).join('')||'<p class="cnote">Nenhuma marcada.</p>'}<div class="row"><button class="btn" data-a="close">Fechar</button></div></div>`}
 const libH=()=>{const L=VT.lib,m=VT.music;return `<div class="pn"><h3>Imagens</h3><div class="bar2"><button class="btn" data-vt="addimg">Adicionar imagens</button><input id="vt-url" type="text" placeholder="…ou cole o link de uma imagem"><button class="btn" data-vt="urlimg">Adicionar link</button><button class="btn" data-vt="hide">Esconder cena</button></div><div class="tg">${L.imgs.map(i=>`<div class="tt ${VT.scene&&VT.scene.id===i.id?'on':''}" data-vt="show" data-id="${i.id}" title="Mostrar para todos"><img src="${esc(i.th)}" alt=""><span>${esc(i.title)}</span><button data-vt="delimg" data-id="${i.id}" aria-label="Remover">×</button></div>`).join('')||'<div class="cnote">Arraste imagens para esta página ou use o botão. Um clique na miniatura mostra a imagem para todos.</div>'}</div></div>
-<div class="pn"><h3>Trilha sonora</h3><div class="bar2"><input id="vt-tl" type="text" placeholder="Link do YouTube ou de um áudio (.mp3)"><input id="vt-tt" type="text" placeholder="Nome (opcional)" style="max-width:170px"><button class="btn" data-vt="addtr">Adicionar</button><button class="btn" data-vt="addaud">Enviar arquivo de áudio</button><button class="btn" data-vt="stopm">Parar música</button></div>${L.tracks.map(t=>`<div class="tr ${m&&m.on&&m.tid===t.id?'on':''}"><button class="btn" data-vt="play" data-id="${t.id}" title="Tocar para todos">▶</button><span>${esc(t.title)}</span><small>${t.kind==='yt'?'YouTube':t.kind==='file'?'arquivo':'link'}</small><button data-vt="deltr" data-id="${t.id}" aria-label="Remover">×</button></div>`).join('')||'<div class="cnote">Nenhuma faixa ainda. Arquivos de áudio são enviados aos jogadores quando você toca (até 12 MB).</div>'}</div>`};
+<div class="pn"><h3>Trilha sonora</h3><div class="bar2"><input id="vt-tl" type="text" placeholder="Link do YouTube ou de um áudio (.mp3)"><input id="vt-tt" type="text" placeholder="Nome (opcional)" style="max-width:170px"><button class="btn" data-vt="addtr">Adicionar</button><button class="btn" data-vt="addaud">Enviar arquivo de áudio</button><button class="btn" data-vt="stopm">Parar música</button></div>${L.tracks.map(t=>`<div class="tr ${m&&m.on&&m.tid===t.id?'on':''}"><button class="btn" data-vt="play" data-id="${t.id}" title="Tocar para todos">▶</button><span>${esc(t.title)}</span><small>${t.kind==='yt'?'YouTube':t.kind==='file'?'arquivo':'link'}</small><button data-vt="deltr" data-id="${t.id}" aria-label="Remover">×</button></div>`).join('')||'<div class="cnote">Nenhuma faixa ainda. Arquivos de áudio são enviados aos jogadores quando você toca (até '+(USE_FB?5:12)+' MB).</div>'}</div>`};
 const redo=()=>{const g=$('#vt-lib');if(g)g.innerHTML=libH()};
 function mestre(){return `<div class="wrap vt"><div class="hero"><h1>Mestre</h1><p>Crie a sala, acompanhe as fichas e conduza a cena com poucos cliques.</p></div><div class="pn" id="vt-room">${roomH()}</div><div class="pn"><h3>Jogadores <button class="btn" data-vt="clroff" style="font-size:12px;float:right" title="Remove da lista quem está offline">Limpar offline</button></h3><div class="pgrid" id="vt-pl">${plAll()}</div></div><div id="vt-lib">${libH()}</div></div>`}
 window.VTT={cena,mestre};
@@ -657,13 +752,13 @@ document.addEventListener('click',e=>{if(e.target.closest('nav a')){const n=$('#
   case'min':VT.min=!VT.min;LS.setItem('co-min',VT.min?'1':'0');mini();break;
   case'kick':{const k=VT.pl[id];if(!k)break;if(k.on&&k.conn)openM(`<div class="mod"><h2>Remover jogador?</h2><p>${esc(k.name)} será desconectado da sala.</p><div class="row"><button class="btn" data-vt="kickok" data-id="${id}">Remover</button><button class="btn" data-a="close">Cancelar</button></div></div>`);else{delete VT.pl[id];who()}break}
   case'kickok':{const k=VT.pl[id];if(k&&k.conn){const c=k.conn;try{c.send({t:'kick'})}catch(x){}setTimeout(()=>{try{c.close()}catch(x){}},300);VT.conns=VT.conns.filter(x=>x!==c)}delete VT.pl[id];closeM();who();break}
-  case'clroff':Object.keys(VT.pl).forEach(k=>{if(!VT.pl[k].on)delete VT.pl[k]});who();break;
+  case'clroff':Object.keys(VT.pl).forEach(k=>{if(!VT.pl[k].on)delete VT.pl[k]});if(VT.fb)fbRemoveOffline();who();break;
   case'zin':Z.s*=1.4;zap();break;case'zout':Z.s/=1.4;zap();break;case'zrst':zreset();break;
   case'fs':{const st=$('#stage');if(document.fullscreenElement)document.exitFullscreen();else if(st&&st.requestFullscreen)st.requestFullscreen().catch(()=>toast('Tela cheia indisponível neste navegador'));break}
   case'host':host();break;case'join':join();break;case'leave':closeM();leave();break;
   case'reopen':host(id);break;
   case'ka':if(VT.kaBlocked&&LS.getItem('co-ka')!=='0')keepAlive(true);else{LS.setItem('co-ka',LS.getItem('co-ka')==='0'?'1':'0');keepAlive(true)}break;
-  case'delroom':{LS.setItem('co-rooms',JSON.stringify(rooms().filter(r=>r.code!==id)));idb('readwrite',s=>s.delete('room-'+id)).catch(()=>{});refresh();break}
+  case'delroom':{LS.setItem('co-rooms',JSON.stringify(rooms().filter(r=>r.code!==id)));if(USE_FB&&DB)DB.ref('salas/'+id).remove().catch(()=>{});idb('readwrite',s=>s.delete('room-'+id)).catch(()=>{});refresh();break}
   case'endask':openM('<div class="mod"><h2>Encerrar a sala?</h2><p>Todos os jogadores serão desconectados. O link continua guardado em <b>Minhas salas</b> e você pode reabrir a mesma sala depois.</p><div class="row"><button class="btn" data-vt="leave">Encerrar sala</button><button class="btn" data-a="close">Cancelar</button></div></div>');break;
   case'copy':{const u=location.origin+location.pathname+'?sala='+VT.code;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copiado'),()=>prompt('Copie o link:',u));break}
   case'clearlog':VT.log=[];bc({t:'clearlog'});{const r=$('#rolls');if(r)r.innerHTML=''}toast('Rolagens limpas');break;
@@ -684,7 +779,7 @@ document.addEventListener('click',e=>{if(e.target.closest('nav a')){const n=$('#
   case'mute':VT.mute=!VT.mute;vol();mini();break;
   case'unblock':aud.play().then(()=>{VT.blocked=false;mini()}).catch(()=>{});break}});
 const small=(f,mx,q)=>new Promise(ok=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const sz=(m,q)=>{const k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)};const r={id:uid(),title:f.name.replace(/\.\w+$/,''),src:sz(1600,.82),th:sz(240,.7)};URL.revokeObjectURL(u);ok(r)};im.onerror=()=>{URL.revokeObjectURL(u);ok(null)};im.src=u});
-async function addFiles(files){let n=0;for(const f of files){if(f.type.startsWith('image/')){const r=await small(f);if(r){VT.lib.imgs.push(r);n++}}else if(f.type.startsWith('audio/')){if(f.size>12e6){toast('Áudio acima de 12 MB: use um link do YouTube'+' ou comprima o arquivo');continue}VT.lib.tracks.push({id:uid(),kind:'file',title:f.name.replace(/\.\w+$/,''),data:await f.arrayBuffer(),mime:f.type});n++}}
+async function addFiles(files){let n=0;for(const f of files){if(f.type.startsWith('image/')){const r=await small(f);if(r){VT.lib.imgs.push(r);n++}}else if(f.type.startsWith('audio/')){if(f.size>(USE_FB?5e6:12e6)){toast('Áudio acima de '+(USE_FB?5:12)+' MB: use um link do YouTube ou comprima o arquivo');continue}VT.lib.tracks.push({id:uid(),kind:'file',title:f.name.replace(/\.\w+$/,''),data:await f.arrayBuffer(),mime:f.type});n++}}
   if(n){await saveLib();redo();toast(n+' item(ns) adicionado(s)')}}
 document.body.insertAdjacentHTML('beforeend','<input type="file" id="vt-img" accept="image/*" multiple hidden><input type="file" id="vt-aud" accept="audio/*" hidden><div id="vt-mini" hidden><button class="mn" data-vt="min" aria-label="Minimizar ou expandir o player">–</button><span class="t"></span><input type="range" min="0" max="100" aria-label="Volume"><button class="mu" data-vt="mute"></button><button class="go" data-vt="unblock" hidden>Ativar música</button><div id="vt-yt"></div></div>');
 ['#vt-img','#vt-aud'].forEach(s=>$(s).addEventListener('change',e=>{addFiles([...e.target.files]);e.target.value=''}));
@@ -708,7 +803,7 @@ document.addEventListener('pointerdown',e=>{const sp=e.target.closest('#split');
 document.addEventListener('dblclick',e=>{const sp=e.target.closest('#split');if(sp){sp.parentElement.style.setProperty('--rw','300px');LS.setItem('co-rw',300)}});
 addEventListener('hashchange',()=>{const n=$('#nav');n&&n.classList.remove('open')});
 try{const w=JSON.parse(SS.getItem('co-want')||'null'),o=SS.getItem('co-open');
-  if(w&&w.code&&(!q||q.toUpperCase()===w.code)){VT.want=w;VT.wasIn=true;VT.role='player';VT.code=w.code;VT.on=false;VT.att=0;refresh();setTimeout(tryJoin,400)}
+  if(USE_FB)fbResume(w,o,q);else if(w&&w.code&&(!q||q.toUpperCase()===w.code)){VT.want=w;VT.wasIn=true;VT.role='player';VT.code=w.code;VT.on=false;VT.att=0;refresh();setTimeout(tryJoin,400)}
   else if(o&&!q)setTimeout(()=>host(o),400)}catch(e){}
 refresh();render();
 })();
