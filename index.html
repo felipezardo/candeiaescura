@@ -165,6 +165,8 @@ nav a.warn .dot-s{background:#e0a030;box-shadow:0 0 6px #e0a030}
 .btb{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px;padding:8px 10px;border:1px solid #3a2f22;border-radius:12px;background:#ffffff0d}
 .btb button{border:1px solid var(--m);border-radius:4px;padding:2px 10px;min-width:34px;font-family:Cinzel,serif;color:var(--p);transition:.2s}.btb button:hover,.btb button.on{background:var(--g);color:var(--i);border-color:var(--g)}
 .sw{display:inline-block;width:22px;height:22px;border-radius:50%;border:2px solid #0008;cursor:pointer;transition:.2s}.sw.on{box-shadow:0 0 0 2px var(--p)}.sw:hover{transform:scale(1.15)}.btb input[type=range]{width:90px;border:0}
+.tok.own{pointer-events:auto;cursor:grab;touch-action:none}.tok.own img,.tok.own span{box-shadow:0 0 0 2px var(--g),0 0 14px var(--g)}.tok.own:active{cursor:grabbing}
+#toks.sm .tok img,#toks.sm .tok span{border-width:1px;font-size:8px}#toks.sm .tok em{font-size:8px;margin-top:1px}
 </style></head><body>
 <header class="top"><a class="brand" href="#inicio"><svg viewBox="0 0 48 48" fill="none" stroke="#e9dfc8"><circle cx="24" cy="24" r="21" stroke-width="1.5"/><circle cx="24" cy="24" r="14" stroke-width="3"/><circle cx="24" cy="24" r="6" stroke-width="2"/><circle cx="24" cy="24" r="2" fill="#e9dfc8"/><path d="M24 3v7M24 38v7M3 24h7M38 24h7M9 9l5 5M34 34l5 5M39 9l-5 5M14 34l-5 5" stroke-width="1"/></svg><span>CANDELA<br>OBSCURA</span></a>
 <button class="burger" data-vt="menu" aria-label="Menu" aria-expanded="false">☰</button><nav id="nav"><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><a href="#cena" id="vt-cena">Cena<i class="dot-s"></i></a><a href="#mestre">Mestre</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
@@ -686,7 +688,7 @@ async function fbHost(code){
     if(fresh){for(let i=0;i<6;i++){c=newCode();if(!(await DB.ref('salas/'+c+'/meta').once('value')).exists())break}}
     R=DB.ref('salas/'+c);
     const mu={ts:Date.now(),ended:false,gm:CID,gmOn:true};if(fresh)mu.clr=Date.now();
-    await R.child('meta').update(mu);R.child('meta/gmOn').onDisconnect().set(false);
+    await R.child('meta').update(mu);R.child('meta/gmOn').onDisconnect().set(false);R.child('meta/pm').once('value').then(s=>{VT.pm=s.val()!==false});
     VT.code=c;VT.fb=true;VT.role='gm';VT.opening=false;VT.on=true;VT.pl={};VT.log=[];VT.reopen=!fresh;
     const lr=$('#rolls');if(lr)lr.innerHTML='';
     putRoom(c);SS.setItem('co-open',c);
@@ -713,7 +715,7 @@ async function fbJoin(resume){
     listen(me.child('kicked'),'value',s=>{if(s.val()){toast('Você foi removido da sala pelo mestre');fbLeave(true)}});
     listen(R.child('meta'),'value',s=>{const v=s.val();if(!v||v.ended){toast('O mestre encerrou a sala');fbLeave(true);return}
       if(v.clr&&v.clr!==VT.clr){if(VT.clr!==undefined){VT.log=[];const r=$('#rolls');if(r)r.innerHTML=''}VT.clr=v.clr}
-      if(VT.gmOn!==!!v.gmOn){VT.gmOn=!!v.gmOn;refresh()}});
+      if(VT.gmOn!==!!v.gmOn){VT.gmOn=!!v.gmOn;refresh()}const pm=v.pm!==false;if(VT.pm!==pm){VT.pm=pm;bTokAll()}});
     listen(R.child('who'),'value',s=>{VT.who=Object.values(s.val()||{});refresh()});
     const q=R.child('log').limitToLast(60);let ready=false;
     listen(q,'value',()=>{ready=true});listen(q,'child_added',s=>{const e=s.val();if(e&&e.id)addRoll(e,false,!ready)});
@@ -761,25 +763,26 @@ function bFit(){const st=$('#stage'),f=$('#fit'),im=f&&f.querySelector('img');if
   const cv=$('#bcv');if(cv){const d=Math.min(2,window.devicePixelRatio||1)*1.5;cv.width=Math.max(2,Math.round(w*d));cv.height=Math.max(2,Math.round(h*d))}bDraw()}
 function bDraw(){const cv=$('#bcv');if(!cv)return;const g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);g.lineCap='round';g.lineJoin='round';
   Object.values(B.strokes).forEach(s=>{const p=s.pts;if(p.length<2)return;g.strokeStyle=s.c;g.lineWidth=Math.max(1,s.w/1000*cv.width);g.beginPath();g.moveTo(p[0]*cv.width,p[1]*cv.height);if(p.length===2)g.lineTo(p[0]*cv.width+.1,p[1]*cv.height);for(let i=2;i<p.length;i+=2)g.lineTo(p[i]*cv.width,p[i+1]*cv.height);g.stroke()})}
-const tokH=(id,t)=>`<div class="tok" data-id="${esc(id)}" style="left:${t.x*100}%;top:${t.y*100}%;width:${B.ts}%">${t.i?`<img src="${esc(t.i)}" draggable="false" alt="">`:`<span style="background:${esc(t.c||'#8c2a22')}">${esc((t.n||'?').trim().charAt(0).toUpperCase())}</span>`}<em>${esc(t.n||'')}</em>${bGM()?`<button class="tx" data-vt="tokx" data-id="${esc(id)}" aria-label="Remover token">×</button>`:''}</div>`;
-function bTokAll(){const c=$('#toks');if(!c)return;c.innerHTML=Object.entries(B.tokens).map(([id,t])=>tokH(id,t)).join('')}
+const tokSig=t=>(t.i||'').length+'|'+(t.n||'')+'|'+(t.c||'');
+const tokH=(id,t)=>`<div class="tok${VT.role==='player'&&VT.pm!==false&&id==='pl_'+CID?' own':''}" data-id="${esc(id)}" data-sig="${esc(tokSig(t))}" style="left:${t.x*100}%;top:${t.y*100}%;width:${B.ts}%">${t.i?`<img src="${esc(t.i)}" draggable="false" alt="">`:`<span style="background:${esc(t.c||'#8c2a22')}">${esc((t.n||'?').trim().charAt(0).toUpperCase())}</span>`}<em>${esc(t.n||'')}</em>${bGM()?`<button class="tx" data-vt="tokx" data-id="${esc(id)}" aria-label="Remover token">×</button>`:''}</div>`;
+function bTokAll(){const c=$('#toks');if(!c)return;c.classList.toggle('sm',B.ts<3.6);c.innerHTML=Object.entries(B.tokens).map(([id,t])=>tokH(id,t)).join('')}
 function bTok(id){const c=$('#toks');if(!c)return;const t=B.tokens[id],el=c.querySelector('[data-id="'+CSS.escape(id)+'"]');
-  if(!t){el&&el.remove();return}if(!el){c.insertAdjacentHTML('beforeend',tokH(id,t));return}el.style.left=t.x*100+'%';el.style.top=t.y*100+'%'}
+  if(!t){el&&el.remove();return}if(!el){c.insertAdjacentHTML('beforeend',tokH(id,t));return}if(el.dataset.sig!==tokSig(t)){el.outerHTML=tokH(id,t);return}el.style.left=t.x*100+'%';el.style.top=t.y*100+'%'}
 function bTools(){const f=$('#fit');if(f){f.classList.toggle('gmove',bGM()&&B.mode==='move');f.classList.toggle('draw',bGM()&&B.mode!=='move')}
   const t=$('#btb');if(!t)return;const sig=[bGM(),B.mode,B.color,B.sid].join('|');if(t.dataset.sig===sig)return;t.dataset.sig=sig;
   if(!bGM()||!B.sid){t.innerHTML='';return}
-  t.innerHTML=`<div class="btb"><button class="${B.mode==='move'?'on':''}" data-vt="bm" data-id="move" title="Mover tokens e dar zoom">✥</button><button class="${B.mode==='pen'?'on':''}" data-vt="bm" data-id="pen" title="Desenhar">✎</button><button class="${B.mode==='eraser'?'on':''}" data-vt="bm" data-id="eraser" title="Borracha">⌫</button>${COLS.map(c=>`<i class="sw ${B.color===c?'on':''}" style="background:${c}" data-vt="bc" data-id="${c}"></i>`).join('')}<input id="bw" type="range" min="2" max="14" value="${B.w}" title="Espessura do traço"><button data-vt="bundo" title="Desfazer o último traço">↶</button><button data-vt="bclr" title="Apagar todos os desenhos">Limpar</button><button data-vt="btok">Tokens</button><input id="bts" type="range" min="3" max="14" value="${B.ts}" title="Tamanho dos tokens"></div>`}
+  t.innerHTML=`<div class="btb"><button class="${B.mode==='move'?'on':''}" data-vt="bm" data-id="move" title="Mover tokens e dar zoom">✥</button><button class="${B.mode==='pen'?'on':''}" data-vt="bm" data-id="pen" title="Desenhar">✎</button><button class="${B.mode==='eraser'?'on':''}" data-vt="bm" data-id="eraser" title="Borracha">⌫</button>${COLS.map(c=>`<i class="sw ${B.color===c?'on':''}" style="background:${c}" data-vt="bc" data-id="${c}"></i>`).join('')}<input id="bw" type="range" min="2" max="14" value="${B.w}" title="Espessura do traço"><button data-vt="bundo" title="Desfazer o último traço">↶</button><button data-vt="bclr" title="Apagar todos os desenhos">Limpar</button><button data-vt="btok">Tokens</button><input id="bts" type="range" min="1.5" max="14" step="0.5" value="${B.ts}" title="Tamanho dos tokens"></div>`}
 function bMount(){const im=$('#fit img');if(im&&!(im.complete&&im.naturalWidth))im.onload=bFit;bFit();bTokAll();bDraw();
   const st=$('#stage');if(B.ro)B.ro.disconnect();if(st&&'ResizeObserver' in window){B.ro=B.ro||new ResizeObserver(()=>bFit());B.ro.observe(st)}
   const t=$('#btb');if(t)delete t.dataset.sig;bTools()}
-const bThumb=src=>new Promise(ok=>{if(!src)return ok('');const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=96;const k=Math.max(96/im.width,96/im.height);c.getContext('2d').drawImage(im,(96-im.width*k)/2,0,im.width*k,im.height*k);ok(c.toDataURL('image/jpeg',.7))};im.onerror=()=>ok('');im.src=src});
+const bThumb=(src,ctr)=>new Promise(ok=>{if(!src)return ok('');const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=96;const k=Math.max(96/im.width,96/im.height);c.getContext('2d').drawImage(im,(96-im.width*k)/2,ctr?(96-im.height*k)/2:0,im.width*k,im.height*k);ok(c.toDataURL('image/jpeg',.7))};im.onerror=()=>ok('');im.src=src});
 function tokPut(id,t){if(!B.sid)return toast('Mostre uma imagem de cena primeiro');B.tokens[id]=t;bRef('tokens/'+id).set(clean(t));bTok(id)}
 async function tokAddPlayer(cid){const p=VT.pl[cid];if(!p||!B.sid)return toast('Mostre uma imagem de cena primeiro');const key='pl_'+cid;
   if(B.tokens[key]){bRef('tokens/'+key).remove();delete B.tokens[key];bTok(key);closeM();return}
   const ch=p.char||{},i=await bThumb(ch.img),h=[...cid].reduce((a,c)=>a+c.charCodeAt(0),0);
   tokPut(key,{n:ch.name||p.name,i,c:COLS[h%COLS.length],x:.45+Math.random()*.1,y:.45+Math.random()*.1});closeM()}
-function tokPanel(){const rows=Object.entries(VT.pl).map(([cid,p])=>`<div class="tr"><span>${esc((p.char&&p.char.name)||p.name)}${p.on?'':' <small>(offline)</small>'}</span><button class="btn" data-vt="tokadd" data-id="${esc(cid)}">${B.tokens['pl_'+cid]?'Remover':'Colocar'}</button></div>`).join('')||'<p class="cnote">Nenhum jogador na sala ainda.</p>';
-  return `<div class="mod"><h2>Tokens</h2>${rows}<h3 style="margin-top:14px;font-size:18px">Marcador (NPC, monstro, objeto)</h3><div class="bar2"><input id="npc-name" type="text" placeholder="Nome" style="background:#fff1;color:var(--p)"><button class="btn" data-vt="npcadd">Adicionar</button></div><p class="cnote">Use o botão ✥ na barra para arrastar os tokens. O × aparece ao passar o mouse sobre o token.</p><div class="row"><button class="btn" data-a="close">Fechar</button></div></div>`}
+function tokPanel(){const tk=Object.entries(B.tokens).map(([id,t])=>`<div class="tr">${t.i?`<img src="${esc(t.i)}" alt="" style="width:30px;height:30px;border-radius:50%;object-fit:cover">`:''}<span>${esc(t.n||'')}</span><button class="btn" data-vt="tokph" data-id="${esc(id)}">Foto</button>${t.i?`<button class="btn" data-vt="tokpx" data-id="${esc(id)}">Sem foto</button>`:''}</div>`).join('');const rows=Object.entries(VT.pl).map(([cid,p])=>`<div class="tr"><span>${esc((p.char&&p.char.name)||p.name)}${p.on?'':' <small>(offline)</small>'}</span><button class="btn" data-vt="tokadd" data-id="${esc(cid)}">${B.tokens['pl_'+cid]?'Remover':'Colocar'}</button></div>`).join('')||'<p class="cnote">Nenhum jogador na sala ainda.</p>';
+  return `<div class="mod"><h2>Tokens</h2>${rows}${tk?`<h3 style="margin-top:14px;font-size:18px">Na cena (foto do token)</h3>${tk}`:''}<h3 style="margin-top:14px;font-size:18px">Marcador (NPC, monstro, objeto)</h3><div class="bar2"><input id="npc-name" type="text" placeholder="Nome" style="background:#fff1;color:var(--p)"><input id="npc-photo" type="file" accept="image/*" title="Foto (opcional)" style="max-width:220px;border:0"><button class="btn" data-vt="npcadd">Adicionar</button></div><p><button class="btn" data-vt="pmtoggle">Jogadores movem o próprio token: ${VT.pm!==false?'ligado':'desligado'}</button></p><p class="cnote">Use o botão ✥ na barra para arrastar os tokens. O × aparece ao passar o mouse sobre o token.</p><div class="row"><button class="btn" data-a="close">Fechar</button></div></div>`}
 function bAct(a,id){
   if(a==='bm'){B.mode=id;bTools()}
   else if(a==='bc'){B.color=id;if(B.mode==='eraser')B.mode='pen';bTools()}
@@ -787,18 +790,21 @@ function bAct(a,id){
   else if(a==='bclr'){if(B.sid){bRef('strokes').remove();B.strokes={};B.mine=[];bDraw()}}
   else if(a==='btok')openM(tokPanel());
   else if(a==='tokadd')tokAddPlayer(id);
-  else if(a==='npcadd'){const n=(($('#npc-name')||{}).value||'').trim()||'NPC';tokPut('npc_'+uid(),{n,c:COLS[Math.floor(Math.random()*COLS.length)],x:.5,y:.5});closeM()}
+  else if(a==='npcadd')npcAdd()
+  else if(a==='tokph'){B.tokPh=id;$('#tok-file').click()}
+  else if(a==='tokpx'&&B.tokens[id]){bRef('tokens/'+id+'/i').remove();delete B.tokens[id].i;bTok(id);openM(tokPanel())}
+  else if(a==='pmtoggle'){VT.pm=!(VT.pm!==false);if(R)R.child('meta/pm').set(VT.pm);openM(tokPanel())}
   else if(a==='tokx'&&B.sid){bRef('tokens/'+id).remove();delete B.tokens[id];bTok(id)}}
 const bSend=()=>{const s=B.cur;if(!s||!B.sid)return;bRef('strokes/'+s.id).set({c:s.c,w:s.w,p:s.pts.map(v=>Math.round(v*10000)).join(','),u:Date.now()})};
 function bErase(p){let ch=false;const r=bAr();Object.entries(B.strokes).forEach(([id,s])=>{for(let i=0;i<s.pts.length;i+=2){if(Math.hypot(s.pts[i]-p.x,(s.pts[i+1]-p.y)*r)<.025){delete B.strokes[id];bRef('strokes/'+id).remove();ch=true;break}}});if(ch)bDraw()}
-document.addEventListener('pointerdown',e=>{if(!bGM()||!B.sid)return;
+document.addEventListener('pointerdown',e=>{const own=VT.role==='player'&&VT.fb&&VT.pm!==false;if(!(bGM()||own)||!B.sid)return;
   const tk=e.target.closest&&e.target.closest('.tok');
-  if(tk&&B.mode==='move'&&!e.target.closest('button')){B.drag={id:tk.dataset.id,el:tk,last:0};try{tk.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault();return}
-  if(e.target.id==='bcv'&&B.mode!=='move'){try{e.target.setPointerCapture(e.pointerId)}catch(x){}const p=bPt(e);
+  if(tk&&(own?tk.dataset.id==='pl_'+CID:B.mode==='move')&&!e.target.closest('button')){B.drag={id:tk.dataset.id,el:tk,last:0};try{tk.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault();return}
+  if(bGM()&&e.target.id==='bcv'&&B.mode!=='move'){try{e.target.setPointerCapture(e.pointerId)}catch(x){}const p=bPt(e);
     if(B.mode==='pen'){const id=bRef('strokes').push().key;B.cur={id,c:B.color,w:B.w,pts:[p.x,p.y],last:Date.now()};B.strokes[id]=B.cur;B.mine.push(id);bDraw();bSend()}
     else{B.erasing=true;bErase(p)}e.preventDefault()}});
 document.addEventListener('pointermove',e=>{
-  if(B.drag&&bGM()){const p=bPt(e),t=B.tokens[B.drag.id];if(!t)return;t.x=p.x;t.y=p.y;B.drag.el.style.left=p.x*100+'%';B.drag.el.style.top=p.y*100+'%';const n=Date.now();if(n-B.drag.last>100){B.drag.last=n;bRef('tokens/'+B.drag.id).update({x:p.x,y:p.y})}}
+  if(B.drag){const p=bPt(e),t=B.tokens[B.drag.id];if(!t)return;t.x=p.x;t.y=p.y;B.drag.el.style.left=p.x*100+'%';B.drag.el.style.top=p.y*100+'%';const n=Date.now();if(n-B.drag.last>100){B.drag.last=n;bRef('tokens/'+B.drag.id).update({x:p.x,y:p.y})}}
   else if(B.cur){const p=bPt(e),l=B.cur.pts.length;if(Math.hypot(p.x-B.cur.pts[l-2],(p.y-B.cur.pts[l-1])*bAr())>.002){B.cur.pts.push(p.x,p.y);bDraw();if(Date.now()-B.cur.last>350){B.cur.last=Date.now();bSend()}}}
   else if(B.erasing)bErase(bPt(e))});
 ['pointerup','pointercancel'].forEach(ev=>document.addEventListener(ev,()=>{
@@ -806,6 +812,13 @@ document.addEventListener('pointermove',e=>{
   if(B.cur){bSend();B.cur=null}B.erasing=false}));
 document.addEventListener('input',e=>{if(e.target.id==='bw')B.w=+e.target.value;else if(e.target.id==='bts'){B.ts=+e.target.value;bTokAll()}});
 document.addEventListener('change',e=>{if(e.target.id==='bts'&&B.sid&&bGM())bRef('ts').set(B.ts)});
+async function npcAdd(){const n=(($('#npc-name')||{}).value||'').trim()||'NPC',f=$('#npc-photo')&&$('#npc-photo').files[0];let i='';
+  if(f){const u=URL.createObjectURL(f);i=await bThumb(u,true);URL.revokeObjectURL(u)}
+  tokPut('npc_'+uid(),{n,i,c:COLS[Math.floor(Math.random()*COLS.length)],x:.5,y:.5});closeM()}
+document.body.insertAdjacentHTML('beforeend','<input type="file" id="tok-file" accept="image/*" hidden>');
+$('#tok-file').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';const id=B.tokPh;if(!f||!id||!B.sid||!B.tokens[id])return;
+  const u=URL.createObjectURL(f),i=await bThumb(u,true);URL.revokeObjectURL(u);if(!i)return toast('Não foi possível ler a imagem');
+  B.tokens[id].i=i;bRef('tokens/'+id+'/i').set(i);bTok(id);openM(tokPanel());toast('Foto do token atualizada')});
 {const _ss=setScene;setScene=s=>{_ss(s);bAttach(s&&s.id)}}
 
 /* ---------- página da cena (todos) ---------- */
@@ -838,7 +851,7 @@ document.addEventListener('click',e=>{if(e.target.closest('nav a')){const n=$('#
   case'clroff':Object.keys(VT.pl).forEach(k=>{if(!VT.pl[k].on)delete VT.pl[k]});if(VT.fb)fbRemoveOffline();who();break;
   case'zin':Z.s*=1.4;zap();break;case'zout':Z.s/=1.4;zap();break;case'zrst':zreset();break;
   case'fs':{const st=$('#stage');if(document.fullscreenElement)document.exitFullscreen();else if(st&&st.requestFullscreen)st.requestFullscreen().catch(()=>toast('Tela cheia indisponível neste navegador'));break}
-  case'bm':case'bc':case'bundo':case'bclr':case'btok':case'tokadd':case'npcadd':case'tokx':bAct(a,id);break;
+  case'bm':case'bc':case'bundo':case'bclr':case'btok':case'tokadd':case'npcadd':case'tokx':case'pmtoggle':case'tokph':case'tokpx':bAct(a,id);break;
   case'host':host();break;case'join':join();break;case'leave':closeM();leave();break;
   case'reopen':host(id);break;
   case'ka':if(VT.kaBlocked&&LS.getItem('co-ka')!=='0')keepAlive(true);else{LS.setItem('co-ka',LS.getItem('co-ka')==='0'?'1':'0');keepAlive(true)}break;
