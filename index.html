@@ -167,6 +167,11 @@ nav a.warn .dot-s{background:#e0a030;box-shadow:0 0 6px #e0a030}
 .sw{display:inline-block;width:22px;height:22px;border-radius:50%;border:2px solid #0008;cursor:pointer;transition:.2s}.sw.on{box-shadow:0 0 0 2px var(--p)}.sw:hover{transform:scale(1.15)}.btb input[type=range]{width:90px;border:0}
 .tok.own{pointer-events:auto;cursor:grab;touch-action:none}.tok.own img,.tok.own span{box-shadow:0 0 0 2px var(--g),0 0 14px var(--g)}.tok.own:active{cursor:grabbing}
 #toks.sm .tok img,#toks.sm .tok span{border-width:1px;font-size:8px}#toks.sm .tok em{font-size:8px;margin-top:1px}
+.tok img,.tok span{box-sizing:border-box;border:var(--bw,1.5px) solid var(--tc,#e0b45f);box-shadow:0 1px 4px #000a}
+.tok span{background:var(--tc,#8c2a22);border-color:#ffffffaa}
+.tok.own img,.tok.own span{box-shadow:0 0 10px 1px var(--tc,#e0b45f)}
+#toks.sm .tok img,#toks.sm .tok span{border-width:var(--bw,1px)}
+.tr input[type=color]{width:34px;height:26px;padding:0;border:1px solid var(--i);background:none;cursor:pointer}
 </style></head><body>
 <header class="top"><a class="brand" href="#inicio"><svg viewBox="0 0 48 48" fill="none" stroke="#e9dfc8"><circle cx="24" cy="24" r="21" stroke-width="1.5"/><circle cx="24" cy="24" r="14" stroke-width="3"/><circle cx="24" cy="24" r="6" stroke-width="2"/><circle cx="24" cy="24" r="2" fill="#e9dfc8"/><path d="M24 3v7M24 38v7M3 24h7M38 24h7M9 9l5 5M34 34l5 5M39 9l-5 5M14 34l-5 5" stroke-width="1"/></svg><span>CANDELA<br>OBSCURA</span></a>
 <button class="burger" data-vt="menu" aria-label="Menu" aria-expanded="false">☰</button><nav id="nav"><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><a href="#cena" id="vt-cena">Cena<i class="dot-s"></i></a><a href="#mestre">Mestre</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
@@ -760,12 +765,15 @@ let raf=0;const bDrawSoon=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;bDra
 function bFit(){const st=$('#stage'),f=$('#fit'),im=f&&f.querySelector('img');if(!st||!f||!im||!im.naturalWidth)return;
   const k=Math.min(st.clientWidth/im.naturalWidth,st.clientHeight/im.naturalHeight),w=im.naturalWidth*k,h=im.naturalHeight*k;
   f.style.width=w+'px';f.style.height=h+'px';
-  const cv=$('#bcv');if(cv){const d=Math.min(2,window.devicePixelRatio||1)*1.5;cv.width=Math.max(2,Math.round(w*d));cv.height=Math.max(2,Math.round(h*d))}bDraw()}
+  const cv=$('#bcv');if(cv){const d=Math.min(2,window.devicePixelRatio||1)*1.5;cv.width=Math.max(2,Math.round(w*d));cv.height=Math.max(2,Math.round(h*d))}bBw();bDraw()}
 function bDraw(){const cv=$('#bcv');if(!cv)return;const g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);g.lineCap='round';g.lineJoin='round';
   Object.values(B.strokes).forEach(s=>{const p=s.pts;if(p.length<2)return;g.strokeStyle=s.c;g.lineWidth=Math.max(1,s.w/1000*cv.width);g.beginPath();g.moveTo(p[0]*cv.width,p[1]*cv.height);if(p.length===2)g.lineTo(p[0]*cv.width+.1,p[1]*cv.height);for(let i=2;i<p.length;i+=2)g.lineTo(p[i]*cv.width,p[i+1]*cv.height);g.stroke()})}
+const TCOLS=['#e0b45f','#d24a3a','#4a9fe0','#5cc16b','#a05ce0','#f08a3c','#2fc4b2','#e060a8','#9bd13b','#8a8f98','#f2f2f2','#a8743c'];
+const bColor=()=>{const u=new Set(Object.values(B.tokens).map(t=>(t.c||'').toLowerCase()));return TCOLS.find(c=>!u.has(c))||TCOLS[Object.keys(B.tokens).length%TCOLS.length]};
+function bBw(){const c=$('#toks'),f=$('#fit');if(!c||!f)return;const px=(parseFloat(f.style.width)||f.clientWidth)*B.ts/100;c.style.setProperty('--bw',Math.max(1,Math.min(3,px*.045)).toFixed(1)+'px')}
 const tokSig=t=>(t.i||'').length+'|'+(t.n||'')+'|'+(t.c||'');
-const tokH=(id,t)=>`<div class="tok${VT.role==='player'&&VT.pm!==false&&id==='pl_'+CID?' own':''}" data-id="${esc(id)}" data-sig="${esc(tokSig(t))}" style="left:${t.x*100}%;top:${t.y*100}%;width:${B.ts}%">${t.i?`<img src="${esc(t.i)}" draggable="false" alt="">`:`<span style="background:${esc(t.c||'#8c2a22')}">${esc((t.n||'?').trim().charAt(0).toUpperCase())}</span>`}<em>${esc(t.n||'')}</em>${bGM()?`<button class="tx" data-vt="tokx" data-id="${esc(id)}" aria-label="Remover token">×</button>`:''}</div>`;
-function bTokAll(){const c=$('#toks');if(!c)return;c.classList.toggle('sm',B.ts<3.6);c.innerHTML=Object.entries(B.tokens).map(([id,t])=>tokH(id,t)).join('')}
+const tokH=(id,t)=>`<div class="tok${VT.role==='player'&&VT.pm!==false&&id==='pl_'+CID?' own':''}" data-id="${esc(id)}" data-sig="${esc(tokSig(t))}" style="left:${t.x*100}%;top:${t.y*100}%;width:${B.ts}%;--tc:${esc(t.c||'#e0b45f')}">${t.i?`<img src="${esc(t.i)}" draggable="false" alt="">`:`<span style="background:${esc(t.c||'#8c2a22')}">${esc((t.n||'?').trim().charAt(0).toUpperCase())}</span>`}<em>${esc(t.n||'')}</em>${bGM()?`<button class="tx" data-vt="tokx" data-id="${esc(id)}" aria-label="Remover token">×</button>`:''}</div>`;
+function bTokAll(){const c=$('#toks');if(!c)return;c.classList.toggle('sm',B.ts<3.6);bBw();c.innerHTML=Object.entries(B.tokens).map(([id,t])=>tokH(id,t)).join('')}
 function bTok(id){const c=$('#toks');if(!c)return;const t=B.tokens[id],el=c.querySelector('[data-id="'+CSS.escape(id)+'"]');
   if(!t){el&&el.remove();return}if(!el){c.insertAdjacentHTML('beforeend',tokH(id,t));return}if(el.dataset.sig!==tokSig(t)){el.outerHTML=tokH(id,t);return}el.style.left=t.x*100+'%';el.style.top=t.y*100+'%'}
 function bTools(){const f=$('#fit');if(f){f.classList.toggle('gmove',bGM()&&B.mode==='move');f.classList.toggle('draw',bGM()&&B.mode!=='move')}
@@ -780,9 +788,9 @@ function tokPut(id,t){if(!B.sid)return toast('Mostre uma imagem de cena primeiro
 async function tokAddPlayer(cid){const p=VT.pl[cid];if(!p||!B.sid)return toast('Mostre uma imagem de cena primeiro');const key='pl_'+cid;
   if(B.tokens[key]){bRef('tokens/'+key).remove();delete B.tokens[key];bTok(key);closeM();return}
   const ch=p.char||{},i=await bThumb(ch.img),h=[...cid].reduce((a,c)=>a+c.charCodeAt(0),0);
-  tokPut(key,{n:ch.name||p.name,i,c:COLS[h%COLS.length],x:.45+Math.random()*.1,y:.45+Math.random()*.1});closeM()}
-function tokPanel(){const tk=Object.entries(B.tokens).map(([id,t])=>`<div class="tr">${t.i?`<img src="${esc(t.i)}" alt="" style="width:30px;height:30px;border-radius:50%;object-fit:cover">`:''}<span>${esc(t.n||'')}</span><button class="btn" data-vt="tokph" data-id="${esc(id)}">Foto</button>${t.i?`<button class="btn" data-vt="tokpx" data-id="${esc(id)}">Sem foto</button>`:''}</div>`).join('');const rows=Object.entries(VT.pl).map(([cid,p])=>`<div class="tr"><span>${esc((p.char&&p.char.name)||p.name)}${p.on?'':' <small>(offline)</small>'}</span><button class="btn" data-vt="tokadd" data-id="${esc(cid)}">${B.tokens['pl_'+cid]?'Remover':'Colocar'}</button></div>`).join('')||'<p class="cnote">Nenhum jogador na sala ainda.</p>';
-  return `<div class="mod"><h2>Tokens</h2>${rows}${tk?`<h3 style="margin-top:14px;font-size:18px">Na cena (foto do token)</h3>${tk}`:''}<h3 style="margin-top:14px;font-size:18px">Marcador (NPC, monstro, objeto)</h3><div class="bar2"><input id="npc-name" type="text" placeholder="Nome" style="background:#fff1;color:var(--p)"><input id="npc-photo" type="file" accept="image/*" title="Foto (opcional)" style="max-width:220px;border:0"><button class="btn" data-vt="npcadd">Adicionar</button></div><p><button class="btn" data-vt="pmtoggle">Jogadores movem o próprio token: ${VT.pm!==false?'ligado':'desligado'}</button></p><p class="cnote">Use o botão ✥ na barra para arrastar os tokens. O × aparece ao passar o mouse sobre o token.</p><div class="row"><button class="btn" data-a="close">Fechar</button></div></div>`}
+  tokPut(key,{n:ch.name||p.name,i,c:bColor(),x:.45+Math.random()*.1,y:.45+Math.random()*.1});closeM()}
+function tokPanel(){const tk=Object.entries(B.tokens).map(([id,t])=>`<div class="tr">${t.i?`<img src="${esc(t.i)}" alt="" style="width:30px;height:30px;border-radius:50%;object-fit:cover">`:''}<span>${esc(t.n||'')}</span><input type="color" value="${esc(t.c||'#e0b45f')}" data-tc="${esc(id)}" title="Cor do token"><button class="btn" data-vt="tokph" data-id="${esc(id)}">Foto</button>${t.i?`<button class="btn" data-vt="tokpx" data-id="${esc(id)}">Sem foto</button>`:''}</div>`).join('');const rows=Object.entries(VT.pl).map(([cid,p])=>`<div class="tr"><span>${esc((p.char&&p.char.name)||p.name)}${p.on?'':' <small>(offline)</small>'}</span><button class="btn" data-vt="tokadd" data-id="${esc(cid)}">${B.tokens['pl_'+cid]?'Remover':'Colocar'}</button></div>`).join('')||'<p class="cnote">Nenhum jogador na sala ainda.</p>';
+  return `<div class="mod"><h2>Tokens</h2>${rows}${tk?`<h3 style="margin-top:14px;font-size:18px">Na cena (foto e cor do token)</h3>${tk}<p><button class="btn" data-vt="tokrc">Cores diferentes para todos</button></p>`:''}<h3 style="margin-top:14px;font-size:18px">Marcador (NPC, monstro, objeto)</h3><div class="bar2"><input id="npc-name" type="text" placeholder="Nome" style="background:#fff1;color:var(--p)"><input id="npc-photo" type="file" accept="image/*" title="Foto (opcional)" style="max-width:220px;border:0"><button class="btn" data-vt="npcadd">Adicionar</button></div><p><button class="btn" data-vt="pmtoggle">Jogadores movem o próprio token: ${VT.pm!==false?'ligado':'desligado'}</button></p><p class="cnote">Use o botão ✥ na barra para arrastar os tokens. O × aparece ao passar o mouse sobre o token.</p><div class="row"><button class="btn" data-a="close">Fechar</button></div></div>`}
 function bAct(a,id){
   if(a==='bm'){B.mode=id;bTools()}
   else if(a==='bc'){B.color=id;if(B.mode==='eraser')B.mode='pen';bTools()}
@@ -791,6 +799,7 @@ function bAct(a,id){
   else if(a==='btok')openM(tokPanel());
   else if(a==='tokadd')tokAddPlayer(id);
   else if(a==='npcadd')npcAdd()
+  else if(a==='tokrc'){Object.keys(B.tokens).forEach((id,i)=>{const c=TCOLS[i%TCOLS.length];B.tokens[id].c=c;bRef('tokens/'+id+'/c').set(c);bTok(id)});openM(tokPanel())}
   else if(a==='tokph'){B.tokPh=id;$('#tok-file').click()}
   else if(a==='tokpx'&&B.tokens[id]){bRef('tokens/'+id+'/i').remove();delete B.tokens[id].i;bTok(id);openM(tokPanel())}
   else if(a==='pmtoggle'){VT.pm=!(VT.pm!==false);if(R)R.child('meta/pm').set(VT.pm);openM(tokPanel())}
@@ -814,11 +823,12 @@ document.addEventListener('input',e=>{if(e.target.id==='bw')B.w=+e.target.value;
 document.addEventListener('change',e=>{if(e.target.id==='bts'&&B.sid&&bGM())bRef('ts').set(B.ts)});
 async function npcAdd(){const n=(($('#npc-name')||{}).value||'').trim()||'NPC',f=$('#npc-photo')&&$('#npc-photo').files[0];let i='';
   if(f){const u=URL.createObjectURL(f);i=await bThumb(u,true);URL.revokeObjectURL(u)}
-  tokPut('npc_'+uid(),{n,i,c:COLS[Math.floor(Math.random()*COLS.length)],x:.5,y:.5});closeM()}
+  tokPut('npc_'+uid(),{n,i,c:bColor(),x:.5,y:.5});closeM()}
 document.body.insertAdjacentHTML('beforeend','<input type="file" id="tok-file" accept="image/*" hidden>');
 $('#tok-file').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';const id=B.tokPh;if(!f||!id||!B.sid||!B.tokens[id])return;
   const u=URL.createObjectURL(f),i=await bThumb(u,true);URL.revokeObjectURL(u);if(!i)return toast('Não foi possível ler a imagem');
   B.tokens[id].i=i;bRef('tokens/'+id+'/i').set(i);bTok(id);openM(tokPanel());toast('Foto do token atualizada')});
+document.addEventListener('input',e=>{const id=e.target.dataset&&e.target.dataset.tc;if(!id||!B.tokens[id])return;B.tokens[id].c=e.target.value;bTok(id);clearTimeout(B.tcT);B.tcT=setTimeout(()=>{if(B.sid&&B.tokens[id])bRef('tokens/'+id+'/c').set(B.tokens[id].c)},250)});
 {const _ss=setScene;setScene=s=>{_ss(s);bAttach(s&&s.id)}}
 
 /* ---------- página da cena (todos) ---------- */
@@ -851,7 +861,7 @@ document.addEventListener('click',e=>{if(e.target.closest('nav a')){const n=$('#
   case'clroff':Object.keys(VT.pl).forEach(k=>{if(!VT.pl[k].on)delete VT.pl[k]});if(VT.fb)fbRemoveOffline();who();break;
   case'zin':Z.s*=1.4;zap();break;case'zout':Z.s/=1.4;zap();break;case'zrst':zreset();break;
   case'fs':{const st=$('#stage');if(document.fullscreenElement)document.exitFullscreen();else if(st&&st.requestFullscreen)st.requestFullscreen().catch(()=>toast('Tela cheia indisponível neste navegador'));break}
-  case'bm':case'bc':case'bundo':case'bclr':case'btok':case'tokadd':case'npcadd':case'tokx':case'pmtoggle':case'tokph':case'tokpx':bAct(a,id);break;
+  case'bm':case'bc':case'bundo':case'bclr':case'btok':case'tokadd':case'npcadd':case'tokx':case'pmtoggle':case'tokph':case'tokpx':case'tokrc':bAct(a,id);break;
   case'host':host();break;case'join':join();break;case'leave':closeM();leave();break;
   case'reopen':host(id);break;
   case'ka':if(VT.kaBlocked&&LS.getItem('co-ka')!=='0')keepAlive(true);else{LS.setItem('co-ka',LS.getItem('co-ka')==='0'?'1':'0');keepAlive(true)}break;
