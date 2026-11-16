@@ -155,6 +155,16 @@ nav a .dot-s{display:inline-block;width:7px;height:7px;border-radius:50%;backgro
 @media(min-width:941px){.cgrid{grid-template-columns:minmax(0,1fr) 12px var(--rw,300px);gap:0}.split{display:block;cursor:col-resize;position:relative;touch-action:none}.split::after{content:"";position:absolute;left:5px;top:20%;bottom:20%;width:2px;background:var(--m);border-radius:2px;transition:.2s}.split:hover::after{background:var(--g);box-shadow:0 0 8px var(--g)}.rcol{padding-left:8px}.stage{max-height:86vh}}
 @media(max-width:940px){.stage{aspect-ratio:auto;height:62vh;border-radius:14px 3px 14px 3px}}
 nav a.warn .dot-s{background:#e0a030;box-shadow:0 0 6px #e0a030}
+.zm{display:grid;place-items:center}.fit{position:relative;flex:none}.fit img{width:100%;height:100%;display:block;object-fit:fill}
+#bcv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.fit.draw #bcv{pointer-events:auto;touch-action:none;cursor:crosshair}
+#toks{position:absolute;inset:0;pointer-events:none}.tok{position:absolute;transform:translate(-50%,-50%);aspect-ratio:1;pointer-events:none;user-select:none;-webkit-user-select:none}
+.fit.gmove .tok{pointer-events:auto;cursor:grab;touch-action:none}.fit.gmove .tok:active{cursor:grabbing}
+.tok img,.tok span{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid var(--g);box-shadow:0 2px 8px #000a;display:grid;place-items:center;font:600 clamp(10px,2.2vw,22px) Cinzel,serif;color:#fff;background:#222;animation:none}
+.tok em{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:2px;white-space:nowrap;font:normal 11px Cinzel,serif;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;pointer-events:none}
+.tok .tx{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#000c;color:var(--p);font-size:12px;line-height:1;opacity:0;transition:.2s}.tok:hover .tx{opacity:1}
+.btb{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px;padding:8px 10px;border:1px solid #3a2f22;border-radius:12px;background:#ffffff0d}
+.btb button{border:1px solid var(--m);border-radius:4px;padding:2px 10px;min-width:34px;font-family:Cinzel,serif;color:var(--p);transition:.2s}.btb button:hover,.btb button.on{background:var(--g);color:var(--i);border-color:var(--g)}
+.sw{display:inline-block;width:22px;height:22px;border-radius:50%;border:2px solid #0008;cursor:pointer;transition:.2s}.sw.on{box-shadow:0 0 0 2px var(--p)}.sw:hover{transform:scale(1.15)}.btb input[type=range]{width:90px;border:0}
 </style></head><body>
 <header class="top"><a class="brand" href="#inicio"><svg viewBox="0 0 48 48" fill="none" stroke="#e9dfc8"><circle cx="24" cy="24" r="21" stroke-width="1.5"/><circle cx="24" cy="24" r="14" stroke-width="3"/><circle cx="24" cy="24" r="6" stroke-width="2"/><circle cx="24" cy="24" r="2" fill="#e9dfc8"/><path d="M24 3v7M24 38v7M3 24h7M38 24h7M9 9l5 5M34 34l5 5M39 9l-5 5M14 34l-5 5" stroke-width="1"/></svg><span>CANDELA<br>OBSCURA</span></a>
 <button class="burger" data-vt="menu" aria-label="Menu" aria-expanded="false">☰</button><nav id="nav"><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><a href="#cena" id="vt-cena">Cena<i class="dot-s"></i></a><a href="#mestre">Mestre</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
@@ -527,7 +537,7 @@ fin=function(R0,pick,c){_fin(R0,pick,c);try{addRoll({id:uid(),who:c.name||'Sem n
 
 /* ---------- cena e música ---------- */
 const Z={s:1,x:0,y:0,p:new Map(),d:0,t:0};
-const stageH=()=>VT.scene&&VT.scene.src?`<div id="zm" class="zm"><img src="${esc(VT.scene.src)}" alt="" draggable="false"></div><div class="stb"><button data-vt="zin" aria-label="Aproximar">+</button><button data-vt="zout" aria-label="Afastar">−</button><button data-vt="zrst" aria-label="Ajustar à tela">⟲</button><button data-vt="fs" aria-label="Tela cheia">⛶</button></div>`:'<div class="empty">A cena ainda não foi revelada…</div>';
+const stageH=()=>VT.scene&&VT.scene.src?`<div id="zm" class="zm"><div id="fit" class="fit"><img src="${esc(VT.scene.src)}" alt="" draggable="false"><canvas id="bcv"></canvas><div id="toks"></div></div></div><div class="stb"><button data-vt="zin" aria-label="Aproximar">+</button><button data-vt="zout" aria-label="Afastar">−</button><button data-vt="zrst" aria-label="Ajustar à tela">⟲</button><button data-vt="fs" aria-label="Tela cheia">⛶</button></div>`:'<div class="empty">A cena ainda não foi revelada…</div>';
 function setScene(s){VT.scene=s;const st=$('#stage');Z.s=1;Z.x=Z.y=0;Z.p.clear();if(st){st.innerHTML=stageH();st.style.touchAction='pan-y'}}
 const aud=new Audio();aud.loop=true;
 const yp=(f,a)=>{const i=$('#vt-yt iframe');if(i&&i.contentWindow)i.contentWindow.postMessage(JSON.stringify({event:'command',func:f,args:a||[]}),'*')};
@@ -570,7 +580,7 @@ const roomH=()=>{
  if(VT.role==='player')return `<h3>Sala</h3><p>Você está conectado como jogador. Saia da sala para criar uma nova.</p><button class="btn" data-vt="leave">Sair</button>`;
  const rs=rooms();
  return `<h3>Sala</h3><p>Crie uma sala e mande o link aos jogadores pelo Discord. Cada sala nova ganha um código diferente, e o link dela continua valendo para sempre.</p><button class="btn" data-vt="host">Criar sala nova</button>${rs.length?`<h3 style="margin-top:14px;font-size:18px">Minhas salas</h3>${rs.map(r=>`<div class="tr"><span><b>${r.code}</b> <small>${new Date(r.ts).toLocaleDateString('pt-BR')}</small></span><button class="btn" data-vt="reopen" data-id="${r.code}">Reabrir</button><button data-vt="delroom" data-id="${r.code}" aria-label="Apagar sala">×</button></div>`).join('')}`:''}`};
-const refresh=()=>{const a=$('#vt-cena');if(a){a.classList.toggle('live',live());a.classList.toggle('warn',VT.role==='player'&&!VT.on)}const c=$('.conn'),r=$('#vt-room'),p=$('#vt-pl');if(c)c.innerHTML=connH();if(r)r.innerHTML=roomH();if(p)p.innerHTML=plAll()};
+const refresh=()=>{const a=$('#vt-cena');if(a){a.classList.toggle('live',live());a.classList.toggle('warn',VT.role==='player'&&!VT.on)}const c=$('.conn'),r=$('#vt-room'),p=$('#vt-pl');if(c)c.innerHTML=connH();if(r)r.innerHTML=roomH();if(p)p.innerHTML=plAll();bTools()};
 function who(){VT.who=Object.values(VT.pl).filter(p=>p.on).map(p=>p.name);bc({t:'who',n:VT.who});refresh()}
 
 /* mestre: abre (ou reabre) a sala e a mantém de pé */
@@ -714,7 +724,7 @@ async function fbJoin(resume){
 function fbLeave(silent){const was=VT.role;
   if(was==='gm'&&R){bc({t:'end'});R.child('meta/gmOn').set(false);SS.removeItem('co-open')}
   else if(was==='player'&&R){R.child('players/'+CID+'/on').set(false);R.child('who/'+CID).remove()}
-  unlisten();R=null;VT.fb=false;VT.gm=null;VT.want=null;SS.removeItem('co-want');
+  unlisten();bDetach();R=null;VT.fb=false;VT.gm=null;VT.want=null;SS.removeItem('co-want');
   VT.role='off';VT.on=false;VT.opening=false;VT.pl={};VT.who=[];
   if(was!=='off')applyMusic(null);refresh();if(!silent&&was!=='off')toast(was==='gm'?'Sala encerrada':'Você saiu da sala')}
 function fbResume(w,o,q){
@@ -725,8 +735,81 @@ function fbResume(w,o,q){
   join=()=>USE_FB&&DB?fbJoin():_join();
   leave=s=>VT.fb?fbLeave(s):_leave(s)}
 
+/* ---------- quadro da cena: desenho e tokens (modo Firebase) ---------- */
+const B={sid:null,strokes:{},tokens:{},ts:7,mode:'move',color:'#e0b45f',w:4,cur:null,mine:[],offs:[],drag:null,erasing:false,sig:'',ro:null};
+const COLS=['#e0b45f','#f2f2f2','#d24a3a','#4a9fe0','#5cc16b','#a05ce0'];
+const bGM=()=>VT.role==='gm'&&VT.fb&&!!R;
+const bRef=p=>R.child('boards/'+B.sid+(p?'/'+p:''));
+const bAr=()=>{const f=$('#fit');return f&&f.clientWidth?f.clientHeight/f.clientWidth:1};
+const bPt=e=>{const f=$('#fit');if(!f)return{x:0,y:0};const r=f.getBoundingClientRect();return{x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))}};
+function bDetach(){B.offs.forEach(f=>{try{f()}catch(e){}});B.offs=[];B.sid=null;B.strokes={};B.tokens={};B.cur=null;B.mine=[];B.drag=null}
+function bAttach(sid){bDetach();if(!VT.fb||!R||!sid){bMount();return}B.sid=sid;
+  const on=(ref,ev,fn)=>{ref.on(ev,fn);B.offs.push(()=>ref.off(ev,fn))};
+  const parse=v=>({c:v.c||'#fff',w:v.w||4,pts:String(v.p||'').split(',').filter(Boolean).map(n=>n/10000)});
+  const st=bRef('strokes');
+  ['child_added','child_changed'].forEach(ev=>on(st,ev,s=>{if(B.cur&&B.cur.id===s.key)return;B.strokes[s.key]=parse(s.val()||{});bDrawSoon()}));
+  on(st,'child_removed',s=>{delete B.strokes[s.key];bDrawSoon()});
+  const tk=bRef('tokens');
+  ['child_added','child_changed'].forEach(ev=>on(tk,ev,s=>{if(B.drag&&B.drag.id===s.key)return;B.tokens[s.key]=s.val();bTok(s.key)}));
+  on(tk,'child_removed',s=>{delete B.tokens[s.key];bTok(s.key)});
+  on(bRef('ts'),'value',s=>{if(typeof s.val()==='number'){B.ts=s.val();bTokAll()}});
+  bMount()}
+let raf=0;const bDrawSoon=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;bDraw()})};
+function bFit(){const st=$('#stage'),f=$('#fit'),im=f&&f.querySelector('img');if(!st||!f||!im||!im.naturalWidth)return;
+  const k=Math.min(st.clientWidth/im.naturalWidth,st.clientHeight/im.naturalHeight),w=im.naturalWidth*k,h=im.naturalHeight*k;
+  f.style.width=w+'px';f.style.height=h+'px';
+  const cv=$('#bcv');if(cv){const d=Math.min(2,window.devicePixelRatio||1)*1.5;cv.width=Math.max(2,Math.round(w*d));cv.height=Math.max(2,Math.round(h*d))}bDraw()}
+function bDraw(){const cv=$('#bcv');if(!cv)return;const g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);g.lineCap='round';g.lineJoin='round';
+  Object.values(B.strokes).forEach(s=>{const p=s.pts;if(p.length<2)return;g.strokeStyle=s.c;g.lineWidth=Math.max(1,s.w/1000*cv.width);g.beginPath();g.moveTo(p[0]*cv.width,p[1]*cv.height);if(p.length===2)g.lineTo(p[0]*cv.width+.1,p[1]*cv.height);for(let i=2;i<p.length;i+=2)g.lineTo(p[i]*cv.width,p[i+1]*cv.height);g.stroke()})}
+const tokH=(id,t)=>`<div class="tok" data-id="${esc(id)}" style="left:${t.x*100}%;top:${t.y*100}%;width:${B.ts}%">${t.i?`<img src="${esc(t.i)}" draggable="false" alt="">`:`<span style="background:${esc(t.c||'#8c2a22')}">${esc((t.n||'?').trim().charAt(0).toUpperCase())}</span>`}<em>${esc(t.n||'')}</em>${bGM()?`<button class="tx" data-vt="tokx" data-id="${esc(id)}" aria-label="Remover token">×</button>`:''}</div>`;
+function bTokAll(){const c=$('#toks');if(!c)return;c.innerHTML=Object.entries(B.tokens).map(([id,t])=>tokH(id,t)).join('')}
+function bTok(id){const c=$('#toks');if(!c)return;const t=B.tokens[id],el=c.querySelector('[data-id="'+CSS.escape(id)+'"]');
+  if(!t){el&&el.remove();return}if(!el){c.insertAdjacentHTML('beforeend',tokH(id,t));return}el.style.left=t.x*100+'%';el.style.top=t.y*100+'%'}
+function bTools(){const f=$('#fit');if(f){f.classList.toggle('gmove',bGM()&&B.mode==='move');f.classList.toggle('draw',bGM()&&B.mode!=='move')}
+  const t=$('#btb');if(!t)return;const sig=[bGM(),B.mode,B.color,B.sid].join('|');if(t.dataset.sig===sig)return;t.dataset.sig=sig;
+  if(!bGM()||!B.sid){t.innerHTML='';return}
+  t.innerHTML=`<div class="btb"><button class="${B.mode==='move'?'on':''}" data-vt="bm" data-id="move" title="Mover tokens e dar zoom">✥</button><button class="${B.mode==='pen'?'on':''}" data-vt="bm" data-id="pen" title="Desenhar">✎</button><button class="${B.mode==='eraser'?'on':''}" data-vt="bm" data-id="eraser" title="Borracha">⌫</button>${COLS.map(c=>`<i class="sw ${B.color===c?'on':''}" style="background:${c}" data-vt="bc" data-id="${c}"></i>`).join('')}<input id="bw" type="range" min="2" max="14" value="${B.w}" title="Espessura do traço"><button data-vt="bundo" title="Desfazer o último traço">↶</button><button data-vt="bclr" title="Apagar todos os desenhos">Limpar</button><button data-vt="btok">Tokens</button><input id="bts" type="range" min="3" max="14" value="${B.ts}" title="Tamanho dos tokens"></div>`}
+function bMount(){const im=$('#fit img');if(im&&!(im.complete&&im.naturalWidth))im.onload=bFit;bFit();bTokAll();bDraw();
+  const st=$('#stage');if(B.ro)B.ro.disconnect();if(st&&'ResizeObserver' in window){B.ro=B.ro||new ResizeObserver(()=>bFit());B.ro.observe(st)}
+  const t=$('#btb');if(t)delete t.dataset.sig;bTools()}
+const bThumb=src=>new Promise(ok=>{if(!src)return ok('');const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=96;const k=Math.max(96/im.width,96/im.height);c.getContext('2d').drawImage(im,(96-im.width*k)/2,0,im.width*k,im.height*k);ok(c.toDataURL('image/jpeg',.7))};im.onerror=()=>ok('');im.src=src});
+function tokPut(id,t){if(!B.sid)return toast('Mostre uma imagem de cena primeiro');B.tokens[id]=t;bRef('tokens/'+id).set(clean(t));bTok(id)}
+async function tokAddPlayer(cid){const p=VT.pl[cid];if(!p||!B.sid)return toast('Mostre uma imagem de cena primeiro');const key='pl_'+cid;
+  if(B.tokens[key]){bRef('tokens/'+key).remove();delete B.tokens[key];bTok(key);closeM();return}
+  const ch=p.char||{},i=await bThumb(ch.img),h=[...cid].reduce((a,c)=>a+c.charCodeAt(0),0);
+  tokPut(key,{n:ch.name||p.name,i,c:COLS[h%COLS.length],x:.45+Math.random()*.1,y:.45+Math.random()*.1});closeM()}
+function tokPanel(){const rows=Object.entries(VT.pl).map(([cid,p])=>`<div class="tr"><span>${esc((p.char&&p.char.name)||p.name)}${p.on?'':' <small>(offline)</small>'}</span><button class="btn" data-vt="tokadd" data-id="${esc(cid)}">${B.tokens['pl_'+cid]?'Remover':'Colocar'}</button></div>`).join('')||'<p class="cnote">Nenhum jogador na sala ainda.</p>';
+  return `<div class="mod"><h2>Tokens</h2>${rows}<h3 style="margin-top:14px;font-size:18px">Marcador (NPC, monstro, objeto)</h3><div class="bar2"><input id="npc-name" type="text" placeholder="Nome" style="background:#fff1;color:var(--p)"><button class="btn" data-vt="npcadd">Adicionar</button></div><p class="cnote">Use o botão ✥ na barra para arrastar os tokens. O × aparece ao passar o mouse sobre o token.</p><div class="row"><button class="btn" data-a="close">Fechar</button></div></div>`}
+function bAct(a,id){
+  if(a==='bm'){B.mode=id;bTools()}
+  else if(a==='bc'){B.color=id;if(B.mode==='eraser')B.mode='pen';bTools()}
+  else if(a==='bundo'){const k=B.mine.pop();if(k&&B.sid){bRef('strokes/'+k).remove();delete B.strokes[k];bDraw()}}
+  else if(a==='bclr'){if(B.sid){bRef('strokes').remove();B.strokes={};B.mine=[];bDraw()}}
+  else if(a==='btok')openM(tokPanel());
+  else if(a==='tokadd')tokAddPlayer(id);
+  else if(a==='npcadd'){const n=(($('#npc-name')||{}).value||'').trim()||'NPC';tokPut('npc_'+uid(),{n,c:COLS[Math.floor(Math.random()*COLS.length)],x:.5,y:.5});closeM()}
+  else if(a==='tokx'&&B.sid){bRef('tokens/'+id).remove();delete B.tokens[id];bTok(id)}}
+const bSend=()=>{const s=B.cur;if(!s||!B.sid)return;bRef('strokes/'+s.id).set({c:s.c,w:s.w,p:s.pts.map(v=>Math.round(v*10000)).join(','),u:Date.now()})};
+function bErase(p){let ch=false;const r=bAr();Object.entries(B.strokes).forEach(([id,s])=>{for(let i=0;i<s.pts.length;i+=2){if(Math.hypot(s.pts[i]-p.x,(s.pts[i+1]-p.y)*r)<.025){delete B.strokes[id];bRef('strokes/'+id).remove();ch=true;break}}});if(ch)bDraw()}
+document.addEventListener('pointerdown',e=>{if(!bGM()||!B.sid)return;
+  const tk=e.target.closest&&e.target.closest('.tok');
+  if(tk&&B.mode==='move'&&!e.target.closest('button')){B.drag={id:tk.dataset.id,el:tk,last:0};try{tk.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault();return}
+  if(e.target.id==='bcv'&&B.mode!=='move'){try{e.target.setPointerCapture(e.pointerId)}catch(x){}const p=bPt(e);
+    if(B.mode==='pen'){const id=bRef('strokes').push().key;B.cur={id,c:B.color,w:B.w,pts:[p.x,p.y],last:Date.now()};B.strokes[id]=B.cur;B.mine.push(id);bDraw();bSend()}
+    else{B.erasing=true;bErase(p)}e.preventDefault()}});
+document.addEventListener('pointermove',e=>{
+  if(B.drag&&bGM()){const p=bPt(e),t=B.tokens[B.drag.id];if(!t)return;t.x=p.x;t.y=p.y;B.drag.el.style.left=p.x*100+'%';B.drag.el.style.top=p.y*100+'%';const n=Date.now();if(n-B.drag.last>100){B.drag.last=n;bRef('tokens/'+B.drag.id).update({x:p.x,y:p.y})}}
+  else if(B.cur){const p=bPt(e),l=B.cur.pts.length;if(Math.hypot(p.x-B.cur.pts[l-2],(p.y-B.cur.pts[l-1])*bAr())>.002){B.cur.pts.push(p.x,p.y);bDraw();if(Date.now()-B.cur.last>350){B.cur.last=Date.now();bSend()}}}
+  else if(B.erasing)bErase(bPt(e))});
+['pointerup','pointercancel'].forEach(ev=>document.addEventListener(ev,()=>{
+  if(B.drag){const d=B.drag;B.drag=null;const t=B.tokens[d.id];if(t&&B.sid)bRef('tokens/'+d.id).update({x:t.x,y:t.y})}
+  if(B.cur){bSend();B.cur=null}B.erasing=false}));
+document.addEventListener('input',e=>{if(e.target.id==='bw')B.w=+e.target.value;else if(e.target.id==='bts'){B.ts=+e.target.value;bTokAll()}});
+document.addEventListener('change',e=>{if(e.target.id==='bts'&&B.sid&&bGM())bRef('ts').set(B.ts)});
+{const _ss=setScene;setScene=s=>{_ss(s);bAttach(s&&s.id)}}
+
 /* ---------- página da cena (todos) ---------- */
-function cena(){return `<div class="wrap vt cen"><div class="conn">${connH()}</div><div class="cgrid" style="--rw:${LS.getItem('co-rw')??300}px"><div class="stage" id="stage">${stageH()}</div><div class="split" id="split" title="Arraste para ajustar a largura (duplo clique restaura)"></div><div class="rcol"><h3 style="font-size:20px;margin-bottom:8px">Rolagens</h3><div class="rolls" id="rolls">${VT.log.slice().reverse().map(rollH).join('')||'<div class="cnote">Nenhuma rolagem ainda. Role uma ação na sua ficha e ela aparece aqui.</div>'}</div></div></div></div>`}
+function cena(){queueMicrotask(bMount);return `<div class="wrap vt cen"><div class="conn">${connH()}</div><div class="cgrid" style="--rw:${LS.getItem('co-rw')??300}px"><div class="stagew"><div class="stage" id="stage">${stageH()}</div><div id="btb"></div></div><div class="split" id="split" title="Arraste para ajustar a largura (duplo clique restaura)"></div><div class="rcol"><h3 style="font-size:20px;margin-bottom:8px">Rolagens</h3><div class="rolls" id="rolls">${VT.log.slice().reverse().map(rollH).join('')||'<div class="cnote">Nenhuma rolagem ainda. Role uma ação na sua ficha e ela aparece aqui.</div>'}</div></div></div></div>`}
 
 /* ---------- painel do mestre ---------- */
 const rs=c=>D.map(([d])=>{const x=c.dr[d],t=Math.floor(x.max/3),b=x.r.slice(0,t).filter(Boolean).length;return{d,cur:x.cur,max:x.max,t,b}});
@@ -755,6 +838,7 @@ document.addEventListener('click',e=>{if(e.target.closest('nav a')){const n=$('#
   case'clroff':Object.keys(VT.pl).forEach(k=>{if(!VT.pl[k].on)delete VT.pl[k]});if(VT.fb)fbRemoveOffline();who();break;
   case'zin':Z.s*=1.4;zap();break;case'zout':Z.s/=1.4;zap();break;case'zrst':zreset();break;
   case'fs':{const st=$('#stage');if(document.fullscreenElement)document.exitFullscreen();else if(st&&st.requestFullscreen)st.requestFullscreen().catch(()=>toast('Tela cheia indisponível neste navegador'));break}
+  case'bm':case'bc':case'bundo':case'bclr':case'btok':case'tokadd':case'npcadd':case'tokx':bAct(a,id);break;
   case'host':host();break;case'join':join();break;case'leave':closeM();leave();break;
   case'reopen':host(id);break;
   case'ka':if(VT.kaBlocked&&LS.getItem('co-ka')!=='0')keepAlive(true);else{LS.setItem('co-ka',LS.getItem('co-ka')==='0'?'1':'0');keepAlive(true)}break;
@@ -789,7 +873,7 @@ addEventListener('drop',e=>{if(location.hash==='#mestre'&&e.dataTransfer&&e.data
 const q=new URLSearchParams(location.search).get('sala');if(q){VT.pre=q.toUpperCase();if(location.hash!=='#cena')location.hash='cena'}
 const zap=()=>{const z=$('#zm'),st=$('#stage');if(!z||!st)return;if(Z.s<=1){Z.s=1;Z.x=Z.y=0}else{Z.s=Math.min(Z.s,6);const mx=st.clientWidth*(Z.s-1)/2,my=st.clientHeight*(Z.s-1)/2;Z.x=Math.max(-mx,Math.min(mx,Z.x));Z.y=Math.max(-my,Math.min(my,Z.y))}z.style.transform=`translate(${Z.x}px,${Z.y}px) scale(${Z.s})`;st.style.touchAction=Z.s>1?'none':'pan-y'};
 const zreset=()=>{Z.s=1;Z.x=Z.y=0;Z.p.clear();zap()};
-document.addEventListener('pointerdown',e=>{const st=e.target.closest('#stage');if(!st||e.target.closest('button'))return;Z.p.set(e.pointerId,{x:e.clientX,y:e.clientY});try{st.setPointerCapture(e.pointerId)}catch(x){}
+document.addEventListener('pointerdown',e=>{const st=e.target.closest('#stage');if(!st||e.target.closest('button')||e.target.closest('.tok')||(e.target.id==='bcv'&&B.mode!=='move'&&bGM()))return;Z.p.set(e.pointerId,{x:e.clientX,y:e.clientY});try{st.setPointerCapture(e.pointerId)}catch(x){}
   if(Z.p.size===1){const n=Date.now();if(n-Z.t<300){if(Z.s>1)zreset();else{Z.s=2.5;zap()}Z.t=0}else Z.t=n}
   if(Z.p.size===2){const[a,b]=[...Z.p.values()];Z.d=Math.hypot(a.x-b.x,a.y-b.y)}});
 document.addEventListener('pointermove',e=>{if(!Z.p.has(e.pointerId))return;const o=Z.p.get(e.pointerId),n={x:e.clientX,y:e.clientY};Z.p.set(e.pointerId,n);
