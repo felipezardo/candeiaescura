@@ -172,6 +172,8 @@ nav a.warn .dot-s{background:#e0a030;box-shadow:0 0 6px #e0a030}
 .tok.own img,.tok.own span{box-shadow:0 0 10px 1px var(--tc,#e0b45f)}
 #toks.sm .tok img,#toks.sm .tok span{border-width:var(--bw,1px)}
 .tr input[type=color]{width:34px;height:26px;padding:0;border:1px solid var(--i);background:none;cursor:pointer}
+#ptr.sq{height:84px}.card .th.sq{height:72px}.mod .btn.on{background:var(--g);color:var(--i)}
+@media(max-width:940px){#ptr.sq{height:68px}}
 </style></head><body>
 <header class="top"><a class="brand" href="#inicio"><svg viewBox="0 0 48 48" fill="none" stroke="#e9dfc8"><circle cx="24" cy="24" r="21" stroke-width="1.5"/><circle cx="24" cy="24" r="14" stroke-width="3"/><circle cx="24" cy="24" r="6" stroke-width="2"/><circle cx="24" cy="24" r="2" fill="#e9dfc8"/><path d="M24 3v7M24 38v7M3 24h7M38 24h7M9 9l5 5M34 34l5 5M39 9l-5 5M14 34l-5 5" stroke-width="1"/></svg><span>CANDELA<br>OBSCURA</span></a>
 <button class="burger" data-vt="menu" aria-label="Menu" aria-expanded="false">☰</button><nav id="nav"><a href="#inicio">Fichas</a><a href="#circulo">Círculo</a><a href="#cena" id="vt-cena">Cena<i class="dot-s"></i></a><a href="#mestre">Mestre</a><button class="hq" data-a="help" data-v="guia" title="Guia de criação" aria-label="Guia de criação">?</button></nav></header>
@@ -220,7 +222,7 @@ const openM=h=>{const m=$('#md');m.innerHTML=h;m.hidden=false};
 const closeM=()=>{$('#md').hidden=true};
 const help=k=>openM(`<div class="mod"><h2>${HT[k][0]}</h2>${HT[k][1]}<div class="row"><button class="btn" data-a="close">Entendi</button></div></div>`);
 const hb=k=>`<button class="hq" data-a="help" data-v="${k}" aria-label="Ajuda">?</button>`;
-function home(){const cs=S.chars;return `<div class="wrap"><div class="hero"><h1>Fichas</h1><p>${cs.length?'Escolha um personagem para continuar a investigação.':'Nenhum personagem ainda. Crie o primeiro e siga o guia passo a passo.'}</p><div style="margin-top:12px"><button class="btn" data-a="imp">Importar ficha</button></div></div><div class="grid">${cs.map(c=>`<div class="card" tabindex="0" data-a="open" data-v="${c.id}"><button class="x" data-a="ask" data-v="${c.id}" aria-label="Excluir">×</button><button class="x ex" data-a="exp" data-v="${c.id}" aria-label="Exportar ficha" title="Exportar ficha">⤓</button>${c.img?`<img class="th" src="${c.img}" alt="">`:''}<h3>${esc(c.name)||'Sem nome'}</h3><small>${[c.role,c.spec].filter(Boolean).join(' · ')||'Papel e especialidade a definir'}</small><small>${esc(c.circle)}</small><div class="mini"><span>Corpo ${c.mk.c}/3</span><span>Mente ${c.mk.m}/3</span><span>Sangria ${c.mk.s}/3</span></div></div>`).join('')}<button class="card new" data-a="new">+ Nova ficha</button></div></div>`}
+function home(){const cs=S.chars;return `<div class="wrap"><div class="hero"><h1>Fichas</h1><p>${cs.length?'Escolha um personagem para continuar a investigação.':'Nenhum personagem ainda. Crie o primeiro e siga o guia passo a passo.'}</p><div style="margin-top:12px"><button class="btn" data-a="imp">Importar ficha</button></div></div><div class="grid">${cs.map(c=>`<div class="card" tabindex="0" data-a="open" data-v="${c.id}"><button class="x" data-a="ask" data-v="${c.id}" aria-label="Excluir">×</button><button class="x ex" data-a="exp" data-v="${c.id}" aria-label="Exportar ficha" title="Exportar ficha">⤓</button>${c.img?`<img class="th${c.sq?' sq':''}" src="${c.img}" alt="">`:''}<h3>${esc(c.name)||'Sem nome'}</h3><small>${[c.role,c.spec].filter(Boolean).join(' · ')||'Papel e especialidade a definir'}</small><small>${esc(c.circle)}</small><div class="mini"><span>Corpo ${c.mk.c}/3</span><span>Mente ${c.mk.m}/3</span><span>Sangria ${c.mk.s}/3</span></div></div>`).join('')}<button class="card new" data-a="new">+ Nova ficha</button></div></div>`}
 
 let lastRoute = null;
 function render(forceAnim){
@@ -329,7 +331,7 @@ const abl=l=>(l||[]).map(([n,t])=>`<label class="ab2"><input type="checkbox" cla
 const act=(a,d)=>{const[n,h]=a.split('|'),v=c.ac[n]||0;return `<div class="ar"><button class="dm ${c.gold[n]?'gd':''}" data-a="gold" data-n="${n}" title="Ação dourada">${c.gold[n]?'◆':'◇'}</button><div><button class="an" data-a="roll" data-n="${n}" data-d="${d}" title="Rolar ${n}">${n}</button> <small>${h}</small><div class="dots">${[0,1,2].map(i=>`<b class="dot ${i<v?'on':''}" data-a="dot" data-n="${n}" data-i="${i}"></b>`).join('')}</div></div></div>`};
 const drv=([d,as])=>{const x=c.dr[d],tr=i=>`<button class="tri ${x.r[i]?'bn':''} ${i>=Math.floor(x.max/3)?'lk':''}" data-a="tri" data-d="${d}" data-i="${i}" title="Queimar ou recuperar">${x.r[i]?'▼':'▽'}</button>`;return `<div class="bar"><span>${d}</span><span class="mt"><small>Motivações<br>Máx.</small><span class="mcol"><span>${pips(9,x.cur,x.max,'mp',`data-d="${d}"`)}</span><span>${blocks(9,x.max,'mxset',`data-g="d" data-t="${d}"`)}</span></span></span></div><div class="drv"><div class="rs">Resistência ${tr(0)}–${tr(1)}–${tr(2)}</div>${as.map(a=>act(a,d)).join('')}</div>`};
 const mkc=([l,k])=>`<span class="mcol"><span>${pips(3,c.mk[k],3,'mkp',`data-t="${k}"`)}</span><small>${l}</small></span>`,mw=([l,k])=>c.mk[k]>=3?`<div class="warn">${l}: incapacitado. Registre uma cicatriz.</div>`:'';const MK=[['Corpo','c'],['Mente','m'],['Sangria','s']];
-return `<div class="sheet"><div class="top2"><div id="ptr" role="button" tabindex="0" data-a="ptr" title="Retrato do personagem">${ptrIn(c)}</div><div class="hd"><div><label>Nome:${inp('name')}</label><label>Pronomes:${inp('pron')}</label><label>Círculo:${inp('circle')}</label></div><div><label>Estilo:${inp('style')}</label><label>Estopim:${inp('trig')}</label><label>Pergunta:${inp('quest')}</label></div></div></div>
+return `<div class="sheet"><div class="top2"><div id="ptr" class="${c.sq?'sq':''}" role="button" tabindex="0" data-a="ptr" title="Retrato do personagem">${ptrIn(c)}</div><div class="hd"><div><label>Nome:${inp('name')}</label><label>Pronomes:${inp('pron')}</label><label>Círculo:${inp('circle')}</label></div><div><label>Estilo:${inp('style')}</label><label>Estopim:${inp('trig')}</label><label>Pergunta:${inp('quest')}</label></div></div></div>
 <div class="pick-m"><label><span>Papel ${hb('papel')}</span>${selR}</label><label><span>Especialidade</span>${selS}</label></div>${guide(c)}<div class="cols"><div>${D.map(drv).join('')}<div class="cnote">Pontos de ação: ${pts} ${hb('acoes')} ${hb('mot')} ${hb('res')} ${hb('rolagem')} <br>Clique no nome de uma ação para rolar. Queime uma resistência: role de novo um número de dados igual ao seu valor de ação.</div></div>
 <div><h3 class="t">Papel ${hb('papel')}</h3><span class="sel-d">${selR}</span>${abl(AB2[c.role])}
 <h3 class="t" style="margin-top:12px">Especialidade</h3><span class="sel-d">${selS}</span>${sel?abl(AB2[sel.n]):''}
@@ -478,11 +480,33 @@ document.addEventListener('change',e=>{
 
 addEventListener('keydown',e=>{if(e.key==='Escape')closeM();if((e.key==='Enter'||e.key===' ')&&e.target.id==='ptr'){e.preventDefault();$('#ptr-file').click()}});
 const ptrIn=c=>c.img?`<img src="${c.img}" alt="Retrato"><button class="px" data-a="ptrx" aria-label="Remover retrato" title="Remover retrato">×</button>`:'<span>＋<br>Retrato</span>';
+/* ---------- editor do retrato: zoom, arrastar e formato (3:4 ou quadrado) ---------- */
+const PE={im:null,sq:false,z:1,x:0,y:0,p:new Map(),d:0};
+const peClamp=z=>Math.max(1,Math.min(4,z));
+const peHtml=()=>{const w=PE.sq?280:240,h=PE.sq?280:320;return `<div class="mod" style="max-width:340px;text-align:center"><h2>Ajustar retrato</h2><p class="cnote">Arraste a imagem para posicionar e use o zoom para encaixar.</p><canvas id="pe" width="${w}" height="${h}" style="touch-action:none;cursor:grab;border:2px solid var(--g);border-radius:12px 3px 12px 3px;max-width:100%"></canvas><div class="st" style="justify-content:center"><button data-pe="z" data-s="-1" aria-label="Menos zoom">−</button><input id="pez" type="range" min="1" max="4" step="0.02" value="${PE.z}" style="width:160px;border:0"><button data-pe="z" data-s="1" aria-label="Mais zoom">+</button></div><div class="row" style="justify-content:center"><button class="btn ${PE.sq?'':'on'}" data-pe="f" data-v="p">Retrato 3:4</button><button class="btn ${PE.sq?'on':''}" data-pe="f" data-v="s">Quadrado 1:1</button></div><div class="row"><button class="btn" data-a="close">Cancelar</button><button class="btn" data-pe="save">Salvar</button></div></div>`};
+function peRender(g,W,H){const im=PE.im,k=Math.max(W/im.width,H/im.height)*PE.z,w=im.width*k,h=im.height*k;
+  PE.x=Math.max(-(w-W)/2/W,Math.min((w-W)/2/W,PE.x));PE.y=Math.max(-(h-H)/2/H,Math.min((h-H)/2/H,PE.y));
+  g.fillStyle='#e9dfc8';g.fillRect(0,0,W,H);g.drawImage(im,W/2+PE.x*W-w/2,H/2+PE.y*H-h/2,w,h)}
+const peDraw=()=>{const cv=$('#pe');if(cv)peRender(cv.getContext('2d'),cv.width,cv.height)};
+const peSync=()=>{const s=$('#pez');if(s)s.value=PE.z};
+function ptrEdit(im){const c=C();PE.im=im;PE.sq=!!(c&&c.sq);PE.z=1;PE.x=PE.y=0;PE.p.clear();PE.d=0;openM(peHtml());peDraw()}
+function peSave(){const c=C();if(!c)return;const W=PE.sq?240:180,H=240,cv=document.createElement('canvas');cv.width=W;cv.height=H;peRender(cv.getContext('2d'),W,H);
+  c.img=cv.toDataURL('image/jpeg',.85);c.sq=PE.sq;save();closeM();const b=$('#ptr');if(b){b.innerHTML=ptrIn(c);b.classList.toggle('sq',!!c.sq)}toast('Retrato atualizado')}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-pe]');if(!t)return;const a=t.dataset.pe;
+  if(a==='z'){PE.z=peClamp(PE.z+(+t.dataset.s)*.25);peSync();peDraw()}
+  else if(a==='f'){PE.sq=t.dataset.v==='s';PE.x=PE.y=0;openM(peHtml());peDraw()}
+  else if(a==='save')peSave()});
+document.addEventListener('input',e=>{if(e.target.id==='pez'){PE.z=+e.target.value;peDraw()}});
+document.addEventListener('pointerdown',e=>{if(e.target.id!=='pe')return;PE.p.set(e.pointerId,{x:e.clientX,y:e.clientY});try{e.target.setPointerCapture(e.pointerId)}catch(x){}
+  if(PE.p.size===2){const[a,b]=[...PE.p.values()];PE.d=Math.hypot(a.x-b.x,a.y-b.y)}});
+document.addEventListener('pointermove',e=>{if(!PE.p.has(e.pointerId))return;const cv=$('#pe');if(!cv)return;const o=PE.p.get(e.pointerId),n={x:e.clientX,y:e.clientY},r=cv.getBoundingClientRect();PE.p.set(e.pointerId,n);
+  if(PE.p.size===2){const[a,b]=[...PE.p.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(PE.d>0)PE.z=peClamp(PE.z*d/PE.d);PE.d=d;peSync()}
+  else{PE.x+=(n.x-o.x)/r.width;PE.y+=(n.y-o.y)/r.height}peDraw()});
+['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,e=>{PE.p.delete(e.pointerId);PE.d=0}));
+document.addEventListener('wheel',e=>{if(e.target.id!=='pe')return;e.preventDefault();PE.z=peClamp(PE.z*(e.deltaY<0?1.08:1/1.08));peSync();peDraw()},{passive:false});
 $('#ptr-file').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';const c=C();if(!f||!c)return;
   const im=new Image(),u=URL.createObjectURL(f);
-  im.onload=()=>{const W=180,H=240,k=Math.max(W/im.width,H/im.height),cv=document.createElement('canvas');cv.width=W;cv.height=H;
-    const g=cv.getContext('2d');g.fillStyle='#e9dfc8';g.fillRect(0,0,W,H);g.drawImage(im,(W-im.width*k)/2,(H-im.height*k)/2,im.width*k,im.height*k);
-    URL.revokeObjectURL(u);c.img=cv.toDataURL('image/jpeg',.85);save();const b=$('#ptr');if(b)b.innerHTML=ptrIn(c);toast('Retrato atualizado')};
+  im.onload=()=>{URL.revokeObjectURL(u);ptrEdit(im)};
   im.onerror=()=>{URL.revokeObjectURL(u);toast('Não foi possível ler a imagem')};im.src=u});
 function exportChar(id){const c=S.chars.find(x=>x.id===id);if(!c)return;
   const nm=((c.name||'personagem').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w]+/g,'-').replace(/^-+|-+$/g,''))||'personagem';
