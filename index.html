@@ -552,8 +552,8 @@ const PFX='candela-obscura-vtt-',LS=localStorage;
 const VT={role:'off',peer:null,conns:[],gm:null,code:'',pl:{},who:[],log:[],scene:null,music:null,vol:+(LS.getItem('co-vol')||.5),mute:false,blocked:false,lib:{imgs:[],tracks:[]},pre:'',last:'',min:LS.getItem('co-min')==='1'};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const idb=(m,f)=>new Promise((ok,no)=>{const r=indexedDB.open('co-gm',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>{const tx=r.result.transaction('k',m),q=f(tx.objectStore('k'));tx.oncomplete=()=>ok(q&&q.result);tx.onerror=()=>no(tx.error)};r.onerror=()=>no(r.error)});
-const saveLib=()=>idb('readwrite',s=>s.put(VT.lib,'lib')).catch(()=>toast('Não foi possível salvar a biblioteca neste navegador'));
-idb('readonly',s=>s.get('lib')).then(l=>{if(l){VT.lib=l;if(location.hash==='#mestre')render()}}).catch(()=>{});
+const saveLib=()=>VT.fb&&VT.role==='gm'?libSync():idb('readwrite',s=>s.put(VT.lib,'lib')).catch(()=>toast('Não foi possível salvar a biblioteca neste navegador'));
+idb('readonly',s=>s.get('lib')).then(l=>{if(l){VT.local=l;if(!VT.fb){VT.lib=l;if(location.hash==='#mestre')render()}}}).catch(()=>{});
 const bc=m=>VT.fb?fbBc(m):VT.conns.forEach(c=>c.open&&c.send(m));
 const snap=c=>{const o=JSON.parse(JSON.stringify(c));o.notes='';return o};
 const noPeer=()=>typeof Peer==='undefined'&&(toast('A biblioteca de conexão não carregou (é preciso internet)'),true);
@@ -606,11 +606,11 @@ const connH=()=>VT.role==='off'?`<b style="font-family:Cinzel,serif">Entrar na s
  :VT.on?`<span>Conectado à sala <b>${VT.code}</b>${VT.fb&&VT.gmOn===false?' (mestre ausente por enquanto)':''}${VT.who.length?' · Na sala: '+VT.who.map(esc).join(', '):''}</span><button class="btn" data-vt="leave">Sair</button>`
  :`<span>Reconectando à sala <b>${VT.code}</b>… o mestre pode ter saído por um instante.</span><button class="btn" data-vt="leave">Sair</button>`;
 const roomH=()=>{
- if(VT.role==='gm')return `<h3>Sala</h3><div class="code">${VT.code}</div><p>Link permanente desta sala (vale sempre que você reabri-la):<br><small>${esc(linkOf(VT.code))}</small></p><button class="btn" data-vt="copy">Copiar link</button> <button class="btn" data-vt="clearlog">Limpar rolagens</button> <a class="btn" href="#cena" style="text-decoration:none;display:inline-block">Ver a cena</a> <button class="btn" data-vt="endask">Encerrar sala</button>${USE_FB?'<p class="cnote">A sala fica guardada na nuvem: você pode fechar a aba ou o aparelho e os jogadores continuam nela. Ela só fecha quando você clicar em Encerrar sala.</p>':`<p><button class="btn" data-vt="ka">Manter ativa em segundo plano: ${LS.getItem('co-ka')!=='0'&&!VT.kaBlocked?'ligado':VT.kaBlocked?'toque para ativar':'desligado'}</button></p><p class="cnote">Com o modo ligado, o navegador trata a sala como uma mídia tocando (um som inaudível) e evita suspender a aba. Se a conexão cair mesmo assim, a sala volta sozinha e os jogadores reconectam.</p>`}`;
+ if(VT.role==='gm')return `<h3>Sala</h3><div class="code">${VT.code}</div><p>Link permanente desta sala (vale sempre que você reabri-la):<br><small>${esc(linkOf(VT.code))}</small></p><button class="btn" data-vt="copy">Copiar link</button> <button class="btn" data-vt="clearlog">Limpar rolagens</button> <a class="btn" href="#cena" style="text-decoration:none;display:inline-block">Ver a cena</a> <button class="btn" data-vt="endask">Encerrar sala</button>${USE_FB?pwH()+'<p class="cnote">A sala, a biblioteca de imagens e sons ficam guardadas na nuvem: você pode fechar a aba ou o aparelho e os jogadores continuam nela. Ela só fecha quando você clicar em Encerrar sala.</p>':`<p><button class="btn" data-vt="ka">Manter ativa em segundo plano: ${LS.getItem('co-ka')!=='0'&&!VT.kaBlocked?'ligado':VT.kaBlocked?'toque para ativar':'desligado'}</button></p><p class="cnote">Com o modo ligado, o navegador trata a sala como uma mídia tocando (um som inaudível) e evita suspender a aba. Se a conexão cair mesmo assim, a sala volta sozinha e os jogadores reconectam.</p>`}`;
  if(VT.opening)return `<h3>Sala</h3><div class="code">${VT.code}</div><p>Abrindo a sala…</p>`;
  if(VT.role==='player')return `<h3>Sala</h3><p>Você está conectado como jogador. Saia da sala para criar uma nova.</p><button class="btn" data-vt="leave">Sair</button>`;
  const rs=rooms();
- return `<h3>Sala</h3><p>Crie uma sala e mande o link aos jogadores pelo Discord. Cada sala nova ganha um código diferente, e o link dela continua valendo para sempre.</p><button class="btn" data-vt="host">Criar sala nova</button>${rs.length?`<h3 style="margin-top:14px;font-size:18px">Minhas salas</h3>${rs.map(r=>`<div class="tr"><span><b>${r.code}</b> <small>${new Date(r.ts).toLocaleDateString('pt-BR')}</small></span><button class="btn" data-vt="reopen" data-id="${r.code}">Reabrir</button><button data-vt="delroom" data-id="${r.code}" aria-label="Apagar sala">×</button></div>`).join('')}`:''}`};
+ return `<h3>Sala</h3><p>Crie uma sala e mande o link aos jogadores pelo Discord. Cada sala nova ganha um código diferente, e o link dela continua valendo para sempre.</p><button class="btn" data-vt="host">Criar sala nova</button>${rs.length?`<h3 style="margin-top:14px;font-size:18px">Minhas salas</h3>${rs.map(r=>`<div class="tr"><span><b>${r.code}</b> <small>${new Date(r.ts).toLocaleDateString('pt-BR')}</small></span><button class="btn" data-vt="reopen" data-id="${r.code}">Reabrir</button><button data-vt="delroom" data-id="${r.code}" aria-label="Apagar sala">×</button></div>`).join('')}`:''}${USE_FB?accH():''}`};
 const refresh=()=>{const a=$('#vt-cena');if(a){a.classList.toggle('live',live());a.classList.toggle('warn',VT.role==='player'&&!VT.on)}const c=$('.conn'),r=$('#vt-room'),p=$('#vt-pl');if(c)c.innerHTML=connH();if(r)r.innerHTML=roomH();if(p)p.innerHTML=plAll();bTools()};
 function who(){VT.who=Object.values(VT.pl).filter(p=>p.on).map(p=>p.name);bc({t:'who',n:VT.who});refresh()}
 
@@ -717,7 +717,7 @@ async function fbHost(code){
     if(fresh){for(let i=0;i<6;i++){c=newCode();if(!(await DB.ref('salas/'+c+'/meta').once('value')).exists())break}}
     R=DB.ref('salas/'+c);
     const mu={ts:Date.now(),ended:false,gm:CID,gmOn:true};if(fresh)mu.clr=Date.now();
-    await R.child('meta').update(mu);R.child('meta/gmOn').onDisconnect().set(false);R.child('meta/pm').once('value').then(s=>{VT.pm=s.val()!==false});
+    await R.child('meta').update(mu);R.child('meta/gmOn').onDisconnect().set(false);R.child('meta/pm').once('value').then(s=>{VT.pm=s.val()!==false});if(!VT.local)VT.local=VT.lib;libLoad();R.child('pw').once('value').then(s=>{VT.hasPw=s.exists();refresh()});
     VT.code=c;VT.fb=true;VT.role='gm';VT.opening=false;VT.on=true;VT.pl={};VT.log=[];VT.reopen=!fresh;
     const lr=$('#rolls');if(lr)lr.innerHTML='';
     putRoom(c);SS.setItem('co-open',c);
@@ -755,7 +755,7 @@ async function fbJoin(resume){
 function fbLeave(silent){const was=VT.role;
   if(was==='gm'&&R){bc({t:'end'});R.child('meta/gmOn').set(false);SS.removeItem('co-open')}
   else if(was==='player'&&R){R.child('players/'+CID+'/on').set(false);R.child('who/'+CID).remove()}
-  unlisten();bDetach();R=null;VT.fb=false;VT.gm=null;VT.want=null;SS.removeItem('co-want');
+  unlisten();bDetach();if(was==='gm'&&VT.local)VT.lib=VT.local;VT.libIds=null;VT.hasPw=false;R=null;VT.fb=false;VT.gm=null;VT.want=null;SS.removeItem('co-want');
   VT.role='off';VT.on=false;VT.opening=false;VT.pl={};VT.who=[];
   if(was!=='off')applyMusic(null);refresh();if(!silent&&was!=='off')toast(was==='gm'?'Sala encerrada':'Você saiu da sala')}
 function fbResume(w,o,q){
@@ -855,6 +855,42 @@ $('#tok-file').addEventListener('change',async e=>{const f=e.target.files[0];e.t
 document.addEventListener('input',e=>{const id=e.target.dataset&&e.target.dataset.tc;if(!id||!B.tokens[id])return;B.tokens[id].c=e.target.value;bTok(id);clearTimeout(B.tcT);B.tcT=setTimeout(()=>{if(B.sid&&B.tokens[id])bRef('tokens/'+id+'/c').set(B.tokens[id].c)},250)});
 {const _ss=setScene;setScene=s=>{_ss(s);bAttach(s&&s.id)}}
 
+/* ---------- biblioteca do mestre na nuvem + senha da sala ---------- */
+const sha=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+async function pwSet(pw){const salt=uid(),h=await sha(salt+':'+pw);await R.child('pw').set({s:salt,h});VT.hasPw=true}
+async function pwCheck(code,pw){const v=(await DB.ref('salas/'+code+'/pw').once('value')).val();if(!v||!v.s)return null;return (await sha(v.s+':'+pw))===v.h}
+async function libLoad(){try{const [a,b]=await Promise.all([R.child('lib/imgs').once('value'),R.child('lib/tracks').once('value')]);
+  const L={imgs:[],tracks:[]},S={i:new Set(),t:new Set()};
+  a.forEach(c=>{const v=c.val()||{};L.imgs.push({id:c.key,title:v.title||'',th:v.th||''});S.i.add(c.key)});
+  b.forEach(c=>{const v=c.val()||{};L.tracks.push({id:c.key,title:v.title||'',kind:v.kind,src:v.src||'',mime:v.mime||''});S.t.add(c.key)});
+  VT.lib=L;VT.libIds=S;redo()}catch(e){toast('Não foi possível carregar a biblioteca da sala ('+fbErr(e)+')')}}
+async function libSync(){if(!(VT.fb&&R&&VT.role==='gm'))return;const L=VT.lib,S=VT.libIds||(VT.libIds={i:new Set(),t:new Set()});let n=0;
+  try{
+    for(const i of L.imgs){if(!S.i.has(i.id)&&i.src){if(!n++)toast('Salvando na nuvem…');await R.child('libdata/img/'+i.id).set(i.src);await R.child('lib/imgs/'+i.id).set(clean({title:i.title||'',th:i.th||''}));S.i.add(i.id)}}
+    for(const t of L.tracks){if(!S.t.has(t.id)&&(t.kind!=='file'||t.data)){if(!n++)toast('Salvando na nuvem…');if(t.kind==='file')await R.child('libdata/aud/'+t.id).set(b64e(t.data));await R.child('lib/tracks/'+t.id).set(clean({title:t.title||'',kind:t.kind,src:t.src||null,mime:t.mime||null}));S.t.add(t.id)}}
+    [...S.i].forEach(id=>{if(!L.imgs.some(x=>x.id===id)){R.child('lib/imgs/'+id).remove();R.child('libdata/img/'+id).remove();S.i.delete(id)}});
+    [...S.t].forEach(id=>{if(!L.tracks.some(x=>x.id===id)){R.child('lib/tracks/'+id).remove();R.child('libdata/aud/'+id).remove();S.t.delete(id)}});
+    if(n)toast('Biblioteca salva na nuvem')
+  }catch(e){toast('Não foi possível salvar na nuvem ('+fbErr(e)+')')}}
+async function libFetch(k,id){const L=VT.lib;
+  if(k==='img'){const i=L.imgs.find(x=>x.id===id);if(i&&!i.src&&VT.fb&&R)i.src=(await R.child('libdata/img/'+id).once('value')).val()||'';return i}
+  const t=L.tracks.find(x=>x.id===id);if(t&&t.kind==='file'&&!t.data&&VT.fb&&R){const b=(await R.child('libdata/aud/'+id).once('value')).val();t.data=b?b64d(b):null}return t}
+async function showImg(id){const i=await libFetch('img',id);if(!i||!i.src)return toast('Não foi possível carregar a imagem');const s={id:i.id,src:i.src,title:i.title};setScene(s);bc({t:'scene',s});redo()}
+async function playTrack(id){const k=await libFetch('aud',id);if(!k)return;if(k.kind==='file'&&!k.data)return toast('Não foi possível carregar o áudio');
+  const m={kind:k.kind,title:k.title,on:true,id:k.src,src:k.src,buf:k.data,mime:k.mime,tid:k.id};applyMusic(m);bc({t:'music',m});if(k.kind==='file'&&(VT.fb||VT.conns.length))toast('Enviando o áudio aos jogadores…');redo()}
+const impH=()=>{if(!(VT.fb&&VT.local))return '';const n=VT.local.imgs.filter(i=>!VT.lib.imgs.some(x=>x.id===i.id)).length+VT.local.tracks.filter(t=>!VT.lib.tracks.some(x=>x.id===t.id)).length;return n?`<p><button class="btn" data-vt="libimp">Importar ${n} item(ns) guardado(s) neste navegador</button></p>`:''};
+const pwH=()=>`<p><button class="btn" data-vt="pwset">${VT.hasPw?'Alterar senha':'Definir senha'}</button>${VT.hasPw?' <button class="btn" data-vt="pwdel">Remover senha</button>':''}</p><p class="cnote">${VT.hasPw?'Com a senha, você acessa esta sala de outro aparelho (código e senha) para preparar imagens e sons.':'Defina uma senha para poder acessar esta sala de outro aparelho e preparar a mesa.'}</p>`;
+const accH=()=>`<h3 style="margin-top:16px;font-size:18px">Acessar sala de outro aparelho</h3><p class="cnote">Digite o código e a senha de uma sala sua para continuar preparando a mesa aqui.</p><div class="bar2"><input id="gm-code" type="text" maxlength="8" placeholder="Código" style="max-width:110px;text-transform:uppercase"><input id="gm-pw" type="password" placeholder="Senha"><button class="btn" data-vt="gmacc">Acessar</button></div>`;
+const pwModal=()=>`<div class="mod"><h2>${VT.hasPw?'Alterar senha':'Definir senha'}</h2><p class="cnote">Com a senha você acessa esta sala de outro aparelho (código e senha). Ela protege contra acesso casual: não use uma senha que você usa em outros sites.</p><input id="pw1" type="password" placeholder="Nova senha" style="background:#fff1;color:var(--p)"><input id="pw2" type="password" placeholder="Repita a senha" style="background:#fff1;color:var(--p);margin-top:8px"><div class="row"><button class="btn" data-a="close">Cancelar</button><button class="btn" data-vt="pwsave">Salvar</button></div></div>`;
+async function gmAct(a){
+  if(a==='pwset')openM(pwModal());
+  else if(a==='pwsave'){const p1=$('#pw1').value,p2=$('#pw2').value;if(p1.length<4)return toast('Use pelo menos 4 caracteres');if(p1!==p2)return toast('As senhas não conferem');
+    try{await pwSet(p1);closeM();refresh();toast('Senha definida')}catch(e){toast('Não foi possível salvar a senha ('+fbErr(e)+')')}}
+  else if(a==='pwdel'){try{await R.child('pw').remove();VT.hasPw=false;refresh();toast('Senha removida')}catch(e){toast('Erro ao remover ('+fbErr(e)+')')}}
+  else if(a==='gmacc'){const code=($('#gm-code').value||'').trim().toUpperCase(),pw=$('#gm-pw').value;if(!code||!pw)return toast('Digite o código e a senha da sala');
+    try{const ok=await pwCheck(code,pw);if(ok===null)return toast('Sala não encontrada ou sem senha definida');if(!ok)return toast('Senha incorreta');host(code)}catch(e){toast('Não foi possível verificar ('+fbErr(e)+')')}}
+  else if(a==='libimp'){const L=VT.lib,Lo=VT.local;Lo.imgs.forEach(i=>{if(!L.imgs.some(x=>x.id===i.id))L.imgs.push(i)});Lo.tracks.forEach(t=>{if(!L.tracks.some(x=>x.id===t.id))L.tracks.push(t)});saveLib();redo()}}
+
 /* ---------- página da cena (todos) ---------- */
 function cena(){queueMicrotask(bMount);return `<div class="wrap vt cen"><div class="conn">${connH()}</div><div class="cgrid" style="--rw:${LS.getItem('co-rw')??300}px"><div class="stagew"><div class="stage" id="stage">${stageH()}</div><div id="btb"></div></div><div class="split" id="split" title="Arraste para ajustar a largura (duplo clique restaura)"></div><div class="rcol"><h3 style="font-size:20px;margin-bottom:8px">Rolagens</h3><div class="rolls" id="rolls">${VT.log.slice().reverse().map(rollH).join('')||'<div class="cnote">Nenhuma rolagem ainda. Role uma ação na sua ficha e ela aparece aqui.</div>'}</div></div></div></div>`}
 
@@ -868,7 +904,7 @@ function viewH(id){const p=VT.pl[id],c=p&&p.char;if(!c)return '<div class="mod">
   const sel=SP.find(s=>s.n===c.spec),eq=BASE.concat(sel?sel.e:[]).filter((n,i)=>c.eq&&c.eq[i]).concat(c.eq&&c.eq[6]&&c.eqc?[c.eqc]:[]),ab=(AB2[c.role]||[]).concat(AB2[c.spec]||[]).filter(([n])=>c.ab&&c.ab[n]),
   ac=Object.entries(c.ac||{}).filter(([,v])=>v>0).map(([k,v])=>`${c.gold&&c.gold[k]?'◆ ':''}${k} ${v}`).join(' · '),k=c.mk||{c:0,m:0,s:0};
   return `<div class="mod"><h2>${esc(c.name||p.name)}</h2><p class="cnote">${esc(p.name)} · ${esc(c.role||'sem papel')}${c.spec?' / '+esc(c.spec):''}${c.pron?' · '+esc(c.pron):''}</p>${['style','trig','quest'].map((f,i)=>c[f]?`<p><b>${['Estilo','Estopim','Pergunta'][i]}:</b> ${esc(c[f])}</p>`:'').join('')}<p><b>Ações:</b> ${esc(ac)||'—'}</p><p><b>Impulsos:</b> ${rs(c).map(x=>`${x.d} ${x.cur}/${x.max} (resistência ${x.t-x.b}/${x.t})`).join(' · ')}</p><p><b>Marcas:</b> Corpo ${k.c}/3 · Mente ${k.m}/3 · Sangria ${k.s}/3</p><p><b>Cicatrizes:</b> ${(c.sc||[]).filter(Boolean).map(esc).join('; ')||'—'}</p><p><b>Equipamento:</b> ${eq.map(esc).join(', ')||'—'}</p><p><b>Relações:</b> ${(c.rel||[]).filter(Boolean).map(esc).join(' · ')||'—'}</p><h3 style="margin-top:12px;font-size:18px">Habilidades</h3>${ab.map(([n,t])=>`<p><b>${n}:</b> ${t}</p>`).join('')||'<p class="cnote">Nenhuma marcada.</p>'}<div class="row"><button class="btn" data-a="close">Fechar</button></div></div>`}
-const libH=()=>{const L=VT.lib,m=VT.music;return `<div class="pn"><h3>Imagens</h3><div class="bar2"><button class="btn" data-vt="addimg">Adicionar imagens</button><input id="vt-url" type="text" placeholder="…ou cole o link de uma imagem"><button class="btn" data-vt="urlimg">Adicionar link</button><button class="btn" data-vt="hide">Esconder cena</button></div><div class="tg">${L.imgs.map(i=>`<div class="tt ${VT.scene&&VT.scene.id===i.id?'on':''}" data-vt="show" data-id="${i.id}" title="Mostrar para todos"><img src="${esc(i.th)}" alt=""><span>${esc(i.title)}</span><button data-vt="delimg" data-id="${i.id}" aria-label="Remover">×</button></div>`).join('')||'<div class="cnote">Arraste imagens para esta página ou use o botão. Um clique na miniatura mostra a imagem para todos.</div>'}</div></div>
+const libH=()=>{const L=VT.lib,m=VT.music;return `<div class="pn"><h3>Imagens</h3>${VT.fb?'<p class="cnote">Tudo o que você adiciona aqui fica salvo na nuvem, junto com o código desta sala.</p>':''}${impH()}<div class="bar2"><button class="btn" data-vt="addimg">Adicionar imagens</button><input id="vt-url" type="text" placeholder="…ou cole o link de uma imagem"><button class="btn" data-vt="urlimg">Adicionar link</button><button class="btn" data-vt="hide">Esconder cena</button></div><div class="tg">${L.imgs.map(i=>`<div class="tt ${VT.scene&&VT.scene.id===i.id?'on':''}" data-vt="show" data-id="${i.id}" title="Mostrar para todos"><img src="${esc(i.th)}" alt=""><span>${esc(i.title)}</span><button data-vt="delimg" data-id="${i.id}" aria-label="Remover">×</button></div>`).join('')||'<div class="cnote">Arraste imagens para esta página ou use o botão. Um clique na miniatura mostra a imagem para todos.</div>'}</div></div>
 <div class="pn"><h3>Trilha sonora</h3><div class="bar2"><input id="vt-tl" type="text" placeholder="Link do YouTube ou de um áudio (.mp3)"><input id="vt-tt" type="text" placeholder="Nome (opcional)" style="max-width:170px"><button class="btn" data-vt="addtr">Adicionar</button><button class="btn" data-vt="addaud">Enviar arquivo de áudio</button><button class="btn" data-vt="stopm">Parar música</button></div>${L.tracks.map(t=>`<div class="tr ${m&&m.on&&m.tid===t.id?'on':''}"><button class="btn" data-vt="play" data-id="${t.id}" title="Tocar para todos">▶</button><span>${esc(t.title)}</span><small>${t.kind==='yt'?'YouTube':t.kind==='file'?'arquivo':'link'}</small><button data-vt="deltr" data-id="${t.id}" aria-label="Remover">×</button></div>`).join('')||'<div class="cnote">Nenhuma faixa ainda. Arquivos de áudio são enviados aos jogadores quando você toca (até '+(USE_FB?5:12)+' MB).</div>'}</div>`};
 const redo=()=>{const g=$('#vt-lib');if(g)g.innerHTML=libH()};
 function mestre(){return `<div class="wrap vt"><div class="hero"><h1>Mestre</h1><p>Crie a sala, acompanhe as fichas e conduza a cena com poucos cliques.</p></div><div class="pn" id="vt-room">${roomH()}</div><div class="pn"><h3>Jogadores <button class="btn" data-vt="clroff" style="font-size:12px;float:right" title="Remove da lista quem está offline">Limpar offline</button></h3><div class="pgrid" id="vt-pl">${plAll()}</div></div><div id="vt-lib">${libH()}</div></div>`}
@@ -885,6 +921,7 @@ document.addEventListener('click',e=>{if(e.target.closest('nav a')){const n=$('#
   case'clroff':Object.keys(VT.pl).forEach(k=>{if(!VT.pl[k].on)delete VT.pl[k]});if(VT.fb)fbRemoveOffline();who();break;
   case'zin':Z.s*=1.4;zap();break;case'zout':Z.s/=1.4;zap();break;case'zrst':zreset();break;
   case'fs':{const st=$('#stage');if(document.fullscreenElement)document.exitFullscreen();else if(st&&st.requestFullscreen)st.requestFullscreen().catch(()=>toast('Tela cheia indisponível neste navegador'));break}
+  case'libimp':case'pwset':case'pwsave':case'pwdel':case'gmacc':gmAct(a);break;
   case'bm':case'bc':case'bundo':case'bclr':case'btok':case'tokadd':case'npcadd':case'tokx':case'pmtoggle':case'tokph':case'tokpx':case'tokrc':bAct(a,id);break;
   case'host':host();break;case'join':join();break;case'leave':closeM();leave();break;
   case'reopen':host(id);break;
@@ -896,7 +933,7 @@ document.addEventListener('click',e=>{if(e.target.closest('nav a')){const n=$('#
   case'view':openM(viewH(id));break;
   case'addimg':$('#vt-img').click();break;
   case'urlimg':{const u=$('#vt-url').value.trim();if(!/^https?:\/\//.test(u))return toast('Cole um link de imagem que comece com http');L.imgs.push({id:uid(),title:(decodeURIComponent(u.split('/').pop().split('?')[0])||'Imagem').replace(/\.\w+$/,''),src:u,th:u});saveLib();redo();break}
-  case'show':{const i=L.imgs.find(x=>x.id===id);if(i){const s={id:i.id,src:i.src,title:i.title};setScene(s);bc({t:'scene',s});redo()}break}
+  case'show':showImg(id);break;
   case'hide':setScene(null);bc({t:'scene',s:null});redo();break;
   case'delimg':L.imgs=L.imgs.filter(x=>x.id!==id);if(VT.scene&&VT.scene.id===id){setScene(null);bc({t:'scene',s:null})}saveLib();redo();break;
   case'addtr':{const u=$('#vt-tl').value.trim(),n=$('#vt-tt').value.trim(),y=u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
@@ -905,11 +942,11 @@ document.addEventListener('click',e=>{if(e.target.closest('nav a')){const n=$('#
     else return toast('Cole um link do YouTube ou de um arquivo de áudio');saveLib();redo();break}
   case'addaud':$('#vt-aud').click();break;
   case'deltr':L.tracks=L.tracks.filter(x=>x.id!==id);saveLib();redo();break;
-  case'play':{const k=L.tracks.find(x=>x.id===id);if(!k)break;const m={kind:k.kind,title:k.title,on:true,id:k.src,src:k.src,buf:k.data,mime:k.mime,tid:k.id};applyMusic(m);bc({t:'music',m});if(k.kind==='file'&&VT.conns.length)toast('Enviando o áudio aos jogadores…');redo();break}
+  case'play':playTrack(id);break;
   case'stopm':{const m={on:false};applyMusic(m);bc({t:'music',m});redo();break}
   case'mute':VT.mute=!VT.mute;vol();mini();break;
   case'unblock':aud.play().then(()=>{VT.blocked=false;mini()}).catch(()=>{});break}});
-const small=(f,mx,q)=>new Promise(ok=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const sz=(m,q)=>{const k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)};const r={id:uid(),title:f.name.replace(/\.\w+$/,''),src:sz(1600,.82),th:sz(240,.7)};URL.revokeObjectURL(u);ok(r)};im.onerror=()=>{URL.revokeObjectURL(u);ok(null)};im.src=u});
+const small=(f,mx,q)=>new Promise(ok=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const sz=(m,q)=>{const k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)};const r={id:uid(),title:f.name.replace(/\.\w+$/,''),src:sz(1600,.82),th:sz(240,.7)};{let m=1600,q=.82;while(r.src.length>650000&&m>800){m-=300;q-=.06;r.src=sz(m,q)}}URL.revokeObjectURL(u);ok(r)};im.onerror=()=>{URL.revokeObjectURL(u);ok(null)};im.src=u});
 async function addFiles(files){let n=0;for(const f of files){if(f.type.startsWith('image/')){const r=await small(f);if(r){VT.lib.imgs.push(r);n++}}else if(f.type.startsWith('audio/')){if(f.size>(USE_FB?5e6:12e6)){toast('Áudio acima de '+(USE_FB?5:12)+' MB: use um link do YouTube ou comprima o arquivo');continue}VT.lib.tracks.push({id:uid(),kind:'file',title:f.name.replace(/\.\w+$/,''),data:await f.arrayBuffer(),mime:f.type});n++}}
   if(n){await saveLib();redo();toast(n+' item(ns) adicionado(s)')}}
 document.body.insertAdjacentHTML('beforeend','<input type="file" id="vt-img" accept="image/*" multiple hidden><input type="file" id="vt-aud" accept="audio/*" hidden><div id="vt-mini" hidden><button class="mn" data-vt="min" aria-label="Minimizar ou expandir o player">–</button><span class="t"></span><input type="range" min="0" max="100" aria-label="Volume"><button class="mu" data-vt="mute"></button><button class="go" data-vt="unblock" hidden>Ativar música</button><div id="vt-yt"></div></div>');
